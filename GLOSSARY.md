@@ -25,8 +25,16 @@ The required deliverable: the three Core Agents resolving at least two Dispute C
 _Avoid_: Prototype, v1
 
 **Stretch Goal**:
-An optional enhancement attempted only after the MVP works, earning bonus points: for example Escalation, Policy & Precedent, Image Analysis, or Property Damage.
+The challenge brief's term for an optional enhancement that earns bonus points once the MVP works. We are attempting all of them except Fraud and Bad-Faith Detection.
 _Avoid_: Extra, nice-to-have
+
+**Supporting Agent**:
+Any agent beyond the three Core Agents: the Evidence Agents, Policy & Precedent Agent, Image Analysis, Escalation Protocol, SLA & Routing Manager, and Learning Feedback Loop. Each can be switched off without breaking the Core Agents.
+_Avoid_: Subagent, optional agent, helper
+
+**Tier**:
+A layer of the build, delivered in order: Tier 0 is the MVP, and each later Tier adds Supporting Agents or Dispute Categories. A Tier must work end to end before the next one starts.
+_Avoid_: Phase, milestone, sprint
 
 **Communication Log**:
 The visible record of how agents exchange information during a Case, shown so judges can see evidence requests, Submissions, and the Ruling. It shows decisions and citations, not private model reasoning.
@@ -79,16 +87,36 @@ _Avoid_: Ride, booking
 ### Agents
 
 **Rider Advocate**:
-The agent that gathers evidence for, and argues the case of, the rider.
+The agent that argues the rider's case, citing evidence and policy. It stays the rider's advocate whether the rider is Claimant or Respondent.
 _Avoid_: Claimant agent
 
 **Driver Advocate**:
-The agent that gathers evidence for, and argues the case of, the driver.
+The agent that argues the driver's case, citing evidence and policy. It stays the driver's advocate whether the driver is Claimant or Respondent.
 _Avoid_: Respondent agent
 
 **Judge**:
-The impartial agent that weighs both submissions against policy and issues the ruling.
+The impartial agent that weighs both submissions against the evidence and policy and issues the ruling.
 _Avoid_: Arbitrator, adjudicator
+
+**Evidence Agent**:
+A Supporting Agent that collects and organises the evidence relevant to one party's position. There are two, the Rider Evidence Agent and the Driver Evidence Agent, and both read the same records.
+_Avoid_: Evidence Collection Agent, retriever
+
+**Policy & Precedent Agent**:
+The Supporting Agent that serves the applicable Policy Clauses and similar Precedents to both advocates and the Judge, from one shared source.
+_Avoid_: Policy agent for rider's side, policy agent for driver's side, knowledge base
+
+**Image Analysis**:
+The Supporting Agent that turns a submitted photo into evidence: what it shows, plus its Authenticity Checks.
+_Avoid_: Computer vision, photo agent
+
+**SLA & Routing Manager**:
+The Supporting Agent that assigns each Case its Priority and orders the human review queue by it.
+_Avoid_: Queue manager, router
+
+**Learning Feedback Loop**:
+The capability that turns a Human Reviewer's Override into a new Precedent, so later similar Cases see the correction.
+_Avoid_: Retraining, fine-tuning
 
 ### Evidence and policy
 
@@ -103,6 +131,18 @@ _Avoid_: Case (reserved for the whole record), brief
 **Policy Clause**:
 A single rule of company policy that a submission or ruling can cite.
 _Avoid_: Rule, guideline
+
+**Precedent**:
+A past Ruling on a similar Case, offered to the Judge for consistency. It is advisory: evidence and policy take priority over it.
+_Avoid_: Case law, history (reserved for a party's past behaviour)
+
+**Authenticity Check**:
+An assessment of whether a photo can be trusted as evidence: whether its timestamp aligns with the Trip, and whether it shows signs of AI generation. Its result is a signal with stated uncertainty, never proof.
+_Avoid_: Verification, fraud check
+
+**History**:
+A party's past behaviour on the platform: prior disputes, ratings, and account age. It is context for the Judge and never the sole grounds for a Ruling.
+_Avoid_: Profile, record, reputation
 
 ### Outcome
 
@@ -119,5 +159,21 @@ What each party is told after a ruling: the same ruling, worded for that party.
 _Avoid_: Notification, result
 
 **Escalation**:
-Referral of a case to a human reviewer instead of finalizing the ruling, because confidence was too low or a review trigger applied.
+Referral of a case to a Human Reviewer instead of finalizing the ruling, because confidence was too low or a Review Trigger applied.
 _Avoid_: Handoff
+
+**Review Trigger**:
+A condition that forces Escalation regardless of confidence, such as a Safety Incident or a photo that fails an Authenticity Check.
+_Avoid_: Flag, alert
+
+**Human Reviewer**:
+The person who confirms or overrides an escalated Ruling.
+_Avoid_: Support agent (ambiguous with our AI agents), moderator, admin
+
+**Override**:
+A Human Reviewer's decision to replace the Judge's proposed Ruling, recorded with a reason.
+_Avoid_: Correction, reversal
+
+**Priority**:
+The urgency assigned to a Case when it is filed, which decides its place in the human review queue. Safety Incidents get the highest.
+_Avoid_: Severity, SLA level

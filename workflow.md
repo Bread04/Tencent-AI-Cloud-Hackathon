@@ -6,23 +6,26 @@ This proposed workflow translates the whiteboard into an end-to-end operating pr
 
 ## 1. Scope and Delivery Priorities
 
-| Delivery level | Components |
-| --- | --- |
-| Required MVP | Rider Advocate Agent, Driver Advocate Agent, and Judge Agent; text and structured evidence; visible inter-agent communication; end-to-end resolution for at least two categories. |
-| Proposed MVP categories | Route deviation and no-show charges. |
-| Optional extensions from the whiteboard | Rider/driver evidence agents, policy agents, fraud detection, multimodal image analysis, SLA routing, and escalation. |
-| Additional extension from the guidelines | Learning feedback loop from human-reviewed decisions. |
+We are building every component below except the Fraud and Bad-Faith Detection Agent, which the team has dropped. Delivery is tiered: each tier must work end to end before the next starts, and if time runs out we stop at a tier boundary.
 
-For the MVP, evidence retrieval and policy lookup can be tools used directly by the three core agents. Separate supporting agents are optional. External APIs and payment actions may be simulated for the demo.
+| Tier | Components |
+| --- | --- |
+| 0, required MVP | Rider Advocate Agent, Driver Advocate Agent, and Judge Agent; text and structured evidence; visible inter-agent communication; end-to-end resolution for route deviation and no-show charges. |
+| 1 | Escalation protocol, Policy and Precedent Agent, Rider and Driver Evidence Agents. |
+| 2 | SLA and Routing Manager; safety incident category. |
+| 3 | Multimodal image analysis with authenticity checks; property damage category. |
+| 4 | Learning feedback loop from human-reviewed decisions. |
+| Not building | Fraud and Bad-Faith Detection Agent. |
+
+In Tier 0, evidence retrieval and policy lookup are tools used directly by the three core agents; the supporting agents wrap those tools from Tier 1. Every supporting agent sits behind a switch, so the core flow works with all of them off. External APIs and payment actions are simulated for the demo. Agent design is in [docs/architecture.md](docs/architecture.md); dates and ownership are in [docs/dev-guide.md](docs/dev-guide.md).
 
 ## 2. Required MVP Workflow
 
 ```mermaid
 flowchart TB
     subgraph INTAKE["1 · Submit and prepare"]
-        A(["Dispute submitted"]) --> B{"Case details complete?"}
-        B -->|No| C["Request missing details"]
-        C --> B
+        A(["Dispute submitted"]) --> B{"Valid trip and category?"}
+        B -->|No| C(["Reject with a clear error"])
         B -->|Yes| E["Prepare trip evidence<br/>and company policy"]
     end
 
@@ -61,7 +64,7 @@ flowchart TB
 | Step | Owner | Operation | Output |
 | --- | --- | --- | --- |
 | 1. Submit dispute | Rider or driver | Provide trip reference, dispute category, account identity, claim, and requested remedy. | A case ID linked to the trip. |
-| 2. Validate intake | Application | Check required details and trip association; request missing information. | A case ready for investigation, or awaiting information. |
+| 2. Validate intake | Application | Check the trip reference and dispute category. Invalid input is rejected with a clear error; there is no interactive request for missing details. | A case ready for investigation, or a rejection. |
 | 3. Gather evidence | Both advocate agents using evidence tools | Retrieve relevant GPS, timestamps, chat, fare records, and history. Label unavailable or conflicting evidence explicitly. | Traceable evidence records with source references. |
 | 4. Retrieve policy | Both advocate agents using policy tools | Identify applicable policy clauses from the same policy version. | Policy references shared with the Judge Agent. |
 | 5. Build cases | Rider and Driver Advocate Agents | Independently explain each party's position, relevant facts, counter-evidence, and requested outcome. | Two structured case submissions. |
@@ -71,9 +74,9 @@ flowchart TB
 
 The visible log should show evidence requests and responses, case submissions, policy references, and the Judge Agent's decision summary. It should expose how agents exchange information without requiring private model reasoning.
 
-## 3. Full Workflow With Optional Extensions
+## 3. Full Workflow With Supporting Agents
 
-The expanded workflow is split into two connected diagrams for readability. Purple boxes and dashed arrows identify optional capabilities. **Decision package** connects investigation to resolution. The core flow remains usable when optional capabilities are disabled.
+The expanded workflow is split into two connected diagrams for readability. Purple boxes and dashed arrows identify supporting agents, each behind a switch (Tiers 1 to 4). **Decision package** connects investigation to resolution. The core flow remains usable when every supporting agent is switched off.
 
 ### A. Investigation and Case Building
 
@@ -82,24 +85,22 @@ flowchart TB
     A(["Validated dispute"]) --> E["Shared evidence and policy access"]
     A -.-> S["SLA and Routing Manager<br/>Set urgency and queue priority"]
 
-    subgraph SUPPORT["Optional analysis and knowledge support"]
+    subgraph SUPPORT["Analysis and knowledge support"]
         I["Image Analysis<br/>Authenticity and trip-time checks"]
-        F["Fraud Detection<br/>Abuse and collusion signals"]
         P["Policy and Precedent Agent<br/>Shared policy source"]
     end
 
     I -.-> E
-    F -.-> E
     P -.-> E
 
     subgraph RIDER["Rider case"]
-        ER["Rider Evidence Agent<br/>Optional retrieval support"]
+        ER["Rider Evidence Agent<br/>Retrieval support"]
         R["Rider Advocate Agent<br/>Build and present claim"]
         ER -.-> R
     end
 
     subgraph DRIVER["Driver case"]
-        ED["Driver Evidence Agent<br/>Optional retrieval support"]
+        ED["Driver Evidence Agent<br/>Retrieval support"]
         D["Driver Advocate Agent<br/>Build and present defence"]
         ED -.-> D
     end
@@ -108,7 +109,7 @@ flowchart TB
     E --> D
     E -.-> ER
     E -.-> ED
-    R --> X["Decision package<br/>Both cases · evidence · policy · risk signals"]
+    R --> X["Decision package<br/>Both cases · evidence · policy · precedent"]
     D --> X
     X --> NEXT(["Continue to resolution"])
 
@@ -116,11 +117,11 @@ flowchart TB
     classDef optional fill:#f3e8ff,stroke:#9333ea,color:#581c87,stroke-dasharray:5 5
     classDef handoff fill:#dcfce7,stroke:#16a34a,color:#14532d
     class R,D agent
-    class S,I,F,P,ER,ED optional
+    class S,I,P,ER,ED optional
     class A,X,NEXT handoff
 ```
 
-Optional analysis uses the case's available evidence. Its findings return to the shared evidence access point so both advocates and the Judge can inspect the same material. SLA priority follows the case into the review queue.
+Supporting analysis uses the case's available evidence. Its findings return to the shared evidence access point so both advocates and the Judge can inspect the same material. Evidence is sealed before cases are built, so everyone argues from the same set of facts. SLA priority follows the case into the review queue.
 
 ### B. Ruling, Escalation, and Closure
 
@@ -133,7 +134,7 @@ flowchart TB
     G -->|No| O["Finalize ruling"]
     G -->|Yes| H["Escalation Protocol<br/>Assemble review package"]
 
-    subgraph REVIEW["Optional human review"]
+    subgraph REVIEW["Human review"]
         H --> Q["Priority review queue"]
         Q --> U["Human reviewer<br/>Confirm or override"]
     end
@@ -166,14 +167,13 @@ Review is required when confidence falls below the configured threshold or anoth
 | Driver Evidence Agent | Collects and organizes evidence relevant to the driver's defence or claim. | Driver Advocate Agent. |
 | Policy support | Retrieves relevant clauses and precedent for each side, using one shared policy source and version. | Both advocates and the Judge Agent. |
 | Image Analysis | Examines submitted photos for authenticity indicators, possible AI generation, and alignment with trip timestamps. Reports uncertainty. | Evidence agents and Judge Agent. |
-| Fraud and Bad-Faith Detection Agent | Checks for repeated claims, contradictions with GPS, unusual dispute patterns, and possible account collusion. | Judge Agent receives risk signals and supporting evidence. |
 | SLA and Routing Manager | Sets priority at intake and manages review-queue urgency, including safety incidents. | Application and human review queue. |
 | Escalation protocol | Packages both cases, evidence, policy references, proposed ruling, and reason for review. | Human reviewer. |
 | Learning Feedback Loop | Captures reviewed corrections and human overrides for controlled knowledge-base updates. | Policy and Precedent Agent. |
 
 **Design clarification:** The whiteboard shows policy agents for each side and both sides. These can be implemented as different retrieval roles over one shared policy knowledge base, ensuring consistent policy application. SLA routing begins at intake and continues through escalation and delivery, expanding its placement after the ruling in the sketch.
 
-Fraud indicators and account history provide context; they should not independently determine fault. Both advocates should be able to address material evidence used by the Judge Agent. Image-authenticity findings are signals with uncertainty, rather than proof on their own.
+The whiteboard also shows a Fraud and Bad-Faith Detection Agent; the team is not building it. Account history provides context only; it must not independently determine fault. Both advocates should be able to address material evidence used by the Judge Agent. Image-authenticity findings are signals with uncertainty, rather than proof on their own.
 
 ## 4. Evidence Flow
 
@@ -182,8 +182,8 @@ Fraud indicators and account history provide context; they should not independen
 | GPS and telemetry | Actual versus optimal route distance, unexpected stops, estimated versus actual duration, and pickup location. | Assess a route-deviation claim or whether the driver reached the pickup point. |
 | Chat and communication logs | Agreements, route requests, arrival messages, disagreements, sentiment, and threats. | Determine whether a detour was requested or whether arrival was communicated. |
 | Payment and fare data | Fare breakdown, cancellation fees, surge pricing, and promo usage. | Confirm the disputed amount and calculate a policy-supported remedy. |
-| Historical behaviour profiles | Prior disputes, ratings, account age, and repeated patterns. | Add context or identify optional fraud-review signals. |
-| Photos, optional | Damage or mess, authenticity indicators, and trip-timestamp alignment. | Assess a property-damage or cleaning-fee claim. |
+| Historical behaviour profiles | Prior disputes, ratings, account age, and repeated patterns. | Add context for the Judge. Never the sole grounds for a ruling. |
+| Photos (Tier 3) | Damage or mess, authenticity indicators, and trip-timestamp alignment. | Assess a property-damage or cleaning-fee claim. |
 
 Each evidence item should carry an ID, source, trip association, available timestamp, and retrieval status. Missing evidence must remain marked as missing; agents must not substitute assumptions for records.
 
@@ -198,9 +198,9 @@ The Judge Agent produces:
 - **Reasoning summary:** why the decision follows from the evidence and how competing claims were assessed.
 - **Confidence score:** a defined score reflecting evidence completeness, consistency, and policy fit.
 
-The confidence scale and any escalation threshold are implementation choices to be configured and validated; the guidelines do not prescribe a numeric threshold.
+The Judge explicitly accepts or rejects each side's material arguments with a reason; the advocates do not rebut each other in a separate round. The confidence scale and escalation threshold are implementation choices; the proposal (a 0 to 1 score with a default threshold of 0.7) is in [docs/architecture.md](docs/architecture.md) and is confirmed in the contract session. The guidelines do not prescribe a numeric threshold.
 
-With optional escalation enabled, low confidence or a configured review trigger sends the proposed decision to a human reviewer before finalization. The system tells both parties that review is pending. A human override is recorded with a reason and can feed the optional learning loop.
+With escalation switched on, low confidence or a configured review trigger (for example a safety incident, or a photo that fails authenticity checks) sends the proposed decision to a human reviewer before finalization. The system tells both parties that review is pending. A human override is recorded with a reason and feeds the learning loop as new precedent.
 
 For the hackathon, financial actions can be mocked. The interface should distinguish a recommended refund from one that has actually been executed. If an action fails, retain its pending or failed status and resolve the failure before marking the case complete.
 
@@ -224,22 +224,79 @@ For the hackathon, financial actions can be mocked. The interface should disting
 5. The Judge applies the supplied cancellation policy and determines whether the fee should stand or be reversed.
 6. Both parties receive the outcome and explanation; any reversal is executed or simulated and recorded.
 
+### C. Safety Incident (Tier 2)
+
+1. The rider submits: "The driver behaved inappropriately during the trip."
+2. The SLA and Routing Manager gives the case top priority.
+3. Both advocates build their cases from chat, trip records, and any statement.
+4. The Judge issues a proposed ruling. Because the category is a safety incident, it is always escalated.
+5. The human reviewer sees the case at the front of the review queue with the full review package, and confirms or overrides.
+
+### D. Property Damage (Tier 3)
+
+1. The driver submits a cleaning-fee claim with photos: "The rider spilled drinks in the car."
+2. Image Analysis reports what each photo shows, whether its timestamp aligns with the trip, and any sign of AI generation, each with stated uncertainty.
+3. Both advocates build their cases; the rider is now the respondent.
+4. The Judge weighs the photo findings as signals. A photo that fails authenticity checks lowers confidence and triggers review; it never decides the case alone.
+5. Both parties receive the outcome, or are told that review is pending.
+
 Policy rules, waiting periods, and compensation formulas must come from provided or explicitly labelled mock policies. They are not defined by the challenge brief.
 
-## 7. Demo Day Completion Checklist
+## 7. To-Do and Demo Day Checklist
+
+Work top to bottom. Do not start a tier until the one above it is fully ticked. Owners and dates are in [docs/dev-guide.md](docs/dev-guide.md).
+
+### Before building
+
+- [ ] Log in to the GitHub CLI and publish the spec and tickets as issues.
+- [ ] Hold the contract session: fix the contract objects, confidence model, escalation triggers, and switches.
+- [ ] Confirm the model provider, including a model that accepts images for Tier 3.
+- [ ] Write the mock policy with clause IDs, resolving the free-wait versus no-show threshold ambiguity.
+
+### Tier 0: required MVP (target Sat 10 Oct)
+
+- [ ] Model adapter with an offline stub.
+- [ ] Evidence tools: GPS and route comparison, chat, fare, history.
+- [ ] Mock cases for route deviation and no-show: claimant wins, respondent wins, and one ambiguous, each with a separate evaluation label.
+- [ ] Rider Advocate and Driver Advocate produce independent submissions.
+- [ ] Judge issues a ruling with per-argument assessment, cited evidence and clauses, amount, and confidence.
+- [ ] Orchestrator runs a dispute end to end and writes the communication log.
+- [ ] Web UI: dispute selector, live log, ruling card, rider and driver outcome views.
+- [ ] Simulated data, policies, and financial actions are labelled on screen.
+
+### Tier 1 (target Sun 11 Oct)
+
+- [ ] Escalation protocol: triggers, review package, review queue, reviewer screen, "review pending" outcome.
+- [ ] Policy and Precedent Agent with a seeded store of past rulings.
+- [ ] Rider and Driver Evidence Agents wrapping the evidence tools.
+- [ ] Judge stability check with submission order swapped.
+
+### Tier 2 (target Mon 12 Oct)
+
+- [ ] SLA and Routing Manager sets priority and orders the review queue.
+- [ ] Safety incident mock cases; safety incidents always escalate.
+
+### Tier 3 (target Tue 13 Oct)
+
+- [ ] Image Analysis: photo description, trip-timestamp alignment, AI-generation signal, each with uncertainty.
+- [ ] Property damage mock cases with photos, including one that fails authenticity checks.
+- [ ] Photo upload and photo findings in the UI.
+
+### Tier 4 (only if ahead of schedule)
+
+- [ ] Learning feedback loop: a human override becomes precedent that a later similar case sees.
+
+### Demo Day
 
 - [ ] Identify the Ryde dispute-resolution case study at the start of the presentation.
-- [ ] Demonstrate the three required agents working end to end.
-- [ ] Resolve both route-deviation and no-show cases using text and structured evidence.
-- [ ] Show a visible log of agent communication, evidence references, and case submissions.
-- [ ] Display the final ruling, recommended action, reasoning summary, and confidence score.
-- [ ] Communicate the outcome to both rider and driver views.
-- [ ] Clearly label simulated data, policies, APIs, and financial actions.
-- [ ] Use the diagrams above to explain the architecture and operating flow.
+- [ ] Demonstrate the three required agents working end to end, with supporting agents switched off and then on.
+- [ ] Show one case ruled for the claimant and one for the respondent.
+- [ ] Use the diagrams to explain the architecture and operating flow.
+- [ ] Rehearse the walkthrough end to end twice.
 - [ ] Provide a working prototype, live walkthrough, and complete source code in GitHub.
-- [ ] Add stretch capabilities after the MVP is functional.
 
 ## Sources
 
 - [Project guidelines](README.md): required agents, evidence sources, deliverables, and optional enhancements.
-- [Whiteboard](Untitled%20Whiteboard%20%282%29.pdf): rider/driver evidence and policy support, image analysis, fraud detection, judging, routing, escalation, and outcome communication.
+- [Whiteboard](Untitled%20Whiteboard%20%282%29.pdf): rider/driver evidence and policy support, image analysis, fraud detection (not being built), judging, routing, escalation, and outcome communication.
+- [Spec](docs/spec.md), [architecture](docs/architecture.md), [dev guide](docs/dev-guide.md), and [glossary](GLOSSARY.md): behaviour, agent design, ownership and dates, and vocabulary.
