@@ -1,5 +1,7 @@
 # Tencent AI Cloud Hackathon
 
+We are working on the Digital Native Track.
+
 ## The Digital Native Track — Ryde
 
 **Challenge: Multi-Agent Autonomous Dispute Resolution System**
