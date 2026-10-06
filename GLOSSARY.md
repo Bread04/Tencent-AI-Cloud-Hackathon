@@ -2,7 +2,43 @@
 
 Autonomous resolution of rider-driver disputes on a ride-hailing platform: agents gather evidence, argue each side, apply company policy, and issue a fair, explained ruling.
 
+This is our entry in the Tencent Cloud AI Agent Hackathon (Singapore, 2026), Digital Native Track. The challenge is set by Ryde, a Singapore ride-hailing platform whose support teams resolve thousands of disputes a day by hand, slowly and inconsistently. We are building the working prototype, an architecture diagram, and a live demo, with a deadline of 15 October 2026.
+
 ## Language
+
+### Hackathon
+
+**Ryde**:
+The Singapore ride-hailing and carpooling company that set the challenge and whose dispute process we are automating.
+_Avoid_: The client, the platform (when meaning the company)
+
+**Digital Native Track**:
+The hackathon track whose single case study is Ryde's multi-agent dispute resolution challenge.
+_Avoid_: The competition
+
+**Core Agent**:
+One of the three required agents (Rider Advocate, Driver Advocate, Judge) that the MVP must deliver, working on text and structured evidence.
+_Avoid_: Main agent
+
+**MVP**:
+The required deliverable: the three Core Agents resolving at least two Dispute Categories end to end, with a visible Communication Log. Ours are Route Deviation and No-Show Charge.
+_Avoid_: Prototype, v1
+
+**Stretch Goal**:
+An optional enhancement attempted only after the MVP works, earning bonus points: for example Escalation, Policy & Precedent, Image Analysis, or Property Damage.
+_Avoid_: Extra, nice-to-have
+
+**Communication Log**:
+The visible record of how agents exchange information during a Case, shown so judges can see evidence requests, Submissions, and the Ruling. It shows decisions and citations, not private model reasoning.
+_Avoid_: Trace, transcript
+
+**Mock Data**:
+Simulated trips, evidence, policies, and payment actions standing in for Ryde's real systems, always labelled as simulated when shown.
+_Avoid_: Fake data, dummy data
+
+**Demo Day**:
+The live walkthrough where we show a dispute processed and resolved autonomously, after identifying the Ryde case study.
+_Avoid_: Presentation, pitch
 
 ### Parties and roles
 
