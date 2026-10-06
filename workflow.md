@@ -18,28 +18,43 @@ For the MVP, evidence retrieval and policy lookup can be tools used directly by 
 ## 2. Required MVP Workflow
 
 ```mermaid
-flowchart TD
-    A["Rider or driver submits dispute"] --> B["Create case: trip, category, claim, requested remedy"]
-    B --> C{"Required case details available?"}
-    C -->|No| D["Request missing details"]
-    D --> B
-    C -->|Yes| E["Make trip evidence and applicable policy available"]
+flowchart TB
+    subgraph INTAKE["1 · Submit and prepare"]
+        A(["Dispute submitted"]) --> B{"Case details complete?"}
+        B -->|No| C["Request missing details"]
+        C --> B
+        B -->|Yes| E["Prepare trip evidence<br/>and company policy"]
+    end
 
-    E --> R["Rider Advocate Agent gathers evidence and builds rider case"]
-    E --> V["Driver Advocate Agent gathers evidence and builds driver case"]
-    R --> P["Present both cases with evidence IDs and policy references"]
-    V --> P
-    P --> J["Judge Agent compares evidence and applies policy"]
-    J --> O["Ruling, recommended action, reasoning, confidence score"]
-    O --> N["Notify rider and driver"]
-    N --> Z["Record outcome and close case"]
+    subgraph CASES["2 · Build both cases"]
+        R["Rider Advocate<br/>Evidence · claim · policy"]
+        D["Driver Advocate<br/>Evidence · defence · policy"]
+        P["Case submissions<br/>Evidence IDs and policy references"]
+        R --> P
+        D --> P
+    end
 
-    R -.-> L["Visible communication log"]
-    V -.-> L
-    P -.-> L
-    J -.-> L
-    O -.-> L
+    subgraph DECISION["3 · Decide and communicate"]
+        J["Judge Agent<br/>Compare cases and apply policy"]
+        O["Ruling and recommended action<br/>Explanation and confidence score"]
+        N["Notify rider and driver"]
+        Z(["Record outcome and close case"])
+        J --> O --> N --> Z
+    end
+
+    E --> R
+    E --> D
+    P --> J
+
+    classDef agent fill:#dbeafe,stroke:#2563eb,color:#172554
+    classDef decision fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef outcome fill:#dcfce7,stroke:#16a34a,color:#14532d
+    class R,D,J agent
+    class B decision
+    class A,O,Z outcome
 ```
+
+**Throughout the process:** a visible communication log records evidence requests, agent exchanges, policy references, case submissions, and decision summaries.
 
 ### Operational Steps
 
@@ -58,59 +73,90 @@ The visible log should show evidence requests and responses, case submissions, p
 
 ## 3. Full Workflow With Optional Extensions
 
-Dashed connections and the optional subgraph represent stretch capabilities. The core flow remains usable when these capabilities are disabled.
+The expanded workflow is split into two connected diagrams for readability. Purple boxes and dashed arrows identify optional capabilities. **Decision package** connects investigation to resolution. The core flow remains usable when optional capabilities are disabled.
+
+### A. Investigation and Case Building
 
 ```mermaid
-flowchart TD
-    A["Rider or driver input"] --> B["Validate dispute and create case"]
-    B --> C["Prepare evidence and policy access"]
-    C --> R["Rider Advocate Agent"]
-    C --> D["Driver Advocate Agent"]
-    R --> X["Both cases: claims, evidence, policy citations"]
-    D --> X
-    X --> J["Judge Agent"]
-    J --> K["Proposed ruling, action, explanation, confidence"]
-    K --> G{"Optional escalation enabled?"}
-    G -->|No| O["Finalize ruling"]
-    G -->|Yes| T{"Confidence sufficient and no review trigger?"}
-    T -->|Yes| O
-    T -->|No| H["Escalation protocol: assemble review package"]
-    H --> Q["Human review queue"]
-    Q --> U["Human reviewer confirms or overrides decision"]
-    U --> O
-    O --> W["Execute or simulate approved action; record status"]
-    W --> N["Notify both parties with final outcome"]
-    N --> Z["Close case and preserve audit record"]
+flowchart TB
+    A(["Validated dispute"]) --> E["Shared evidence and policy access"]
+    A -.-> S["SLA and Routing Manager<br/>Set urgency and queue priority"]
 
-    subgraph EXT["Optional supporting capabilities"]
-        S["SLA and Routing Manager: urgency and queue priority"]
-        ER["Rider Evidence Agent"]
-        ED["Driver Evidence Agent"]
-        P["Policy and Precedent Agent: shared policy knowledge base"]
-        I["Image Analysis: authenticity, AI-generation indicators, trip-time alignment"]
-        F["Fraud and Bad-Faith Detection Agent"]
-        FB["Learning Feedback Loop: human overrides and reviewed corrections"]
+    subgraph SUPPORT["Optional analysis and knowledge support"]
+        I["Image Analysis<br/>Authenticity and trip-time checks"]
+        F["Fraud Detection<br/>Abuse and collusion signals"]
+        P["Policy and Precedent Agent<br/>Shared policy source"]
     end
 
-    B -.-> S
-    S -.-> C
-    C -.-> ER
-    C -.-> ED
-    ER -.-> R
-    ED -.-> D
-    P -.-> R
-    P -.-> D
-    P -.-> J
-    C -.-> I
-    I -.-> ER
-    I -.-> ED
-    I -.-> J
-    C -.-> F
-    F -.-> J
-    S -.-> Q
-    U -.-> FB
-    FB -.-> P
+    I -.-> E
+    F -.-> E
+    P -.-> E
+
+    subgraph RIDER["Rider case"]
+        ER["Rider Evidence Agent<br/>Optional retrieval support"]
+        R["Rider Advocate Agent<br/>Build and present claim"]
+        ER -.-> R
+    end
+
+    subgraph DRIVER["Driver case"]
+        ED["Driver Evidence Agent<br/>Optional retrieval support"]
+        D["Driver Advocate Agent<br/>Build and present defence"]
+        ED -.-> D
+    end
+
+    E --> R
+    E --> D
+    E -.-> ER
+    E -.-> ED
+    R --> X["Decision package<br/>Both cases · evidence · policy · risk signals"]
+    D --> X
+    X --> NEXT(["Continue to resolution"])
+
+    classDef agent fill:#dbeafe,stroke:#2563eb,color:#172554
+    classDef optional fill:#f3e8ff,stroke:#9333ea,color:#581c87,stroke-dasharray:5 5
+    classDef handoff fill:#dcfce7,stroke:#16a34a,color:#14532d
+    class R,D agent
+    class S,I,F,P,ER,ED optional
+    class A,X,NEXT handoff
 ```
+
+Optional analysis uses the case's available evidence. Its findings return to the shared evidence access point so both advocates and the Judge can inspect the same material. SLA priority follows the case into the review queue.
+
+### B. Ruling, Escalation, and Closure
+
+```mermaid
+flowchart TB
+    A(["Decision package"]) --> J["Judge Agent<br/>Weigh both cases and apply policy"]
+    J --> K["Proposed ruling<br/>Action · explanation · confidence"]
+    K --> G{"Escalation enabled<br/>and review required?"}
+
+    G -->|No| O["Finalize ruling"]
+    G -->|Yes| H["Escalation Protocol<br/>Assemble review package"]
+
+    subgraph REVIEW["Optional human review"]
+        H --> Q["Priority review queue"]
+        Q --> U["Human reviewer<br/>Confirm or override"]
+    end
+
+    U --> O
+    O --> W["Execute or simulate action<br/>Record execution status"]
+    W --> N["Notify rider and driver<br/>Final outcome and explanation"]
+    N --> Z(["Close case and preserve audit record"])
+
+    U -.-> FB["Learning Feedback Loop<br/>Capture reviewed corrections"]
+    FB -.-> P["Policy and Precedent Agent<br/>Update knowledge for future cases"]
+
+    classDef agent fill:#dbeafe,stroke:#2563eb,color:#172554
+    classDef optional fill:#f3e8ff,stroke:#9333ea,color:#581c87,stroke-dasharray:5 5
+    classDef decision fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef outcome fill:#dcfce7,stroke:#16a34a,color:#14532d
+    class J agent
+    class H,Q,U,FB,P optional
+    class G decision
+    class A,O,Z outcome
+```
+
+Review is required when confidence falls below the configured threshold or another configured review trigger applies. Pending reviews are communicated to both parties. Action failures remain pending or failed until resolved; closure follows successful completion or a recorded no-action outcome.
 
 ### How the Whiteboard Components Fit Together
 
