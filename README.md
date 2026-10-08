@@ -2,6 +2,8 @@
 
 We are working on the Digital Native Track.
 
+**Interactive prototype:** [Open the Waypoint ride-hailing experience](prototypes/index.html). It includes a sample ride planner, a switchable rider/driver trip scene, recent trip records and an optional dispute report form. Bookings and driver interactions are simulated.
+
 ## The Digital Native Track — Ryde
 
 **Challenge: Multi-Agent Autonomous Dispute Resolution System**

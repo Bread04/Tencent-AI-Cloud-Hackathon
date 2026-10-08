@@ -23,7 +23,7 @@
   function invalidate() { bundle = null; el('evidenceResults').hidden = true; el('collectionNotice').textContent = 'No evidence collected yet. Run the agent to inspect the records.'; }
   function render() {
     const rider = data.rider(riderId), trips = data.trips(riderId), trip = data.trip(riderId, tripId);
-    el('greeting').textContent = `Hello, ${rider.name.split(' ')[0]}.`; el('avatar').textContent = rider.initials;
+    el('greeting').textContent = rider.name.split(' ')[0]; el('avatar').textContent = rider.initials;
     el('riderSelect').value = riderId; el('tripCount').textContent = trips.length;
     el('tripList').replaceChildren();
     trips.forEach(t => {

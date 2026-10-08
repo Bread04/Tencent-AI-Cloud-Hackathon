@@ -1,8 +1,15 @@
-# Waypoint rider app and Rider Evidence Agent prototype
+# Waypoint ride-hailing and Rider Evidence Agent prototype
 
-Open `index.html` in a browser, or serve the project's `prototypes` folder locally and open `/ryde-app/`. Waypoint uses a shared charcoal, white and blue design with the report form, inspired by Meuze's editorial style. The original route logo and Pip mascot are editable SVG assets. It is an independent simulated interface, not an official Ryde app or integration.
+Start at `prototypes/index.html`. The app is at `/ryde-app/`, with ride planning first, recent trips below and optional support at `/ryde-report/`. Waypoint uses a charcoal, white and blue editorial visual style with a locally hosted rounded font, custom route logo and Pip mascot. Ride requests, driver matches, fare estimates and 3D trips are simulations. No real ride is booked and there is no official Ryde integration.
 
-## Try the complete flow
+## Ride hailing experience
+
+1. Choose a pickup, drop-off and ride type. The estimated fare and journey time adjust to the selected route.
+2. Choose **Find my ride** for a clearly labelled sample driver match.
+3. Choose **Follow the pickup** to open the CSS 3D trip scene, where you can watch the car approach, pause, scrub the route, jump between trip moments, and switch rider/driver viewpoints.
+4. Scroll through the landing page to see the trip, conversation and support scenes reveal as they enter view. Reduced-motion preferences and keyboard navigation are supported.
+
+## Optional support and evidence flow
 
 1. Select Michael Wong's cancelled DISP-002 trip, or his invented route-deviation trip.
 2. Inspect Overview, Receipt, and Messages.
@@ -24,10 +31,13 @@ Open `index.html` in a browser, or serve the project's `prototypes` folder local
 
 ## Files
 
-- `index.html`, `styles.css`, `app.js`: rider interface and base layout.
+- `index.html`, `styles.css`, `app.js`, `ride-booking.js`: booking screen and local ride-request simulation.
+- `../index.html`: scroll-led Waypoint landing page.
 - `../shared/waypoint.css`: active shared design for every screen in both prototypes.
 - `../shared/waypoint-mark.svg`, `../shared/pip.svg`: original logo and mascot.
 - `../shared/waypoint-route.svg`, `../shared/waypoint-car.svg`: route and vehicle illustrations.
+- `../shared/experience.css`, `../shared/experience.js`: scroll reveals, app introduction and ride request styling.
+- `../shared/journey.css`, `../shared/journey.js`: independent 3D trip simulation.
 - `../shared/BRAND.md`: identity, colours and asset usage.
 - Earlier `redesign.css`, `theme.css` and `editorial.css` files are retained as design history and are not loaded by either page.
 - `data.js`: scoped simulated app records.
@@ -35,4 +45,4 @@ Open `index.html` in a browser, or serve the project's `prototypes` folder local
 - `session-store.js`: optional report session storage.
 - `report-bridge.js`: selected-trip prefill and explicit save action in `../ryde-report/index.html`.
 
-The project workflow, shared Python contracts and production application are not modified by this prototype. This is not a completed Rider Advocate or Judge implementation.
+The booking preview, fares, driver, route animation and messages are all local simulations; requesting a ride does not create a booking. The 3D scene is illustrative rather than live GPS or a data source for the Rider Evidence Agent. The project workflow, shared Python contracts and production application are not modified by this prototype. This is not a completed Rider Advocate or Judge implementation.

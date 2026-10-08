@@ -2,7 +2,7 @@
 
 **A clearer way forward.**
 
-Waypoint is the prototype's user-facing identity. Ryde remains the source of the simulated trip scenario; no live integration is implied. Existing folder paths and data contracts are retained so report links and evidence collection continue to work.
+Waypoint is an independent ride-hailing experience prototype. Ride planning is the main task; trip history and receipts follow the booking area, and filing a report is optional support. Ryde remains the source of the sample dispute and rider trip records; no live integration is implied. The 3D trip scene uses invented locations and conversation, separate from the rider evidence collector.
 
 ## Visual identity
 
@@ -25,6 +25,8 @@ Use locally hosted Nunito for headings, interface text and reference labels, wit
 - `pip.svg`: Pip, a small compass-guide mascot. Used for friendly guidance, not as a claim of live chat or human support.
 - `waypoint-route.svg`: decorative schematic city route. It is not GPS evidence or an actual trip map.
 - `waypoint-car.svg`: decorative trip icon.
+- `journey.js` / `journey.css`: switchable, playable CSS 3D journey scene; rider and driver views, route scrubbing and stage jumps.
+- `experience.js` / `experience.css`: scroll reveals and ride-hailing entry flow.
 - `waypoint.css`: the active shared styling for trip overview, receipts, messages, evidence collection, form details, uploads, review and completion.
 
 All assets work locally without an external image service. Decorative images use empty alternative text; standalone Pip portraits have descriptive alternative text. Reduced-motion preferences are respected.
