@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 260" fill="none">
+<title>Pip, the Waypoint route guide</title>
+<ellipse cx="121" cy="235" rx="67" ry="9" fill="#0C111A" opacity=".15"/>
+<path d="M85 208 78 229h28l8-21M140 208l5 21h27l-11-23" fill="#232C3E" stroke="#96ABEC" stroke-width="2"/>
+<path d="m55 130-19 30 14 13 21-20M185 123l19-19 14 14-24 37" fill="#315CF5" stroke="#A7B9FF" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="212" cy="105" r="15" fill="#E8EEFF" stroke="#253047" stroke-width="2"/>
+<path d="m207 105 4 4 7-9" stroke="#315CF5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M64 104c0-29 24-52 56-52s56 23 56 52v59c0 25-20 46-45 46h-22c-25 0-45-21-45-46v-59Z" fill="#315CF5" stroke="#A7B9FF" stroke-width="2"/>
+<path d="M71 110c0-26 19-44 49-44s49 18 49 44" stroke="#95ADFF" stroke-width="1.5"/>
+<path d="M89 88h62c10 0 18 8 18 18v27c0 10-8 18-18 18H89c-10 0-18-8-18-18v-27c0-10 8-18 18-18Z" fill="#101721" stroke="#B8C8FF" stroke-width="2"/>
+<path d="M100 111v11m40-11v11" stroke="#EFF4FF" stroke-width="6" stroke-linecap="round"/>
+<path d="M113 133q7 6 14 0" stroke="#98B0FF" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M120 52V37" stroke="#CBD7FF" stroke-width="3"/><circle cx="120" cy="30" r="7" fill="#AFC3FF" stroke="#315CF5" stroke-width="2"/>
+<circle cx="120" cy="178" r="16" fill="#EAF0FF"/><path d="m125 168-2 12-9 7 2-12 9-7Z" fill="#315CF5"/><path d="m120 177 3 3-9 7 6-10Z" fill="#8DA7FA"/>
+<path d="M83 170v8m74-8v8" stroke="#A7B9FF" stroke-width="2" stroke-linecap="round"/>
+</svg>

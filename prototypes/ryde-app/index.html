@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Your trips · Waypoint</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="../shared/waypoint.css"><link rel="icon" type="image/svg+xml" href="../shared/waypoint-mark.svg"></head>
+<body class="rider-app">
+<header class="app-header"><a class="brand" href="index.html"><img src="../shared/waypoint-mark.svg" alt="" width="36" height="36">Waypoint</a><nav class="shared-nav" aria-label="Main navigation"><a href="index.html" aria-current="page">My trips</a><a href="../ryde-report/index.html">Get help</a></nav><span class="prototype">Rider app · Simulated</span><div class="account"><span id="avatar" class="avatar">MW</span><label for="riderSelect">Demo account<select id="riderSelect"></select></label></div></header>
+<main>
+  <section class="welcome story-hero" aria-labelledby="greeting"><div class="hero-copy"><p class="eyebrow">01 / The journey, from your side</p><h1 id="greeting">Hello, Michael.</h1><p class="muted">Your trips. Your details. A clearer way forward.<br>Find everything you need, all in one place.</p><a class="hero-cta" href="../ryde-report/index.html">Get help with a trip <span aria-hidden="true">↗</span></a></div><div class="hero-art" aria-hidden="true"><span class="art-caption">A clearer way forward</span><img src="../shared/pip.svg" alt=""></div></section>
+  <div class="work-heading"><h2>Your journey, on record.</h2><p class="eyebrow">Rider workspace / Demo</p></div>
+  <div id="appError" class="notice error" role="alert" hidden></div>
+  <div class="workspace">
+    <aside class="trip-column"><div class="section-title"><h2>Your trips</h2><span id="tripCount" class="count"></span></div><div id="tripList" class="trip-list" aria-label="Choose a trip"></div><div class="side-note"><img class="guide-portrait" src="../shared/pip.svg" alt="Pip, the Waypoint route guide"><span class="guide-label">Meet Pip / Your route guide</span><h3>A little clarity.<br>A better next step.</h3><p>Start with a trip. Check the details, add your account, and keep everything together.</p><p class="small">All accounts, journeys and payments in this prototype are simulated.</p></div></aside>
+    <section class="trip-panel" aria-labelledby="tripTitle">
+      <div class="journey-head"><div><p id="tripMeta" class="eyebrow"></p><h2 id="tripTitle"></h2><p id="tripId" class="small muted"></p></div><span id="tripStatus" class="status"></span></div>
+      <div class="route-banner"><div class="route-points"><div><span class="route-dot"></span><p class="small muted">Pickup</p><h3 id="pickup"></h3></div><div><span class="route-dot destination"></span><p class="small muted">Destination</p><h3 id="destination"></h3></div></div><div class="fare"><span class="small muted">Amount charged</span><strong id="fare"></strong><span class="small muted">Simulated payment</span></div></div>
+      <nav class="tabs" aria-label="Trip details"><button data-tab="overview" aria-pressed="true">Overview</button><button data-tab="receipt" aria-pressed="false">Receipt</button><button data-tab="messages" aria-pressed="false">Messages</button><button data-tab="evidence" aria-pressed="false">Rider evidence</button></nav>
+      <div id="overview" class="tab-panel"><div class="split"><div><h3>Trip activity</h3><ol id="timeline" class="timeline"></ol></div><div class="support-card"><span class="support-symbol" aria-hidden="true">?</span><h3>Something wasn’t right?</h3><p>Tell us what happened. Your trip details will follow you into the report form.</p><a id="reportLink" class="primary-button" href="../ryde-report/index.html">Report an issue <span aria-hidden="true">↗</span></a><span id="savedHint" class="small"></span></div></div><p id="fixture" class="source-note"></p></div>
+      <div id="receipt" class="tab-panel" hidden><div class="section-title"><h3>Your receipt</h3><span id="receiptId" class="small muted"></span></div><dl id="receiptLines" class="receipt-lines"></dl><p id="paymentMethod" class="small muted"></p><p class="source-note">This is the receipt visible to the rider. Driver earnings and private payment records are outside this view.</p></div>
+      <div id="messages" class="tab-panel" hidden><h3>Your trip conversation</h3><p class="muted small">Includes messages received by the rider. Sending messages is not enabled in this demo.</p><div id="messageList" class="messages"></div></div>
+      <div id="evidence" class="tab-panel" hidden>
+        <div class="evidence-intro"><div><p class="eyebrow">Rider evidence agent</p><h3>Collect your side of the trip.</h3><p class="muted">Gather the selected rider’s booking, receipt, conversation, app events and saved report.</p></div><button id="collectEvidence" class="primary-button">Collect rider evidence</button></div>
+        <div class="scope-note"><span class="scope-mark" aria-hidden="true">✓</span><div><strong>Selected rider. Selected trip.</strong><p>Driver-private GPS, driver history, other accounts and expected rulings are excluded. Missing records stay marked missing.</p></div></div>
+        <div id="collectionNotice" class="notice" role="status" aria-live="polite">No evidence collected yet. Run the agent to inspect the records.</div>
+        <div id="evidenceResults" hidden><div class="section-title"><h3 id="evidenceSummary"></h3><button id="downloadEvidence" class="secondary-button">Download evidence JSON</button></div><div id="evidenceList"></div><details class="communication"><summary>Communication log</summary><ol id="communicationLog"></ol></details></div>
+        <div class="report-session"><p class="small muted">Reports saved from the form stay in this browser tab’s session. Attachment metadata is included; media bytes are not transferred.</p><button id="clearReport" class="text-button" hidden>Clear saved report</button></div>
+      </div>
+    </section>
+  </div>
+  <footer class="brand-footer"><div><span class="footer-name">Waypoint</span><br>A clearer way forward.</div><div class="footer-copy">Independent ride-support prototype · Simulated Ryde trip data.<br>No live Ryde connection. Evidence collection is a demo; account filtering is not authentication.</div></footer>
+</main>
+<script src="data.js"></script><script src="session-store.js"></script><script src="rider-evidence-agent.js"></script><script src="app.js"></script>
+</body></html>
+

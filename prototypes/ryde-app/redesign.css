@@ -1,0 +1,139 @@
+.app-header { max-width: none; padding: 17px max(28px, calc((100vw - 1240px) / 2)); background: #fff; border-bottom: 1px solid var(--line); gap: 18px; }
+.app-header .prototype { margin-left: auto; font-size: 9px; }
+.account { margin-left: 8px; padding-left: 20px; border-left: 1px solid var(--line); }
+.avatar { background: #fff0f6; color: #ab1854; border: 1px solid #f9d5e3; }
+.account label { font-size: 10px; }
+.account select { font-size: 12px; }
+main { max-width: 1240px; margin: 38px auto 0; padding: 0 28px; }
+.welcome { margin-bottom: 30px; align-items: flex-end; }
+.welcome h1 { font-size: 39px; line-height: 1.14; letter-spacing: -1.5px; margin: 7px 0 12px; font-weight: 780; }
+.welcome .muted { font-size: 14px; }
+.welcome .quiet-link { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; text-decoration: none; color: var(--charcoal); }
+.welcome .quiet-link:hover { background: var(--pink-soft); border-color: #f3bed3; }
+.workspace { grid-template-columns: 290px minmax(0, 1fr); gap: 26px; }
+.trip-column > .section-title { margin: 0 4px 15px; }
+.section-title h2 { font-size: 15px; font-weight: 700; letter-spacing: -.2px; }
+.count { background: #ebebf1; color: #60616c; font-size: 11px; }
+.trip-list { gap: 12px; }
+.trip-choice { border-radius: 14px; padding: 18px; box-shadow: 0 3px 9px #20202e03; position: relative; }
+.trip-choice:hover { border-color: #edb5cb; background: #fffbfd; }
+.trip-choice[aria-pressed=true] { background: #fff; border-color: var(--pink); box-shadow: 0 0 0 1px var(--pink), 0 5px 20px #d51d6508; }
+.trip-choice .row { margin-bottom: 15px; align-items: center; }
+.trip-choice strong { font-size: 13px; }
+.trip-choice .journey { padding-left: 20px; position: relative; font-size: 13px; line-height: 1.5; }
+.trip-choice .journey:before { content: ''; position: absolute; left: 1px; top: 5px; width: 7px; height: 7px; border: 2px solid var(--pink); border-radius: 50%; }
+.trip-choice .journey small { font-size: 12px; margin: 6px 0 13px; }
+.trip-choice > .small { display: block; border-top: 1px solid var(--line); padding-top: 11px; font-size: 11px; }
+.tag, .tag.cancelled { background: #f4f4f7; color: #666774; border-radius: 6px; font-size: 10px; }
+.tag:not(.cancelled) { background: #eef7f1; color: #30694b; }
+.side-note { background: #262630; color: #c8c7d0; border: 0; border-radius: 15px; margin-top: 24px; padding: 24px; }
+.side-note h3 { color: white; font-size: 18px; line-height: 1.35; letter-spacing: -.4px; }
+.side-note .mini-mark { color: #fff; background: #d51d65; width: 33px; height: 33px; }
+.side-note .small { font-size: 11px; color: #b8b7c1; margin-bottom: 0; }
+.trip-panel { border-radius: 19px; box-shadow: var(--shadow); }
+.journey-head { padding: 25px 28px 21px; align-items: center; }
+.journey-head > div { padding-left: 58px; position: relative; }
+.journey-head > div:before { content: ''; position: absolute; width: 43px; height: 43px; top: 6px; left: 0; border-radius: 12px; background: #fff0f6 url("car.svg") center / 27px no-repeat; }
+.journey-head .eyebrow { font-size: 10px; color: var(--muted); letter-spacing: .6px; margin-bottom: 4px; }
+.journey-head h2 { font-size: 21px; font-weight: 750; letter-spacing: -.6px; }
+.journey-head .small { font-size: 10px; }
+.status { background: #edf7f0; color: #357050; border-radius: 7px; font-weight: 600; }
+.status.cancelled { background: #f3f3f6; color: #676875; }
+.route-banner { background: #fafafd; border: 1px solid #ededf3; margin: 0 28px 23px; padding: 22px 23px; border-radius: 13px; }
+.route-points:before { background: #c8c6d0; }
+.route-dot { border-color: #fafafd; }
+.route-points > div { padding-left: 25px; }
+.route-points > div + div { margin-top: 18px; }
+.route-points h3 { font-size: 14px; font-weight: 650; }
+.route-points p { font-size: 11px; }
+.fare { border-left: 1px solid #e6e5ed; padding-left: 25px; }
+.fare strong { font-size: 27px; letter-spacing: -.9px; }
+.fare .small { font-size: 10px; }
+.tabs { background: #fff; gap: 10px; padding: 10px 22px; border-top: 0; }
+.tabs button { border: 0; border-radius: 8px; padding: 10px 14px; min-height: 41px; font-size: 12px; font-weight: 600; }
+.tabs button:hover { background: #f7f7fa; }
+.tabs button[aria-pressed=true] { background: var(--pink-soft); color: var(--pink); }
+.tab-panel { padding: 25px 28px; }
+.split { grid-template-columns: 1.05fr 1fr; gap: 25px; }
+.timeline { margin: 20px 0 0; }
+.timeline li { padding-bottom: 22px; font-size: 12px; }
+.timeline li:before { background: #b1afbd; }
+.timeline li:first-child:before { background: var(--pink); box-shadow: 0 0 0 4px #fff0f6; }
+.timeline p { font-size: 12px; line-height: 1.6; }
+.timeline time { font-size: 10px; }
+.support-card { background: #fff7fa; border: 1px solid #f9dce7; border-radius: 13px; padding: 21px; }
+.support-symbol { border-radius: 9px; background: #fce0ec; color: var(--pink); margin-bottom: 13px; }
+.support-card h3 { font-size: 16px; letter-spacing: -.2px; }
+.support-card p { font-size: 12px; line-height: 1.7; }
+.support-card .primary-button { width: 100%; justify-content: space-between; padding: 10px 14px; }
+#savedHint { font-size: 10px; color: #785869; line-height: 1.6; }
+.source-note { font-size: 10px; margin-top: 24px; }
+.receipt-row { font-size: 14px; padding: 18px 0; }
+.receipt-row.total { font-size: 23px; }
+.messages { padding: 5px 0; }
+.message { background: #f3f3f7; border-radius: 13px 13px 13px 3px; }
+.message.mine { background: #fff0f6; border-radius: 13px 13px 3px 13px; }
+.message p { font-size: 13px; }
+.evidence-intro h3 { font-size: 21px; letter-spacing: -.6px; }
+.scope-note { background: #fafafd; border: 1px solid var(--line); }
+.scope-mark { color: var(--pink); }
+.evidence-item { border-radius: 10px; }
+.evidence-item summary { min-height: 53px; }
+.evidence-item summary:before { content: '+'; font-size: 18px; color: #8e8997; font-weight: 400; }
+.evidence-item[open] summary:before { content: '−'; }
+.evidence-body pre { background: #f7f7fa; }
+.communication code { color: var(--pink); }
+footer { font-size: 10px; padding: 25px 0; }
+@media (max-width: 1050px) { .app-header .prototype { display: none; } .account { margin-left: auto; } .workspace { grid-template-columns: 245px minmax(0,1fr); gap: 20px; } .split { grid-template-columns: 1fr; } .evidence-intro { display: block; } .tabs { gap: 3px; padding: 9px 14px; } .tabs button { padding: 10px 9px; } }
+@media (max-width: 760px) {
+  .app-header { padding: 15px 19px; display: grid; grid-template-columns: 1fr auto; gap: 14px; }
+  .app-header .brand { font-size: 20px; }
+  .app-header .shared-nav { margin: 0; }
+  .account { grid-column: 1 / -1; border: 0; padding: 11px 12px; width: 100%; background: #f7f7fa; border-radius: 11px; gap: 10px; }
+  .avatar { width: 32px; height: 32px; }
+  .account label { display: flex; align-items: center; gap: 12px; flex: 1; }
+  .account select { margin-left: auto; width: auto; flex: 1; min-height: 30px; }
+  main { margin-top: 27px; padding: 0 18px; }
+  .welcome { margin-bottom: 25px; gap: 10px; }
+  .welcome h1 { font-size: 32px; }
+  .welcome .quiet-link { display: none; }
+  .welcome .muted { font-size: 13px; }
+  .workspace { display: block; }
+  .trip-column { margin-bottom: 22px; }
+  .trip-list { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+  .trip-choice { padding: 14px; border-radius: 12px; }
+  .trip-choice .row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+  .trip-choice .tag { margin: 0; font-size: 9px; }
+  .trip-choice .journey { font-size: 12px; padding-left: 0; }
+  .trip-choice .journey:before { display: none; }
+  .trip-choice .journey small { font-size: 11px; min-height: 32px; margin-bottom: 8px; }
+  .trip-choice > .small { font-size: 10px; }
+  .side-note { display: none; }
+  .journey-head { padding: 20px; }
+  .journey-head > div { padding-left: 46px; }
+  .journey-head > div:before { width: 35px; height: 35px; background-size: 24px; }
+  .journey-head h2 { font-size: 19px; }
+  .journey-head .eyebrow { font-size: 9px; }
+  .journey-head .small { font-size: 9px; }
+  .route-banner { margin: 0 17px 15px; padding: 18px 15px; }
+  .route-points h3 { font-size: 13px; }
+  .fare { padding-left: 13px; }
+  .fare strong { font-size: 22px; }
+  .fare .small { font-size: 9px; }
+  .tabs { padding: 8px 12px; gap: 3px; justify-content: space-between; }
+  .tabs button { font-size: 11px; padding: 10px; min-height: 43px; }
+  .tab-panel { padding: 23px 20px; }
+  .split { gap: 25px; }
+  .support-card { padding: 20px; }
+  .support-card .primary-button { justify-content: center; gap: 15px; }
+  .source-note { font-size: 10px; }
+}
+@media (max-width: 390px) {
+  .app-header { padding: 13px; gap: 11px; } .app-header .brand { font-size: 17px; } .brand-mark { width: 30px; height: 30px; }
+  .shared-nav a { padding: 8px 9px; font-size: 11px; } .account label { font-size: 9px; gap: 6px; } .account select { font-size: 11px; }
+  main { padding: 0 12px; } .trip-choice { padding: 12px; } .trip-choice strong { font-size: 11px; }
+  .journey-head { padding: 17px 14px; gap: 8px; } .journey-head h2 { font-size: 17px; } .journey-head > div { padding-left: 0; } .journey-head > div:before { display: none; }
+  .route-banner { gap: 9px; margin: 0 12px 14px; padding: 16px 12px; } .route-points { flex: 1; } .fare { padding-left: 10px; } .fare strong { font-size: 19px; }
+  .tabs { padding: 7px; gap: 2px; } .tabs button { padding: 9px 7px; font-size: 10px; }
+  .tab-panel { padding: 20px 16px; }
+}

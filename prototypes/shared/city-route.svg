@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 360" fill="none">
+<g stroke="#9da7ac" stroke-opacity=".28" stroke-width="1">
+<path d="M0 285 760 75M0 340 760 130M85 360 760 175M0 215 690 25M0 155 540 5M90 0 510 360M210 0 630 360M345 0 760 355M475 0 760 245M0 40 380 360"/>
+<path d="m235 129 0-58 60-17 40 35v60m-100-20 40 35 60-15m-60 15V107l-40-36m40 36 60-18M440 194v-84l72-20 42 35v82l-72 22-42-35m42 35v-84l72-20m-72 20-42-35M550 66V24l55-16 27 22v43l-55 16-27-23m27 23V46l55-16m-55 16-27-22M155 246v-42l50-14 35 29v43l-50 14-35-30m35 30v-43l50-14m-50 14-35-29"/>
+</g>
+<path d="m167 190 123-34 111 95 204-57" stroke="#f16c9f" stroke-width="3" stroke-linejoin="round"/>
+<path d="m167 190 123-34 111 95 204-57" stroke="#ffbfd5" stroke-width="7" opacity=".09"/>
+<circle cx="167" cy="190" r="17" fill="#191d23" stroke="#f16c9f"/><circle cx="167" cy="190" r="5" fill="#f16c9f"/>
+<rect x="596" y="185" width="18" height="18" rx="2" fill="#f16c9f"/><rect x="601" y="190" width="8" height="8" fill="#191d23"/>
+<g fill="#d5dadc" font-family="monospace" font-size="10" letter-spacing="2"><text x="126" y="227">YOUR TRIP</text><text x="554" y="170">YOUR STORY</text></g>
+</svg>
