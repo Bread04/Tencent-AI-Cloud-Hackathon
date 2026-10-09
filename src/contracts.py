@@ -1,0 +1,441 @@
+"""The shared contract (architecture.md section 4).
+
+Shared file: change it only with both teammates' agreement.
+Names follow GLOSSARY.md. Unknown fields are rejected so typos fail loudly.
+Every object round-trips through JSON, so fixtures and model output can be
+loaded with `Model.model_validate_json(...)`.
+"""
+
+from datetime import datetime
+from decimal import Decimal
+from enum import StrEnum
+from typing import Annotated, Any
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+
+class Contract(BaseModel):
+    """Base for every contract object."""
+
+    model_config = ConfigDict(extra="forbid")
+
+
+Text = Annotated[str, Field(min_length=1)]
+Score = Annotated[float, Field(ge=0, le=1)]
+
+
+# --- Vocabulary --------------------------------------------------------------
+
+
+class Party(StrEnum):
+    RIDER = "rider"
+    DRIVER = "driver"
+
+    @property
+    def other(self) -> "Party":
+        return Party.DRIVER if self is Party.RIDER else Party.RIDER
+
+
+class DisputeCategory(StrEnum):
+    ROUTE_DEVIATION = "route_deviation"
+    NO_SHOW_CHARGE = "no_show_charge"
+    PROPERTY_DAMAGE = "property_damage"
+    SAFETY_INCIDENT = "safety_incident"
+
+
+class CaseStatus(StrEnum):
+    """Case lifecycle, architecture.md section 3.1."""
+
+    FILED = "filed"
+    REJECTED = "rejected"
+    PRIORITISED = "prioritised"
+    GATHERING_EVIDENCE = "gathering_evidence"
+    BUILDING_CASES = "building_cases"
+    JUDGING = "judging"
+    PENDING_REVIEW = "pending_review"
+    RULED = "ruled"
+    NOTIFIED = "notified"
+    CLOSED = "closed"
+
+
+class EvidenceSide(StrEnum):
+    RIDER = "rider"
+    DRIVER = "driver"
+    SHARED = "shared"
+
+
+class EvidenceStatus(StrEnum):
+    AVAILABLE = "available"
+    MISSING = "missing"
+    CONFLICTING = "conflicting"
+
+
+class Advocate(StrEnum):
+    RIDER_ADVOCATE = "rider_advocate"
+    DRIVER_ADVOCATE = "driver_advocate"
+
+
+class PrecedentSource(StrEnum):
+    MODEL = "model"
+    HUMAN_OVERRIDE = "human_override"
+
+
+class RulingStatus(StrEnum):
+    FINAL = "final"
+    PROPOSAL = "proposal"
+
+
+class RulingOutcome(StrEnum):
+    """Of the Claimant's claim."""
+
+    UPHOLD = "uphold"
+    PARTIALLY_UPHOLD = "partially_uphold"
+    REJECT = "reject"
+
+
+class BalanceOfEvidence(StrEnum):
+    CLAIMANT = "claimant"
+    RESPONDENT = "respondent"
+    BALANCED = "balanced"
+
+
+class Remedy(StrEnum):
+    """The closed list defined in policy."""
+
+    FULL_REFUND = "full_refund"
+    PARTIAL_REFUND = "partial_refund"
+    FEE_REVERSAL = "fee_reversal"
+    COMPENSATION_TO_DRIVER = "compensation_to_driver"
+    NO_ACTION = "no_action"
+
+
+class ArgumentVerdict(StrEnum):
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+    UNPROVEN = "unproven"
+    NOT_DECISIVE = "not_decisive"
+
+
+class PolicyFit(StrEnum):
+    CLEAR = "clear"
+    ARGUABLE = "arguable"
+    UNCLEAR = "unclear"
+
+
+class ReviewTrigger(StrEnum):
+    """Escalation triggers, architecture.md section 5.7."""
+
+    LOW_CONFIDENCE = "low_confidence"
+    BALANCED_EVIDENCE = "balanced_evidence"
+    POLICY_GAP = "policy_gap"
+    SAFETY_INCIDENT = "safety_incident"
+    AUTHENTICITY_CHECK = "authenticity_check"
+    STABILITY_DISAGREEMENT = "stability_disagreement"
+    HISTORY_RULE = "history_rule"
+    STAGE_FAILED = "stage_failed"
+    AMOUNT_OVER_LIMIT = "amount_over_limit"
+
+
+class ActionStatus(StrEnum):
+    RECOMMENDED = "recommended"
+    PENDING_REVIEW = "pending_review"
+    EXECUTED = "executed"
+    FAILED = "failed"
+
+
+class ReviewDecision(StrEnum):
+    CONFIRM = "confirm"
+    OVERRIDE = "override"
+
+
+class LogEventKind(StrEnum):
+    """Communication Log event kinds, architecture.md section 9."""
+
+    CASE_FILED = "case_filed"
+    CASE_REJECTED = "case_rejected"
+    PRIORITY_SET = "priority_set"
+    EVIDENCE_REQUESTED = "evidence_requested"
+    EVIDENCE_RETURNED = "evidence_returned"
+    EVIDENCE_SEALED = "evidence_sealed"
+    PHOTO_ANALYSED = "photo_analysed"
+    POLICY_RETRIEVED = "policy_retrieved"
+    PRECEDENT_RETRIEVED = "precedent_retrieved"
+    SUBMISSION_FILED = "submission_filed"
+    ARGUMENT_ASSESSED = "argument_assessed"
+    RULING_DRAFTED = "ruling_drafted"
+    SELF_CHECK_PASSED = "self_check_passed"
+    SELF_CHECK_FAILED = "self_check_failed"
+    STABILITY_CHECK = "stability_check"
+    ESCALATED = "escalated"
+    REVIEW_DECISION = "review_decision"
+    OUTCOME_SENT = "outcome_sent"
+    PRECEDENT_ADDED = "precedent_added"
+
+
+# --- Switches ----------------------------------------------------------------
+
+
+class Switches(Contract):
+    """One on/off switch per Supporting Agent (architecture.md section 6.3).
+
+    All off is the Tier 0 MVP: the three Core Agents alone.
+    The values in force by default live in `src/config.py`.
+    """
+
+    evidence_agents: bool = False
+    policy_precedent: bool = False
+    image_analysis: bool = False
+    escalation: bool = False
+    sla_routing: bool = False
+    learning_loop: bool = False
+
+
+# --- Dispute -----------------------------------------------------------------
+
+
+class Dispute(Contract):
+    dispute_id: Text
+    trip_id: Text
+    filed_by: Party
+    category: DisputeCategory
+    description: Text
+    requested_remedy: Text
+    filed_at: datetime
+    photos: list[str] = []
+    driver_statement: str | None = None
+
+    @property
+    def claimant(self) -> Party:
+        return self.filed_by
+
+    @property
+    def respondent(self) -> Party:
+        return self.filed_by.other
+
+
+# --- Evidence and policy -----------------------------------------------------
+
+
+class EvidenceItem(Contract):
+    """One citable record. Missing data is an item with status `missing`
+    (content says why), never an absent item."""
+
+    evidence_id: Text
+    source: Text
+    trip_id: Text
+    side: EvidenceSide
+    timestamp: datetime | None = None
+    status: EvidenceStatus
+    content: Any = None
+    derived: dict[str, Any] = {}
+    conflicts_with: list[str] = []
+
+    @model_validator(mode="after")
+    def _conflicting_items_are_linked(self):
+        if self.status is EvidenceStatus.CONFLICTING and not self.conflicts_with:
+            raise ValueError("an item with status 'conflicting' must list the IDs it conflicts with in conflicts_with")
+        return self
+
+
+class CounterArgument(Contract):
+    argument: Text
+    response: Text
+
+
+class Submission(Contract):
+    author: Advocate
+    claim_restated: Text
+    facts_relied_on: list[str] = []  # Evidence Item IDs cited as fact
+    missing_evidence_ids: list[str] = []  # Evidence Item IDs cited only as missing
+    counter_arguments: list[CounterArgument] = []
+    policy_clause_ids: list[str] = []
+    requested_outcome: Text
+
+
+class PolicyClause(Contract):
+    clause_id: Text
+    category: DisputeCategory
+    text: Text
+    version: Text
+
+
+# --- Ruling ------------------------------------------------------------------
+
+
+class Calculation(Contract):
+    """How the amount was reached. Code computes `result`; the Judge only names the inputs."""
+
+    formula: Text
+    input_evidence_ids: list[str]
+    result: Decimal
+
+
+class ArgumentAssessment(Contract):
+    author: Advocate  # whose Submission the argument came from
+    argument: Text
+    verdict: ArgumentVerdict
+    reason: Text
+    evidence_ids: list[str] = []  # the evidence it turned on
+
+
+class OwnFinding(Contract):
+    finding: Text
+    evidence_ids: list[str]
+    decisive: bool = False  # a decisive Own Finding caps Confidence
+
+
+class Confidence(Contract):
+    """Calculated by code, never self-reported by the Judge. `components` shows the working."""
+
+    value: Score
+    components: dict[str, Score]
+
+
+class HistoryAdjustment(Contract):
+    rule: Text
+    reason: Text
+    confidence_step: Annotated[float, Field(ge=0, le=1)] = 0  # how much Confidence was lowered
+
+
+class MaterialEvidenceEntry(Contract):
+    """One line of the category's material-evidence checklist. No evidence IDs means it was missing."""
+
+    key: Text
+    label: Text
+    evidence_ids: list[str] = []
+
+    @property
+    def available(self) -> bool:
+        return bool(self.evidence_ids)
+
+
+class ReviewTriggerRecord(Contract):
+    trigger: ReviewTrigger
+    reason: Text
+
+
+class Ruling(Contract):
+    status: RulingStatus
+    outcome: RulingOutcome
+    balance_of_evidence: BalanceOfEvidence
+    remedy: Remedy
+    amount: Decimal | None = Field(default=None, ge=0)
+    currency: str | None = None
+    calculation: Calculation | None = None
+    argument_assessments: list[ArgumentAssessment] = []
+    own_findings: list[OwnFinding] = []
+    policy_fit: PolicyFit
+    policy_fit_reason: Text
+    policy_gap: str | None = None
+    cited_evidence_ids: list[str] = []  # cited as fact
+    missing_evidence_ids: list[str] = []  # cited only as missing
+    cited_policy_clause_ids: list[str] = []
+    cited_precedent_ids: list[str] = []
+    reasoning_summary: Text
+    confidence: Confidence | None = None  # filled in by code after the Judge's draft
+    history_adjustments: list[HistoryAdjustment] = []
+    material_evidence: list[MaterialEvidenceEntry] = []
+    review_triggers: list[ReviewTriggerRecord] = []
+
+    @model_validator(mode="after")
+    def _amount_matches_its_calculation(self):
+        if self.amount is None:
+            return self
+        if not self.currency:
+            raise ValueError("a Ruling with an amount must state its currency")
+        if self.calculation is None:
+            raise ValueError("a Ruling with an amount must show its calculation")
+        if self.amount != self.calculation.result:
+            raise ValueError(f"amount {self.amount} does not equal the calculation result {self.calculation.result}")
+        return self
+
+    @model_validator(mode="after")
+    def _final_ruling_has_confidence(self):
+        if self.status is RulingStatus.FINAL and self.confidence is None:
+            raise ValueError("a final Ruling must carry its calculated confidence")
+        return self
+
+    @model_validator(mode="after")
+    def _policy_gap_means_unclear_fit(self):
+        if self.policy_gap and self.policy_fit is not PolicyFit.UNCLEAR:
+            raise ValueError("a Ruling that names a policy_gap must have policy_fit 'unclear'")
+        return self
+
+
+class Precedent(Contract):
+    precedent_id: Text
+    case_summary: Text
+    ruling: Ruling
+    source: PrecedentSource
+    override_reason: str | None = None
+    category: DisputeCategory
+    similarity_tags: list[str] = []
+
+    @model_validator(mode="after")
+    def _override_has_a_reason(self):
+        if self.source is PrecedentSource.HUMAN_OVERRIDE and not self.override_reason:
+            raise ValueError("a Precedent from a human_override must carry its override_reason")
+        return self
+
+
+# --- Outcome, review, log ----------------------------------------------------
+
+
+class Outcome(Contract):
+    party: Party
+    ruling_summary: Text
+    action_status: ActionStatus
+
+
+class ReviewRecord(Contract):
+    reviewer: Text
+    decision: ReviewDecision
+    reason: str | None = None
+    decided_at: datetime
+
+    @model_validator(mode="after")
+    def _override_has_a_reason(self):
+        if self.decision is ReviewDecision.OVERRIDE and not self.reason:
+            raise ValueError("an override must record its reason")
+        return self
+
+
+class LogEvent(Contract):
+    case_id: Text
+    timestamp: datetime
+    agent: Text
+    kind: LogEventKind
+    summary: Text
+    references: list[str] = []  # IDs of items, clauses, submissions
+
+
+# --- Case --------------------------------------------------------------------
+
+
+class Case(Contract):
+    """The system record built around one Dispute. Its Communication Log is read from the Case store."""
+
+    case_id: Text
+    dispute: Dispute
+    status: CaseStatus = CaseStatus.FILED
+    priority: int = 0
+    priority_reason: str | None = None
+    switches: Switches = Switches()
+    evidence: list[EvidenceItem] = []
+    evidence_version: str | None = None  # set when the evidence set is sealed
+    policy_clauses: list[PolicyClause] = []
+    precedents: list[Precedent] = []
+    submissions: list[Submission] = []
+    ruling: Ruling | None = None
+    outcomes: list[Outcome] = []
+    review_record: ReviewRecord | None = None
+    created_at: datetime
+    updated_at: datetime
+
+    @model_validator(mode="after")
+    def _one_submission_per_advocate(self):
+        authors = [s.author for s in self.submissions]
+        for author in set(authors):
+            if authors.count(author) > 1:
+                raise ValueError(f"a Case holds at most one Submission per advocate; got two from {author.value}")
+        return self
