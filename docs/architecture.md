@@ -102,7 +102,7 @@ One shared definition, edited only with both teammates' agreement. Field lists b
 | **Submission** | author (Rider or Driver Advocate), claim restated, facts relied on (Evidence Item IDs), anticipated counter-arguments with responses, Policy Clause IDs cited, requested outcome |
 | **Policy Clause** | ID, category, text, version |
 | **Precedent** | ID, summary of Case, Ruling, source (`model` or `human_override`), override reason if any, category, similarity tags |
-| **Ruling** | outcome (uphold, partially uphold, reject, of the claimant's claim), recommended action, amount and currency, calculation, argument assessments (each material argument, accepted or rejected, with reason), cited Evidence Item IDs, cited Policy Clause IDs, cited Precedent IDs, reasoning summary, Confidence and its components, review trigger if any |
+| **Ruling** | status (final or proposal), outcome (uphold, partially uphold, reject, of the claimant's claim), Balance of Evidence, Remedy, amount and currency, calculation and its input Evidence Item IDs, Argument Assessments (each argument: accepted, rejected, unproven or not decisive, with reason and the evidence it turned on), Own Findings, Policy Fit with reason, Policy Gap if any, cited Evidence Item IDs, cited Policy Clause IDs, cited Precedent IDs, reasoning summary, Confidence with each component, History adjustments with reasons, the material-evidence checklist with what was missing, Review Triggers if any |
 | **Outcome** | party, Ruling summary worded for that party, action status (`recommended`, `pending_review`, `executed`, `failed`) |
 | **Log event** | case ID, timestamp, agent, kind (see section 9), summary, references (IDs of items, clauses, submissions) |
 
@@ -163,20 +163,29 @@ For each agent: purpose, how it runs, what goes in and out, and what happens on 
 ### 5.6 Judge (Tier 0)
 
 - **Purpose:** weigh both Submissions against the evidence and policy and issue the Ruling.
-- **Runs as:** a model, in three steps:
-  1. **Assess:** for each material argument in each Submission, check it against the cited evidence and mark it accepted or rejected, with a reason. This is where the "rebuttal" lives.
-  2. **Rule:** choose the outcome, action and amount, citing evidence, clauses and any precedent.
-  3. **Self-check (evaluator-optimizer):** a second pass reads the draft Ruling and verifies every citation supports its claim, the amount matches the calculation, and nothing rests on missing evidence or on history alone. A failed check sends the draft back once.
-- **Bias controls:** Submissions are presented in randomised order and labelled neutrally; the prompt says length and confidence of tone are not evidence; in the stability check the order is swapped and the outcome compared (section 6.7).
+- **Model calls:** three in the normal case.
+  1. **Assess and rule (one structured call).** For each argument in each Submission, give an Argument Assessment: **accepted** (supported and it matters), **rejected** (contradicted by the evidence), **unproven** (not contradicted, but the cited evidence does not establish it), or **not decisive** (true, but it does not change the outcome), each with a reason and the evidence it turned on. This is where the rebuttal lives. Then state the Balance of Evidence (towards the Claimant, towards the Respondent, or balanced), choose the outcome and the Remedy, name the inputs to any amount by Evidence Item ID, and give Policy Fit (clear, arguable, unclear) with a reason.
+  2. **Self-check (evaluator-optimizer).** A model checks one thing: does each cited item actually support the claim made about it? Code checks the rest: every cited ID exists, the amount matches the recomputed calculation, nothing rests on missing evidence. A failed check sends the draft back once, then the Case goes to review.
+  3. **Stability rerun (Tier 1).** Call 1 again with the Submission order swapped (section 6.7).
+- **What the Judge is given:** the computed facts as Evidence Items (route distances, wait times, stop list, fare breakdown); the full text of chat messages and any driver statement, marked as untrusted; the applicable Policy Clauses and, from Tier 1, similar Precedents; both Submissions. Raw GPS points stay in the Case for the UI and a reviewer but are not in the prompt. **History is withheld** (section 6.2).
+- **What the Judge does not do:** call tools, gather new evidence, do arithmetic, or produce a Confidence number.
+- **Burden of Proof:** the Claimant must show the claim is more likely than not. An unproven claim is rejected. Evenly balanced evidence is declared as balanced and escalated, not ruled.
+- **Remedy:** chosen from the closed list in policy (full refund, partial refund, fee reversal, compensation to the driver, no action). "Partially uphold" means the Claimant gets less than asked. Where a category is binary in policy, as No-Show Charge normally is, a partial outcome is available only if a Policy Clause provides for one.
+- **Amounts are computed by code.** The Judge names the Remedy and its inputs; code applies the policy formula to the fare evidence, and the Ruling shows the calculation.
+- **Own Findings:** the Judge may rely on a point neither advocate raised, but only from the sealed evidence, and it is labelled as an Own Finding. There is no round trip back to the advocates. An Own Finding that decides the outcome caps Confidence (section 6.1).
+- **Policy Gap:** when no clause covers the situation the Judge applies the closest clause, marks Policy Fit as unclear, and names the gap in the Ruling. It never invents a rule. A Policy Gap is a Review Trigger.
+- **Bias controls:** Submissions are presented in randomised order; the prompt says length and confidence of tone are not evidence; the stability rerun compares outcomes.
+- **Determinism:** lowest temperature and a fixed seed where the provider supports it. The Ruling is stored with the Case, so reopening a Case shows the stored Ruling and never reruns the Judge.
+- **Cases that will be escalated anyway** (for example a Safety Incident): the Judge still drafts a Ruling with its Argument Assessments, marked as a proposal for the Human Reviewer. It is never shown to the parties as a decision.
+- **Outcome wording is a separate step.** After the Ruling, a template produces each party's Outcome from the finished Ruling (outcome, Remedy, amount, and the reasons that concern that party). It cannot change substance. No extra model call in Tier 0.
 - **In:** Case with sealed evidence, both Submissions, policy and precedent. **Out:** Ruling.
-- **Judge sees the evidence, not just the arguments:** the Judge reads the sealed evidence directly and can disagree with both advocates.
 - **Failure:** schema or citation failure after the repair budget sends the Case to review.
 
 ### 5.7 Escalation Protocol Agent (Tier 1)
 
 - **Purpose:** decide whether a Ruling can be finalized, and package it for a human when not.
 - **Runs as:** code for the decision; a model only to write the review summary.
-- **Triggers (any one):** Confidence below the threshold; Safety Incident category; failed or unknown authenticity check on photo evidence that matters to the outcome; stability check disagreement; a stage that failed its retry budget; a Ruling amount above a configured limit.
+- **Triggers (any one):** Confidence below the threshold; a balanced Balance of Evidence; a Policy Gap (Policy Fit unclear); Safety Incident category; failed or unknown authenticity check on photo evidence that matters to the outcome; stability check disagreement; a History rule that calls for review; a stage that failed its retry budget; a Ruling amount above a configured limit.
 - **Out:** a review package (both Submissions, the evidence, policy and precedent cited, the proposed Ruling, the trigger and its reason) placed in the queue, and a "review pending" Outcome for both parties.
 - **Human step:** confirm or override with a recorded reason.
 
@@ -191,21 +200,27 @@ For each agent: purpose, how it runs, what goes in and out, and what happens on 
 
 ### 6.1 Confidence
 
-A single number from 0 to 1, built from visible components so it can be explained: **[confirm]**
+A single number from 0 to 1. It is **calculated by code, not self-reported by the Judge**: a model asked how confident it is tends to give the same high number every time. The Judge supplies one input only, Policy Fit, as one of three levels.
 
-| Component | Meaning | Source |
+**Weakest link, no weights.** Confidence is the lowest of its components. A Ruling is only as sound as its weakest support, and there are no weights to justify.
+
+| Component | Starting values | Source |
 | --- | --- | --- |
-| Evidence completeness | share of material evidence available rather than missing | code, from Evidence Item statuses |
-| Consistency | do the evidence items agree, or are there conflicts | code, from conflict links, plus Judge assessment |
-| Policy fit | how cleanly the clauses apply to these facts | Judge, with the reason |
-| Stability | does the outcome survive the swapped-order second pass | code, comparing two Rulings |
-| Authenticity | photo checks pass, fail, or unknown | Image Analysis, where photos matter |
+| Policy Fit | clear 0.95, arguable 0.75, unclear 0.5 | Judge chooses the level, with a reason; code maps it |
+| Evidence completeness | share of the category's material-evidence checklist that is available | code, from Evidence Item statuses |
+| Consistency | 0.95 with no conflicts; 0.65 with a conflict on a material item | code, from conflict links |
+| Stability (Tier 1) | 0.95 if both passes agree; 0.5 if not | code, comparing two Rulings |
+| Authenticity (Tier 3) | 0.5 on a failed or unknown check on a photo that matters | Image Analysis |
+| Decisive Own Finding | caps Confidence at 0.75 | code, from the Ruling |
+| History step | lowers Confidence by 0.1 per rule that fires, at most 0.2 | code, section 6.2 |
 
-Final Confidence is the weighted average **capped** by the weakest hard signal: missing material evidence caps it at 0.6; a failed authenticity check caps it at 0.5; a stability disagreement caps it at 0.5. A default escalation threshold of **0.7**, configurable, to be tuned on the mock cases.
+Default escalation threshold: **0.7**, configurable. All values are starting points to be tuned on the mock cases.
 
-### 6.2 History is context, not grounds
+**Material evidence** is defined by a short checklist per Dispute Category, kept with the policy. For No-Show Charge, for example: driver position at pickup, arrival against scheduled time, the wait timers, contact attempts, and rider position. The checklist is shown in the Ruling so anyone can see what was missing.
 
-Rider and driver history goes to the Judge as labelled context. The Judge prompt and the self-check both forbid it as the sole reason for an outcome. The review trigger list does not use history. (The Fraud agent is out of scope.)
+### 6.2 History is withheld from the Judge
+
+The Judge rules **without seeing History**. After the outcome is fixed, a History step runs in code, with no model: a small published rule table (for example, several prior rejected disputes of the same category lowers Confidence by a fixed step; a long clean record does nothing). Each adjustment is listed in the Ruling with its reason. The step can lower Confidence or add a Review Trigger. It cannot raise Confidence and cannot change the outcome. This makes "History never decides a Ruling" true by construction. See [ADR 0001](adr/0001-history-withheld-from-judge.md). (The Fraud agent is out of scope.)
 
 ### 6.3 Switches
 
@@ -285,7 +300,7 @@ The hackathon requires an architecture diagram. The Mermaid chart in section 2 i
 
 ## 12. Open decisions for the contract session
 
-1. Confidence weights, caps and the default escalation threshold (section 6.1).
+1. Confirm the Confidence starting values and the History rule table (sections 6.1 and 6.2); the method itself is decided.
 2. Exact fields and types of each contract object (section 4).
 3. The structured-output format (schema-constrained JSON) and the model provider, including a vision-capable model.
 4. Whether similarity search for precedent uses tags only or embeddings.

@@ -124,6 +124,10 @@ _Avoid_: Retraining, fine-tuning
 A single record relevant to a case (a GPS trace, a chat message, a fare line, a photo) carrying its source and an ID that submissions can cite. Missing evidence is recorded as missing, never assumed.
 _Avoid_: Proof, data point
 
+**Material Evidence**:
+The evidence a Dispute Category cannot be fairly decided without, listed in a checklist kept with the policy. When some of it is missing, Confidence drops.
+_Avoid_: Key evidence, required fields
+
 **Submission**:
 An advocate's structured argument for one party, citing Evidence Items and policy clauses.
 _Avoid_: Case (reserved for the whole record), brief
@@ -141,18 +145,46 @@ An assessment of whether a photo can be trusted as evidence: whether its timesta
 _Avoid_: Verification, fraud check
 
 **History**:
-A party's past behaviour on the platform: prior disputes, ratings, and account age. It is context for the Judge and never the sole grounds for a Ruling.
+A party's past behaviour on the platform: prior disputes, ratings, and account age. It is withheld from the Judge until the outcome is decided, and afterwards may only adjust Confidence or trigger review, never change the outcome.
 _Avoid_: Profile, record, reputation
 
 ### Outcome
 
 **Ruling**:
-The Judge's decision on a case: uphold, partially uphold, or reject the claimant's claim, with recommended action, amount where applicable, cited evidence and clauses, reasoning, and confidence.
+The Judge's decision on a case: uphold, partially uphold, or reject the claimant's claim, with a Remedy, amount where applicable, cited evidence and clauses, reasoning, and confidence. Partially uphold means the Claimant gets less than they asked for.
 _Avoid_: Decision, verdict, judgment
 
+**Remedy**:
+The action a Ruling recommends, chosen from a closed list defined in policy: full refund, partial refund, fee reversal, compensation to the driver, or no action. The Judge chooses the Remedy; it never invents an amount.
+_Avoid_: Recommended action, resolution, payout
+
+**Burden of Proof**:
+The Claimant must show their claim is more likely than not. An unproven claim is rejected, and evenly balanced evidence is escalated instead of ruled.
+_Avoid_: Benefit of the doubt, tie-break
+
+**Own Finding**:
+A point the Judge relies on that neither advocate raised, drawn only from the evidence already in the Case and labelled as such in the Ruling.
+_Avoid_: Judge's research, new evidence
+
+**Argument Assessment**:
+The Judge's verdict on one argument from a Submission: accepted, rejected, unproven, or not decisive, with a reason. Unproven means the evidence neither establishes nor contradicts it.
+_Avoid_: Rebuttal, scoring
+
+**Balance of Evidence**:
+The Judge's statement of which way the evidence leans: towards the Claimant, towards the Respondent, or balanced. A balanced Case is escalated.
+_Avoid_: Tie, draw
+
+**Policy Gap**:
+A situation no Policy Clause covers. The Judge names it in the Ruling and applies the closest clause; it never invents a rule.
+_Avoid_: Edge case, loophole
+
 **Confidence**:
-The Judge's measure of how well evidence completeness, consistency, and policy fit support the ruling.
+A measure of how well the Ruling is supported, built from evidence completeness, consistency, stability, and Policy Fit. It is calculated, not self-reported by the Judge.
 _Avoid_: Certainty, probability
+
+**Policy Fit**:
+The Judge's assessment of how cleanly the Policy Clauses apply to the facts: clear, arguable, or unclear. It is the only part of Confidence the Judge supplies.
+_Avoid_: Policy score, relevance
 
 **Outcome**:
 What each party is told after a ruling: the same ruling, worded for that party.
@@ -163,7 +195,7 @@ Referral of a case to a Human Reviewer instead of finalizing the ruling, because
 _Avoid_: Handoff
 
 **Review Trigger**:
-A condition that forces Escalation regardless of confidence, such as a Safety Incident or a photo that fails an Authenticity Check.
+A condition that forces Escalation regardless of confidence, such as a Safety Incident, a balanced Balance of Evidence, a Policy Gap, or a photo that fails an Authenticity Check.
 _Avoid_: Flag, alert
 
 **Human Reviewer**:
