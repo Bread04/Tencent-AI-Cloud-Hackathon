@@ -8,9 +8,9 @@
 
 **Tier:** 0 · **Owner:** Kyven and Braedon together
 
-- [ ] The project installs and its test suite runs with one command
-- [ ] Every contract object validates good input and rejects bad input with a clear error
-- [ ] A test creates a Case in the store, writes to it, reads it back, and sees one Log event per write
-- [ ] The model stub returns a scripted reply for a given case without any network access
-- [ ] All Supporting Agent switches exist and default to off
-- [ ] The contract session decisions are written down in the repo
+- [x] The project installs and its test suite runs with one command
+- [x] Every contract object validates good input and rejects bad input with a clear error
+- [x] A test creates a Case in the store, writes to it, reads it back, and sees one Log event per write
+- [x] The model stub returns a scripted reply for a given case without any network access
+- [x] All Supporting Agent switches exist and default to off
+- [x] The contract session decisions are written down in the repo

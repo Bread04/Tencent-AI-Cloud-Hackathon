@@ -6,6 +6,7 @@ Every object round-trips through JSON, so fixtures and model output can be
 loaded with `Model.model_validate_json(...)`.
 """
 
+from collections.abc import Sequence
 from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
@@ -450,18 +451,21 @@ def citation_errors(
     document: Submission | Ruling,
     evidence: list[EvidenceItem],
     policy_clauses: list[PolicyClause],
-    precedents: list[Precedent] = (),
+    precedents: Sequence[Precedent] = (),
 ) -> list[str]:
     """Check a Submission or Ruling against the sealed evidence set and policy.
 
     Rule 1: every cited ID must exist. Rule 2: a `missing` item may be cited
-    only as missing, never as fact. Returns one sentence per problem, written
-    so it can be fed back to the agent that must fix it; empty means clean.
+    only as missing, never as fact. An argument assessed as unproven may turn
+    on a missing item, because the gap is the reason it is unproven.
+    Returns one sentence per problem, written so it can be fed back to the
+    agent that must fix it; empty means clean.
     """
     status_by_id = {item.evidence_id: item.status for item in evidence}
     clause_ids = {clause.clause_id for clause in policy_clauses}
     precedent_ids = {precedent.precedent_id for precedent in precedents}
 
+    may_be_missing: list[str] = []
     if isinstance(document, Submission):
         as_fact = list(document.facts_relied_on)
         cited_clauses = document.policy_clause_ids
@@ -470,12 +474,20 @@ def citation_errors(
         as_fact = list(document.cited_evidence_ids)
         if document.calculation:
             as_fact += document.calculation.input_evidence_ids
-        for part in [*document.argument_assessments, *document.own_findings, *document.material_evidence]:
+        for assessment in document.argument_assessments:
+            if assessment.verdict is ArgumentVerdict.UNPROVEN:
+                may_be_missing += assessment.evidence_ids
+            else:
+                as_fact += assessment.evidence_ids
+        for part in [*document.own_findings, *document.material_evidence]:
             as_fact += part.evidence_ids
         cited_clauses = document.cited_policy_clause_ids
         cited_precedents = document.cited_precedent_ids
 
     errors = []
+    for evidence_id in dict.fromkeys(may_be_missing):
+        if evidence_id not in status_by_id:
+            errors.append(f"Evidence Item {evidence_id} is cited but is not in the sealed evidence set.")
     for evidence_id in dict.fromkeys(as_fact):
         if evidence_id not in status_by_id:
             errors.append(f"Evidence Item {evidence_id} is cited but is not in the sealed evidence set.")

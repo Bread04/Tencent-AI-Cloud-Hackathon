@@ -3,7 +3,8 @@
 In-memory. Every write goes through `_write`, which validates the changed
 Case and appends exactly one Log event, so the Communication Log cannot drift
 from the state. A refused write changes nothing and logs nothing.
-Reads return copies: the only way to change a Case is a store operation.
+Writes and reads both copy: the only way to change a Case is a store operation.
+A rejected or closed Case accepts no further writes.
 
 Not here yet (added by the tickets that need them): escalation, review
 decisions, closing a Case, precedents.
@@ -19,6 +20,7 @@ from src.contracts import (
     CaseStatus,
     Dispute,
     EvidenceItem,
+    EvidenceStatus,
     LogEvent,
     LogEventKind,
     Outcome,
@@ -60,7 +62,7 @@ class CaseStore:
     def log(self, case_id: str) -> list[LogEvent]:
         """The Communication Log for one Case, oldest first."""
         self._case(case_id)
-        return list(self._logs[case_id])
+        return [event.model_copy(deep=True) for event in self._logs[case_id]]
 
     # --- Writes --------------------------------------------------------------
 
@@ -73,7 +75,7 @@ class CaseStore:
             created_at=now,
             updated_at=now,
         )
-        self._cases[case.case_id] = case
+        self._cases[case.case_id] = case.model_copy(deep=True)
         self._logs[case.case_id] = [
             LogEvent(
                 case_id=case.case_id,
@@ -87,9 +89,11 @@ class CaseStore:
         return case.model_copy(deep=True)
 
     def reject_case(self, case_id: str, reason: str, agent: str = "intake") -> None:
+        self._require_status(case_id, CaseStatus.FILED, "rejected")
         self._write(case_id, agent, LogEventKind.CASE_REJECTED, f"Dispute rejected: {reason}", status=CaseStatus.REJECTED)
 
     def set_priority(self, case_id: str, priority: int, reason: str, agent: str = "intake") -> None:
+        self._require_status(case_id, CaseStatus.FILED, "given a priority")
         self._write(
             case_id,
             agent,
@@ -109,7 +113,7 @@ class CaseStore:
         duplicates = [i for n, i in enumerate(new_ids) if i in known_ids or i in new_ids[:n]]
         if duplicates:
             raise StoreError(f"Evidence Item IDs must be unique in a Case; already present: {', '.join(duplicates)}.")
-        missing = sum(item.status == "missing" for item in items)
+        missing = sum(item.status is EvidenceStatus.MISSING for item in items)
         self._write(
             case_id,
             agent,
@@ -139,12 +143,17 @@ class CaseStore:
 
     def add_policy_clauses(self, case_id: str, clauses: list[PolicyClause], agent: str) -> None:
         case = self._case(case_id)
+        new_ids = [clause.clause_id for clause in clauses]
+        known_ids = {clause.clause_id for clause in case.policy_clauses}
+        duplicates = [i for n, i in enumerate(new_ids) if i in known_ids or i in new_ids[:n]]
+        if duplicates:
+            raise StoreError(f"Policy Clause IDs must be unique in a Case; already present: {', '.join(duplicates)}.")
         self._write(
             case_id,
             agent,
             LogEventKind.POLICY_RETRIEVED,
             f"{len(clauses)} applicable Policy Clause(s) retrieved.",
-            references=[clause.clause_id for clause in clauses],
+            references=new_ids,
             policy_clauses=[*case.policy_clauses, *clauses],
         )
 
@@ -166,6 +175,8 @@ class CaseStore:
     def set_ruling(self, case_id: str, ruling: Ruling, agent: str = "judge") -> None:
         """Store the Ruling. A final Ruling moves the Case to `ruled`; a proposal leaves the status alone."""
         case = self._case(case_id)
+        if len(case.submissions) != 2:
+            raise StoreError(f"A Ruling cannot be stored for {case_id} until both Submissions are filed.")
         amount = f" {ruling.currency} {ruling.amount}" if ruling.amount is not None else ""
         self._write(
             case_id,
@@ -205,12 +216,21 @@ class CaseStore:
             raise CaseNotFound(f"No Case with ID {case_id}.")
         return self._cases[case_id]
 
+    def _require_status(self, case_id: str, required: CaseStatus, action: str) -> None:
+        status = self._case(case_id).status
+        if status is not required:
+            raise StoreError(f"{case_id} can only be {action} while it is {required.value}; it is {status.value}.")
+
     def _write(
         self, case_id: str, agent: str, kind: LogEventKind, summary: str, references: list[str] | None = None, **changes
     ) -> None:
         """Apply `changes` to the Case and append exactly one Log event. Validates before changing anything."""
+        current = self._case(case_id)
+        if changes and current.status in (CaseStatus.REJECTED, CaseStatus.CLOSED):
+            raise StoreError(f"{case_id} is {current.status.value}; it accepts no further writes.")
         now = self._clock()
-        case = Case.model_validate({**dict(self._case(case_id)), **changes, "updated_at": now})
+        # Deep copy so the caller's objects and the stored Case never share state.
+        case = Case.model_validate({**dict(current), **changes, "updated_at": now}).model_copy(deep=True)
         event = LogEvent(
             case_id=case_id, timestamp=now, agent=agent, kind=kind, summary=summary, references=references or []
         )

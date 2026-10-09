@@ -9,13 +9,11 @@ Keep the two files in step.
 """
 
 from decimal import Decimal
-from typing import Annotated, Literal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.contracts import DisputeCategory, PolicyFit, ReviewTrigger, Switches
-
-Score = Annotated[float, Field(ge=0, le=1)]
+from src.contracts import DisputeCategory, PolicyFit, ReviewTrigger, Score, Switches
 
 
 class _Settings(BaseModel):

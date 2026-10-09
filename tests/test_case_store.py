@@ -252,3 +252,76 @@ def test_an_unknown_case_id_is_a_clear_error():
         store.get_case("CASE-9999")
 
     assert "CASE-9999" in str(error.value)
+
+
+def test_changing_an_object_after_handing_it_to_the_store_does_not_change_the_case():
+    store = CaseStore()
+    case_id = store.create_case(b.a_dispute()).case_id
+    item = b.an_evidence_item(evidence_id="EV-GPS-9")
+    store.add_evidence(case_id, [item], agent="orchestrator")
+    store.seal_evidence(case_id)
+
+    item.status = "missing"
+    item.content = "tampered after sealing"
+
+    stored = store.get_case(case_id).evidence[0]
+    assert stored.status == "available"
+    assert stored.content != "tampered after sealing"
+
+
+def test_a_log_event_read_from_the_store_cannot_be_edited_in_place():
+    store = CaseStore()
+    case_id = store.create_case(b.a_dispute()).case_id
+
+    store.log(case_id)[0].summary = "rewritten"
+
+    assert store.log(case_id)[0].summary != "rewritten"
+
+
+def test_priority_can_only_be_set_on_a_newly_filed_case():
+    store = CaseStore()
+    case_id = a_case_with_sealed_evidence(store)
+
+    with pytest.raises(StoreError, match="building_cases"):
+        store.set_priority(case_id, 1, reason="Too late.")
+
+    assert store.get_case(case_id).status == "building_cases"
+
+
+def test_a_case_can_only_be_rejected_at_intake():
+    store = CaseStore()
+    case_id = a_case_with_sealed_evidence(store)
+
+    with pytest.raises(StoreError, match="building_cases"):
+        store.reject_case(case_id, reason="Too late.")
+
+
+def test_a_rejected_case_accepts_no_further_writes():
+    store = CaseStore()
+    case_id = store.create_case(b.a_dispute()).case_id
+    store.reject_case(case_id, reason="Trip TRIP-002 does not exist.")
+
+    with pytest.raises(StoreError, match="rejected"):
+        store.add_evidence(case_id, [GPS], agent="orchestrator")
+
+    assert kinds(store, case_id) == ["case_filed", "case_rejected"]
+
+
+def test_a_ruling_needs_both_submissions():
+    store = CaseStore()
+    case_id = a_case_with_sealed_evidence(store)
+    store.add_submission(case_id, b.a_submission(author="rider_advocate"))
+
+    with pytest.raises(StoreError, match="both Submissions"):
+        store.set_ruling(case_id, b.a_ruling())
+
+    assert store.get_case(case_id).ruling is None
+
+
+def test_two_policy_clauses_cannot_share_an_id():
+    store = CaseStore()
+    case_id = store.create_case(b.a_dispute()).case_id
+    store.add_policy_clauses(case_id, [b.a_policy_clause(clause_id="NS-1")], agent="orchestrator")
+
+    with pytest.raises(StoreError, match="NS-1"):
+        store.add_policy_clauses(case_id, [b.a_policy_clause(clause_id="NS-1")], agent="orchestrator")

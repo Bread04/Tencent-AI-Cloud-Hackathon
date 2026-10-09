@@ -63,8 +63,8 @@ def test_a_ruling_is_checked_everywhere_it_cites_evidence():
             {
                 "author": "driver_advocate",
                 "argument": "The rider never replied in chat.",
-                "verdict": "unproven",
-                "reason": "There is no chat log.",
+                "verdict": "accepted",
+                "reason": "The chat log shows no reply.",
                 "evidence_ids": ["EV-CHAT-1"],
             }
         ],
@@ -86,3 +86,57 @@ def test_a_ruling_citing_a_precedent_it_was_not_given_is_an_error():
 
     assert len(errors) == 1
     assert "PREC-404" in errors[0]
+
+
+def test_an_unproven_argument_may_turn_on_a_missing_item():
+    ruling = b.a_ruling(
+        argument_assessments=[
+            {
+                "author": "rider_advocate",
+                "argument": "I messaged the driver that I was waiting.",
+                "verdict": "unproven",
+                "reason": "No chat log was found, so the message cannot be established.",
+                "evidence_ids": ["EV-CHAT-1"],
+            }
+        ],
+    )
+
+    assert citation_errors(ruling, EVIDENCE, POLICY) == []
+
+
+def test_an_accepted_argument_cannot_turn_on_a_missing_item():
+    ruling = b.a_ruling(
+        argument_assessments=[
+            {
+                "author": "rider_advocate",
+                "argument": "I messaged the driver that I was waiting.",
+                "verdict": "accepted",
+                "reason": "The chat shows the message.",
+                "evidence_ids": ["EV-CHAT-1"],
+            }
+        ],
+    )
+
+    errors = citation_errors(ruling, EVIDENCE, POLICY)
+
+    assert len(errors) == 1
+    assert "EV-CHAT-1" in errors[0]
+
+
+def test_an_unproven_argument_still_cannot_cite_an_id_that_does_not_exist():
+    ruling = b.a_ruling(
+        argument_assessments=[
+            {
+                "author": "rider_advocate",
+                "argument": "The dashcam shows I was there.",
+                "verdict": "unproven",
+                "reason": "No dashcam footage exists.",
+                "evidence_ids": ["EV-DASHCAM-9"],
+            }
+        ],
+    )
+
+    errors = citation_errors(ruling, EVIDENCE, POLICY)
+
+    assert len(errors) == 1
+    assert "EV-DASHCAM-9" in errors[0]

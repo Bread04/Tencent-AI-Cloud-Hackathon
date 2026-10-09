@@ -5,7 +5,6 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
-from src import contracts as c
 from tests import builders as b
 
 BUILDERS = [

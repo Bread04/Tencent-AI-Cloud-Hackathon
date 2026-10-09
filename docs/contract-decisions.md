@@ -84,4 +84,9 @@ Placeholders the code currently runs on. Each needs a decision.
 | 10 | **Model provider**, including a vision-capable model. | None; only the offline stub exists (ticket 08) |
 | 11 | **Per-argument identity.** An Argument Assessment refers to an argument by its text and its author; a Submission has no argument IDs. | Text plus author |
 | 12 | **Recomputing the amount** (rule 3) from fare Evidence Items needs the policy formula. | The contract only checks amount against the shown calculation; recomputation is left to the Judge ticket |
-| 13 | Still open from architecture section 12 and untouched here: precedent similarity (tags or embeddings), mock policy wording, timeouts per stage. | |
+| 13 | **Evidence Item kind.** `source` is free text, so withholding History from the Judge (architecture 6.2) and matching checklist lines both rely on string matching. Should `source` be a closed list (gps, chat, fare, history, trip, photo, driver statement)? | Free text |
+| 14 | **Case IDs and the stub script.** Case IDs are numbered in creation order and the stub is keyed on (case ID, agent), so a mock-case script depends on the order cases are created. Key on the dispute ID instead? | `CASE-0001`, `CASE-0002`, … |
+| 15 | **Claimant and Respondent** are derived from `filed_by` rather than stored, so a fixture that carries `claimant` is rejected. | Derived properties |
+| 16 | **Where citation rules run.** `citation_errors` is called by the agents (so they can repair), not by the store on `add_submission` or `set_ruling`. | Agents call it |
+| 17 | **Invalid Dispute Category.** It fails contract validation before a Case exists, so no `case_rejected` event is logged for it. Intake needs to decide how to show that rejection. | Validation error |
+| 18 | Still open from architecture section 12 and untouched here: precedent similarity (tags or embeddings), mock policy wording, timeouts per stage. | |
