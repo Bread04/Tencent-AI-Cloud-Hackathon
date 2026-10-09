@@ -439,3 +439,60 @@ class Case(Contract):
             if authors.count(author) > 1:
                 raise ValueError(f"a Case holds at most one Submission per advocate; got two from {author.value}")
         return self
+
+
+# --- Rules enforced in code, not by prompt -----------------------------------
+# Rule 3 (amount equals the shown calculation) is a Ruling validator above; the
+# recomputation from fare Evidence Items belongs to the Judge's code.
+
+
+def citation_errors(
+    document: Submission | Ruling,
+    evidence: list[EvidenceItem],
+    policy_clauses: list[PolicyClause],
+    precedents: list[Precedent] = (),
+) -> list[str]:
+    """Check a Submission or Ruling against the sealed evidence set and policy.
+
+    Rule 1: every cited ID must exist. Rule 2: a `missing` item may be cited
+    only as missing, never as fact. Returns one sentence per problem, written
+    so it can be fed back to the agent that must fix it; empty means clean.
+    """
+    status_by_id = {item.evidence_id: item.status for item in evidence}
+    clause_ids = {clause.clause_id for clause in policy_clauses}
+    precedent_ids = {precedent.precedent_id for precedent in precedents}
+
+    if isinstance(document, Submission):
+        as_fact = list(document.facts_relied_on)
+        cited_clauses = document.policy_clause_ids
+        cited_precedents: list[str] = []
+    else:
+        as_fact = list(document.cited_evidence_ids)
+        if document.calculation:
+            as_fact += document.calculation.input_evidence_ids
+        for part in [*document.argument_assessments, *document.own_findings, *document.material_evidence]:
+            as_fact += part.evidence_ids
+        cited_clauses = document.cited_policy_clause_ids
+        cited_precedents = document.cited_precedent_ids
+
+    errors = []
+    for evidence_id in dict.fromkeys(as_fact):
+        if evidence_id not in status_by_id:
+            errors.append(f"Evidence Item {evidence_id} is cited but is not in the sealed evidence set.")
+        elif status_by_id[evidence_id] is EvidenceStatus.MISSING:
+            errors.append(
+                f"Evidence Item {evidence_id} is marked missing, so it cannot be relied on as fact; "
+                "cite it only in missing_evidence_ids."
+            )
+    for evidence_id in dict.fromkeys(document.missing_evidence_ids):
+        if evidence_id not in status_by_id:
+            errors.append(f"Evidence Item {evidence_id} is cited as missing but is not in the sealed evidence set.")
+        elif status_by_id[evidence_id] is not EvidenceStatus.MISSING:
+            errors.append(f"Evidence Item {evidence_id} is cited as missing but its status is {status_by_id[evidence_id].value}.")
+    for clause_id in dict.fromkeys(cited_clauses):
+        if clause_id not in clause_ids:
+            errors.append(f"Policy Clause {clause_id} is cited but is not in the policy given for this Case.")
+    for precedent_id in dict.fromkeys(cited_precedents):
+        if precedent_id not in precedent_ids:
+            errors.append(f"Precedent {precedent_id} is cited but was not given for this Case.")
+    return errors
