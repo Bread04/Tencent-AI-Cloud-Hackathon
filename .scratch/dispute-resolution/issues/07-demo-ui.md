@@ -8,11 +8,11 @@
 
 **Tier:** 0 · **Owner:** Braedon
 
-- [ ] A list of prepared mock Disputes can be browsed and one run with a single click
+- [x] A list of prepared mock Disputes can be browsed and one run with a single click
 - [ ] The Communication Log updates live during a run
 - [ ] The Ruling card shows outcome, amount, Confidence with its components, reasoning, per-argument assessment, and cited evidence and clauses
 - [ ] Cited Evidence Items and Policy Clauses can be opened from the Ruling
 - [ ] Rider and driver Outcome views are shown side by side
 - [ ] A recommended action is visibly different from an executed one
-- [ ] Mock data, mock policy and simulated financial actions are labelled on screen
+- [x] Mock data, mock policy and simulated financial actions are labelled on screen
 - [ ] The UI can be built against a recorded log stream, without the orchestrator running

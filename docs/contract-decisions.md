@@ -78,8 +78,6 @@ Placeholders the code currently runs on. Each needs a decision.
 | 4 | **Material-evidence checklists** for Route Deviation, Property Damage and Safety Incident. | Not defined; only No-Show Charge exists |
 | 5 | **How a checklist line is matched to Evidence Items.** The architecture's Evidence Item has no `kind` field. | None; `MaterialEvidenceEntry.evidence_ids` is filled by whoever builds the checklist |
 | 6 | **Citing missing evidence.** Rule 2 says a `missing` item can be cited only as missing. | Added `missing_evidence_ids` to Submission and Ruling (not in the architecture table); every other evidence citation is treated as fact |
-| 7 | **`Dispute.requested_remedy`:** free text, or one of the closed Remedy list? | Free text |
-| 8 | **`Precedent.ruling`:** a full Ruling, or a shorter summary (outcome, Remedy, amount)? A full Ruling makes seeding mock precedents heavier. | Full `Ruling` |
 | 9 | **`Case.priority`:** scale and direction. | Integer, default 0, meaning not yet agreed |
 | 10 | **Model provider**, including a vision-capable model. | None; only the offline stub exists (ticket 08) |
 | 11 | **Per-argument identity.** An Argument Assessment refers to an argument by its text and its author; a Submission has no argument IDs. | Text plus author |
@@ -90,6 +88,12 @@ Placeholders the code currently runs on. Each needs a decision.
 | 16 | **Where citation rules run.** `citation_errors` is called by the agents (so they can repair), not by the store on `add_submission` or `set_ruling`. | Agents call it |
 | 17 | **Invalid Dispute Category.** It fails contract validation before a Case exists, so no `case_rejected` event is logged for it. Intake needs to decide how to show that rejection. | Validation error |
 | 18 | Still open from architecture section 12 and untouched here: precedent similarity (tags or embeddings), mock policy wording, timeouts per stage. | |
-| 7 | **Role-scoped policy.** Kyven's Rider and Driver Policy Agents each get only their own side's clauses (`R-*`, `D-*`). `PolicyClause` has no `role` field. | All agents get the same clause set, both sides' clauses included (architecture 5.3, "one source, three roles") |
-| 8 | **Source and version references on a Submission.** Kyven's advocate specs attach report-snapshot, evidence-version and policy-version refs. `Submission` has none. | Not recorded; the Case carries `evidence_version` and each clause carries its `version` |
 | 9 | **Where the Route Deviation refund formula lives.** The shared policy set has none (see ADR 0002). | Not defined |
+
+## Decided (Braedon, 11 Oct 2026, for Kyven to confirm)
+
+- **Policy is not role-scoped.** Every agent receives the same clause set, both sides' clauses included, from one version (architecture 5.3). `PolicyClause` gets no `role` field. Kyven's Rider and Driver Policy Agents become roles of the one Policy & Precedent Agent (ticket 10).
+- **The contract is extended** (ticket 18): `Dispute` keeps the original report and its incident, category-detail and requested-resolution fields; `Submission` records the report, evidence and policy versions it was built from; the Case can seal a new evidence version after a policy gap, which invalidates the earlier Submissions and Ruling.
+- **Kyven's JavaScript agents are ported to Python**, not called from it (tickets 10 and 11).
+- **The shared repair loop** is one helper in `src/llm/`, built in ticket 04 and reused by 05 and 08.
+- **Thresholds come from trip data** (ADR 0002).

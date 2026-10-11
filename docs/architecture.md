@@ -306,4 +306,4 @@ The hackathon requires an architecture diagram. The Mermaid chart in section 2 i
 4. Whether similarity search for precedent uses tags only or embeddings.
 5. Who owns Intake (proposed: Kyven) and the configuration file (proposed: Braedon).
 6. The list of escalation triggers and the amount limit.
-7. Mock policy wording, including the free-wait versus no-show threshold ambiguity.
+7. ~~Mock policy wording, including the free-wait versus no-show threshold ambiguity.~~ Decided: the shared policy is generic and the thresholds come from trip data, counted from arrival ([ADR 0002](adr/0002-thresholds-come-from-trip-data-not-policy-text.md)).

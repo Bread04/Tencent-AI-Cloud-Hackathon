@@ -67,3 +67,15 @@ def test_the_case_page_shows_the_policy_clauses_cited_and_labels_the_policy_as_s
         assert clause.clause_id in page.text
         assert escape(clause.text) in page.text
     assert case.policy_clauses[0].version in page.text
+
+
+def test_reopening_a_ruled_case_shows_the_stored_ruling_and_does_not_call_the_model_again(store):
+    model = a_stub_for("CASE-0001")
+    client = TestClient(create_app(store=store, model=model, catalog=load_catalog()))
+    first = client.post(f"/disputes/{DISPUTE_ID}/run", follow_redirects=True)
+    calls_after_the_run = len(model.calls)
+
+    reopened = [client.get("/cases/CASE-0001") for _ in range(2)]
+
+    assert len(model.calls) == calls_after_the_run
+    assert all(page.text == first.text for page in reopened)

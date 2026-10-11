@@ -61,7 +61,7 @@ The target is every agent and capability described in `workflow.md` except the F
 32. As an advocate agent, I want to look up the Policy Clauses relevant to the Dispute Category, so that my arguments are grounded in company rules.
 33. As an advocate agent, I want every Policy Clause to have a stable ID, so that I can cite it and the citation stays valid if wording improves.
 34. As a Judge, I want to look up policy from the same version the advocates used, so that all three agents apply the same rules.
-35. As a product owner, I want ambiguous policy points (for example, whether the free wait counts from arrival or from the scheduled time) resolved explicitly in the mock policy, so that rulings are predictable.
+35. As a product owner, I want ambiguous policy points (for example, whether the free wait counts from arrival or from the scheduled time) resolved explicitly, so that rulings are predictable. The shared policy sets no wait time or fee, so the thresholds come from the trip's own data and code counts the wait from the driver's arrival (ADR 0002).
 36. As a hackathon judge, I want mock policy clearly labelled as simulated, so that it is not mistaken for Ryde's real policy.
 
 ### Case building and judging
@@ -131,7 +131,7 @@ The target is every agent and capability described in `workflow.md` except the F
 - **Shared Case contract.** One contract defines the Case, Evidence Item, Submission, Ruling and Communication Log event. It is agreed jointly and changed only with both teammates' approval.
 - **Evidence Item.** Carries an ID, source, trip association, timestamp where available, and a retrieval status of available or missing. Conflicts are labelled.
 - **Evidence tools (deterministic).** GPS and telemetry (including actual versus optimal route and unexpected stops), chat and communication, fare breakdown, and rider and driver history. Calculations are plain code, not model calls. Both advocates call the same tools so they read the same records.
-- **Policy tool.** One shared mock policy with stable Policy Clause IDs and one version. Advocates and the Judge call it with a role. The ambiguity between the free-wait and no-show thresholds is resolved explicitly in the policy text.
+- **Policy tool.** One shared mock policy with stable Policy Clause IDs and one version. Advocates and the Judge call it with a role. The shared policy sets no wait time or fee; the free-wait and no-show thresholds come from the trip's fare evidence, counted from the driver's arrival (ADR 0002).
 - **Ruling.** Contains: outcome (uphold, partially uphold, reject the claimant's claim), recommended action, amount and currency where applicable with its calculation, cited Evidence Item IDs, cited Policy Clause IDs, a per-argument acceptance or rejection with reasons, a reasoning summary, and a Confidence between 0 and 1 reflecting evidence completeness, consistency and policy fit. The exact Confidence scale and any escalation threshold are fixed in the contract session.
 - **Outcome.** Both parties receive the same Ruling worded for each. A recommended action is distinguished from an executed one; financial actions are simulated.
 - **History as context.** Rider and driver history may adjust Confidence or inform the reasoning, but is never the sole stated basis for a Ruling.

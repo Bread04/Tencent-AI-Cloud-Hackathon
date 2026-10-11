@@ -358,7 +358,7 @@ Work top to bottom. Do not start a tier until the one above it is fully ticked. 
 - [ ] Log in to the GitHub CLI and publish the spec and tickets as issues.
 - [ ] Hold the contract session: fix the contract objects, confidence model, escalation triggers, and switches.
 - [ ] Confirm the model provider, including a model that accepts images for Tier 3.
-- [ ] Write the mock policy with clause IDs, resolving the free-wait versus no-show threshold ambiguity.
+- [x] Use the shared Waypoint policy with clause IDs; the free-wait versus no-show threshold ambiguity is resolved from trip data, counted from arrival (ADR 0002).
 
 ### Tier 0: required MVP (target Sat 10 Oct)
 

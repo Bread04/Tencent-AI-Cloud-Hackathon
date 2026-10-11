@@ -2,7 +2,7 @@
 
 **What to build:** Everything needed to present. A clean architecture diagram, built from the chart in the architecture doc, showing the Case store in the middle, the three Core Agents highlighted, the Supporting Agents as switchable layers, the human review path and the Communication Log, with simulated parts marked. A demo script that opens by naming the Ryde case study, shows the Core Agents alone, then switches on each Supporting Agent that is finished. Switch toggles in the UI so this can be done live. One case ruled for the Claimant and one for the Respondent. Setup instructions so a judge can run the project.
 
-**Blocked by:** 06, 07
+**Blocked by:** 06, 07, 08, 20
 
 **Status:** ready-for-agent
 

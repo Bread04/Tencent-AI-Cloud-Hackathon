@@ -9,10 +9,13 @@
 **Tier:** 0 · **Owner:** Kyven
 
 - [ ] Three No-Show mock cases exist, each with a separate expected-outcome label
-- [ ] Each advocate produces a Submission that validates against the contract
+- [x] Each advocate produces a Submission that validates against the contract
 - [ ] Every Evidence Item and Policy Clause ID cited exists; a bad citation triggers a repair attempt
 - [ ] After two failed repair attempts the Case goes to review with the reason, not a guessed Submission
-- [ ] An advocate cannot quote a missing Evidence Item as fact
+- [ ] The repair loop is one shared helper in `src/llm/` (it feeds the validation error back and counts attempts); tickets 05 and 08 reuse it and do not build their own
+- [ ] Either advocate can act for the Claimant or the Respondent, and the optional driver statement is treated as untrusted data
+- [x] Both advocates receive the same clause set, both sides' clauses included
+- [x] An advocate cannot quote a missing Evidence Item as fact
 - [ ] The two advocates run in parallel and neither sees the other Submission
-- [ ] Wait-time and contact-attempt values are computed by code, not by the model
+- [x] Wait-time and contact-attempt values are computed by code, not by the model
 - [ ] Two hand-written sample Submissions per case are committed as fixtures for the Judge

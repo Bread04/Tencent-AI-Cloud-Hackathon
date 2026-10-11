@@ -10,20 +10,20 @@ In one structured model call it gives each argument an Argument Assessment (acce
 
 **Tier:** 0 · **Owner:** Braedon
 
-- [ ] The Judge can be run directly on a Case plus two fixture Submissions
+- [x] The Judge can be run directly on a Case plus two fixture Submissions
 - [ ] Every argument in both Submissions gets one of the four Argument Assessments with a reason and the evidence it turned on
 - [ ] The Ruling states the Balance of Evidence; a balanced Case is marked for review and its Ruling is a proposal
 - [ ] An unproven claim by the Claimant is rejected
-- [ ] The Remedy comes from the closed list in policy; a partial outcome on a No-Show case is only possible where a Policy Clause provides for one
+- [x] The Remedy is one the category allows (`ALLOWED_REMEDIES`); a partial outcome on a No-Show case is not available because no Policy Clause provides for one
 - [ ] The amount is computed by code from the inputs the Judge names, and the Ruling shows the calculation
-- [ ] Confidence is computed by code as the lowest component; the Judge supplies only the Policy Fit level
-- [ ] The material-evidence checklist for No-Show is shown in the Ruling with what was missing
-- [ ] The prompt given to the Judge contains no History
+- [x] Confidence is computed by code as the lowest component; the Judge supplies only the Policy Fit level
+- [x] The material-evidence checklist for No-Show is shown in the Ruling with what was missing
+- [x] The prompt given to the Judge contains no History
 - [ ] The History step can lower Confidence or add a Review Trigger, lists each adjustment with a reason, and never changes the outcome
 - [ ] A point neither advocate raised is labelled as an Own Finding, and a decisive one caps Confidence
 - [ ] A situation no clause covers is named as a Policy Gap, Policy Fit is unclear, and the Case is marked for review
-- [ ] Every cited Evidence Item and Policy Clause ID exists
+- [x] Every cited Evidence Item and Policy Clause ID exists
 - [ ] A failed self-check sends the draft back once, then the Case goes to review
-- [ ] The Ruling is stored with the Case, and reopening the Case does not rerun the Judge
+- [x] The Ruling is stored with the Case, and reopening the Case does not rerun the Judge
 - [ ] On the three No-Show mock cases the outcome matches the expected label, and the ambiguous case ends below the escalation threshold
 - [ ] Each party's Outcome is produced by a template from the Ruling, with the action marked recommended, not executed

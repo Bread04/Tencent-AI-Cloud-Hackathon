@@ -15,6 +15,6 @@
 - [ ] A reviewer screen lists pending Cases and shows the package
 - [ ] The reviewer can confirm, or override with a required reason
 - [ ] After review, both parties receive the final Outcome
-- [ ] The threshold is configurable
+- [x] The threshold is configurable
 - [ ] With Escalation switched off, every Ruling finalizes as before
 - [ ] A mock case exists that escalates on low Confidence

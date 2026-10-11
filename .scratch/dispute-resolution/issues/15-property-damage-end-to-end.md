@@ -9,7 +9,7 @@
 **Tier:** 3 · **Owner:** Kyven (cases and advocates) and Braedon (Judge, policy, UI)
 
 - [ ] A driver can file a Property Damage Dispute with photos, and the Case records the driver as Claimant
-- [ ] Property Damage Policy Clauses exist, including how a cleaning fee is assessed
+- [ ] Property Damage clauses (R-07, D-07) are served for the category, and how a cleaning fee is assessed is a recorded code rule (as in ADR 0002)
 - [ ] Three mock cases exist: genuine damage, a photo from another date, and a photo failing the AI-generation check
 - [ ] The Ruling is stated as upholding, partially upholding or rejecting the claim of the driver
 - [ ] A failed or unknown Authenticity Check caps Confidence and escalates the Case

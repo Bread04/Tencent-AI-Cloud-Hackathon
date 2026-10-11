@@ -13,6 +13,6 @@
 - [ ] Credentials are read from the environment and are absent from the repo
 - [ ] Structured output is requested and validated against the contract
 - [ ] A timed-out call is treated as a failure, not a hang
-- [ ] Invalid output is retried with the validation error, up to two times
+- [ ] Invalid output is retried with the validation error, up to two times, using the shared repair helper from ticket 04
 - [ ] With the model unreachable, the user sees a clear error and the Case is marked for review
 - [ ] One mock case resolves end to end on the real model

@@ -143,3 +143,13 @@ def test_an_advocate_citing_a_policy_clause_that_does_not_exist_is_refused_with_
 def test_a_judge_citing_a_policy_clause_that_does_not_exist_is_refused_with_a_clear_error():
     with pytest.raises(CitationError, match="NS-99"):
         run_with_scripted_changes("judge", cited_policy_clause_ids=["NS-99"])
+
+
+def test_an_advocate_cannot_quote_a_missing_evidence_item_as_fact():
+    with pytest.raises(CitationError, match="EV-RIDERLOC-1.*missing"):
+        run_with_scripted_changes("rider_advocate", facts_relied_on=["EV-FARE-1", "EV-RIDERLOC-1"])
+
+
+def test_the_judge_cannot_rest_a_ruling_on_a_missing_evidence_item_as_fact():
+    with pytest.raises(CitationError, match="EV-RIDERLOC-1.*missing"):
+        run_with_scripted_changes("judge", cited_evidence_ids=["EV-GPS-1", "EV-RIDERLOC-1"])
