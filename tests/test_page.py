@@ -5,6 +5,7 @@ from html import escape
 import pytest
 from fastapi.testclient import TestClient
 
+from src.agents.policy import SIMULATED_LABEL
 from src.api import create_app
 from src.intake import load_catalog
 from src.store import CaseStore
@@ -55,3 +56,14 @@ def test_a_case_that_does_not_exist_is_a_clear_404(client):
 
     assert response.status_code == 404
     assert "CASE-9999" in response.text
+
+
+def test_the_case_page_shows_the_policy_clauses_cited_and_labels_the_policy_as_simulated(client, store):
+    page = client.post(f"/disputes/{DISPUTE_ID}/run", follow_redirects=True)
+
+    case = store.get_case("CASE-0001")
+    assert escape(SIMULATED_LABEL) in page.text
+    for clause in case.policy_clauses:
+        assert clause.clause_id in page.text
+        assert escape(clause.text) in page.text
+    assert case.policy_clauses[0].version in page.text

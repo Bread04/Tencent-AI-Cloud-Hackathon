@@ -13,3 +13,8 @@ def evidence_for_prompt(case: Case) -> str:
     """The sealed evidence a model may see, as JSON."""
     items = [item.model_dump(mode="json") for item in case.evidence if item.source not in WITHHELD_SOURCES]
     return json.dumps(items, indent=2)
+
+
+def policy_for_prompt(case: Case) -> str:
+    """The Policy Clauses applying to the Case, as JSON. Advocates and the Judge get the same text."""
+    return json.dumps([clause.model_dump(mode="json") for clause in case.policy_clauses], indent=2)

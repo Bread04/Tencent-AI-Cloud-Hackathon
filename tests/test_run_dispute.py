@@ -5,7 +5,9 @@ import socket
 
 import pytest
 
-from src.contracts import CaseStatus, EvidenceStatus, LogEventKind, RulingOutcome
+from src.agents.citations import CitationError
+from src.agents.policy import policy_for
+from src.contracts import CaseStatus, DisputeCategory, EvidenceStatus, LogEventKind, RulingOutcome
 from src.intake import DEFAULT_DATA_DIR, load_catalog
 from src.llm.stub import StubModel
 from src.orchestrator import run_dispute
@@ -60,6 +62,7 @@ def test_the_communication_log_tells_the_story_in_order():
         LogEventKind.EVIDENCE_REQUESTED,
         LogEventKind.EVIDENCE_RETURNED,
         LogEventKind.EVIDENCE_SEALED,
+        LogEventKind.POLICY_RETRIEVED,
         LogEventKind.SUBMISSION_FILED,
         LogEventKind.SUBMISSION_FILED,
         LogEventKind.RULING_DRAFTED,
@@ -110,3 +113,33 @@ def test_a_dispute_in_a_category_this_build_cannot_resolve_is_rejected_with_a_cl
     assert case.status is CaseStatus.REJECTED
     assert "property_damage" in store.log(case.case_id)[-1].summary
     assert model.calls == []
+
+
+def test_the_policy_is_retrieved_logged_stored_and_given_to_both_advocates_and_the_judge():
+    store, model, case = run_prepared_dispute()
+
+    expected = policy_for(DisputeCategory.NO_SHOW_CHARGE)
+    assert case.policy_clauses == expected
+    event = next(e for e in store.log(case.case_id) if e.kind is LogEventKind.POLICY_RETRIEVED)
+    assert event.references == [clause.clause_id for clause in expected]
+    for call in model.calls:
+        prompt = json.dumps(call["messages"])
+        assert all(clause.clause_id in prompt for clause in expected), call["agent"]
+
+
+def run_with_scripted_changes(agent: str, **changes):
+    catalog, store = load_catalog(), CaseStore()
+    replies = stub_replies()
+    replies[agent] = replies[agent] | changes
+    model = StubModel({("CASE-0001", name): reply for name, reply in replies.items()})
+    return run_dispute(catalog.dispute(DISPUTE_ID), store=store, model=model, catalog=catalog)
+
+
+def test_an_advocate_citing_a_policy_clause_that_does_not_exist_is_refused_with_a_clear_error():
+    with pytest.raises(CitationError, match="NS-99"):
+        run_with_scripted_changes("driver_advocate", policy_clause_ids=["NS-1", "NS-99"])
+
+
+def test_a_judge_citing_a_policy_clause_that_does_not_exist_is_refused_with_a_clear_error():
+    with pytest.raises(CitationError, match="NS-99"):
+        run_with_scripted_changes("judge", cited_policy_clause_ids=["NS-99"])

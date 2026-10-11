@@ -9,6 +9,7 @@ from html import escape
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, RedirectResponse
 
+from src.agents.policy import SIMULATED_LABEL as POLICY_SIMULATED
 from src.contracts import Case, LogEvent
 from src.intake import Catalog, UnknownDispute
 from src.llm.adapter import ModelAdapter
@@ -46,7 +47,7 @@ def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog) -> Fa
             case, log = store.get_case(case_id), store.log(case_id)
         except CaseNotFound as error:
             return HTMLResponse(_page("Not found", f"<p>{escape(str(error))}</p>"), status_code=404)
-        return _page(f"Case {case_id}", _ruling_html(case) + _log_html(log))
+        return _page(f"Case {case_id}", _ruling_html(case) + _policy_html(case) + _log_html(log))
 
     return app
 
@@ -80,3 +81,13 @@ def _log_html(log: list[LogEvent]) -> str:
         for e in log
     )
     return f"<h2>Communication Log</h2><ol>{rows}</ol>"
+
+
+def _policy_html(case: Case) -> str:
+    if not case.policy_clauses:
+        return ""
+    rows = "".join(
+        f"<li><strong>{escape(c.clause_id)}</strong> (version {escape(c.version)}): {escape(c.text)}</li>"
+        for c in case.policy_clauses
+    )
+    return f"<h2>Policy</h2><p>{escape(POLICY_SIMULATED)}</p><ul>{rows}</ul>"

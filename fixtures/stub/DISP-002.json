@@ -15,7 +15,9 @@
         "response": "The lobby is large and the driver may have been at a different entrance."
       }
     ],
-    "policy_clause_ids": [],
+    "policy_clause_ids": [
+      "NS-7"
+    ],
     "requested_outcome": "Reverse the $5.00 no-show fee."
   },
   "driver_advocate": {
@@ -32,7 +34,12 @@
         "response": "GPS shows the driver stationary at the pickup point from arrival to cancellation."
       }
     ],
-    "policy_clause_ids": [],
+    "policy_clause_ids": [
+      "NS-1",
+      "NS-2",
+      "NS-3",
+      "NS-4"
+    ],
     "requested_outcome": "Uphold the $5.00 no-show fee."
   },
   "judge": {
@@ -67,6 +74,12 @@
       "EV-CHAT-1",
       "EV-FARE-1"
     ],
-    "reasoning_summary": "The driver was at the pickup point for the whole wait and tried to contact the rider. The rider's position is unknown, so their claim is unproven and the fee stands."
+    "reasoning_summary": "The driver was at the pickup point for the whole wait and tried to contact the rider. The rider's position is unknown, so their claim is unproven and the fee stands.",
+    "cited_policy_clause_ids": [
+      "NS-1",
+      "NS-3",
+      "NS-5",
+      "NS-7"
+    ]
   }
 }

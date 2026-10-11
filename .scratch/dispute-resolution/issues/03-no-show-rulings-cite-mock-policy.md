@@ -8,11 +8,11 @@
 
 **Tier:** 0 · **Owner:** Braedon
 
-- [ ] No-Show policy exists as Policy Clauses, each with a stable ID, text and version
-- [ ] The free-wait and no-show threshold ambiguity is resolved in the wording
-- [ ] The policy defines the closed list of Remedies and says whether No-Show allows a partial outcome
-- [ ] A material-evidence checklist for No-Show is kept with the policy
-- [ ] Looking up policy for the No-Show category returns the applicable clauses
-- [ ] A Submission or Ruling citing a non-existent clause ID fails validation with a clear error
-- [ ] The Communication Log records a policy lookup event
-- [ ] The policy is labelled as simulated on screen
+- [x] No-Show policy exists as Policy Clauses, each with a stable ID, text and version
+- [x] The free-wait and no-show threshold ambiguity is resolved in the wording
+- [x] The policy defines the closed list of Remedies and says whether No-Show allows a partial outcome
+- [x] A material-evidence checklist for No-Show is kept with the policy
+- [x] Looking up policy for the No-Show category returns the applicable clauses
+- [x] A Submission or Ruling citing a non-existent clause ID fails validation with a clear error
+- [x] The Communication Log records a policy lookup event
+- [x] The policy is labelled as simulated on screen

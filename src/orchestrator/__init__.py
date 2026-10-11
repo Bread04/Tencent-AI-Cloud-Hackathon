@@ -7,6 +7,7 @@ supporting agents and their switches, escalation, Outcomes, failure handling.
 
 from src.agents.advocates import build_submission
 from src.agents.judge import judge
+from src.agents.policy import policy_for
 from src.contracts import Advocate, Case, Dispute, DisputeCategory, LogEventKind
 from src.intake import Catalog, UnknownTrip
 from src.llm.adapter import ModelAdapter
@@ -34,8 +35,9 @@ def run_dispute(dispute: Dispute, *, store: CaseStore, model: ModelAdapter, cata
     )
     store.add_evidence(case_id, gather_evidence(dispute.trip_id, catalog), agent="evidence")
     store.seal_evidence(case_id)
+    store.add_policy_clauses(case_id, policy_for(dispute.category), agent="policy")
 
-    # Both advocates work from this snapshot, taken before either has filed.
+    # Both advocates work from this snapshot (sealed evidence and policy), taken before either has filed.
     sealed = store.get_case(case_id)
     submissions = {advocate: build_submission(advocate, sealed, model) for advocate in Advocate}
     for submission in submissions.values():

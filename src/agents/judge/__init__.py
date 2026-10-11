@@ -9,7 +9,8 @@ fee reversal has its amount computed so far; the others are left without an amou
 
 from decimal import Decimal
 
-from src.agents.prompting import evidence_for_prompt
+from src.agents.citations import require_valid_citations
+from src.agents.prompting import evidence_for_prompt, policy_for_prompt
 from src.config import CONFIG
 from src.contracts import (
     ArgumentAssessment,
@@ -70,6 +71,7 @@ def judge(case: Case, rider_submission: Submission, driver_submission: Submissio
                 [
                     f"Dispute:\n{case.dispute.model_dump_json(indent=2)}",
                     f"Evidence (sealed, version {case.evidence_version}):\n{evidence_for_prompt(case)}",
+                    f"Policy clauses (cite by clause_id):\n{policy_for_prompt(case)}",
                     f"Rider Advocate Submission:\n{rider_submission.model_dump_json(indent=2)}",
                     f"Driver Advocate Submission:\n{driver_submission.model_dump_json(indent=2)}",
                 ]
@@ -80,7 +82,7 @@ def judge(case: Case, rider_submission: Submission, driver_submission: Submissio
 
     amount, calculation = _amount(case, draft.remedy)
     checklist = _checklist(case)
-    return Ruling(
+    ruling = Ruling(
         status=RulingStatus.FINAL,
         outcome=draft.outcome,
         balance_of_evidence=draft.balance_of_evidence,
@@ -97,6 +99,8 @@ def judge(case: Case, rider_submission: Submission, driver_submission: Submissio
         confidence=_confidence(case, draft.policy_fit, checklist),
         material_evidence=checklist,
     )
+    require_valid_citations(ruling, case)
+    return ruling
 
 
 def _amount(case: Case, remedy: Remedy) -> tuple[Decimal | None, Calculation | None]:
