@@ -1,8 +1,11 @@
 """Offline stub of the model adapter: scripted replies per Case, no network."""
 
 import json
+from pathlib import Path
 
 from src.llm.adapter import ModelError
+
+FIXTURE_DIR = Path(__file__).resolve().parents[2] / "fixtures" / "stub"
 
 Reply = str | dict
 Script = dict[tuple[str, str], Reply | list[Reply]]
@@ -45,3 +48,9 @@ class StubModel:
         if not scripted:
             raise ModelError(f"StubModel has used up its scripted replies for case {case_id}, agent {agent}.")
         return scripted.pop(0)
+
+
+def load_replies(dispute_id: str) -> dict[str, Reply]:
+    """The scripted replies for a prepared Dispute (`fixtures/stub/<id>.json`), keyed by agent name."""
+    replies = json.loads((FIXTURE_DIR / f"{dispute_id}.json").read_text(encoding="utf-8"))
+    return {agent: reply for agent, reply in replies.items() if not agent.startswith("_")}

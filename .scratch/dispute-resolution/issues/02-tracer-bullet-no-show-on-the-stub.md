@@ -8,12 +8,12 @@
 
 **Tier:** 0 · **Owner:** Kyven and Braedon together
 
-- [ ] Running the prepared Dispute produces a Case that reaches a ruled state
-- [ ] The Case holds Evidence Items for GPS, chat, fare and History, each with an ID and a status
-- [ ] Both advocates file a Submission, and neither sees the other one
-- [ ] The Judge returns a Ruling with outcome, amount, Confidence and reasoning
-- [ ] The Communication Log shows evidence requests and responses, both Submissions and the Ruling, in order
-- [ ] A bare page shows the Ruling and the log for the run
-- [ ] An invalid Trip reference or Dispute Category is rejected with a clear error
-- [ ] The end-to-end test passes with no network access
-- [ ] The agents never receive the expected-outcome label
+- [x] Running the prepared Dispute produces a Case that reaches a ruled state
+- [x] The Case holds Evidence Items for GPS, chat, fare and History, each with an ID and a status
+- [x] Both advocates file a Submission, and neither sees the other one
+- [x] The Judge returns a Ruling with outcome, amount, Confidence and reasoning
+- [x] The Communication Log shows evidence requests and responses, both Submissions and the Ruling, in order
+- [x] A bare page shows the Ruling and the log for the run
+- [x] An invalid Trip reference or Dispute Category is rejected with a clear error
+- [x] The end-to-end test passes with no network access
+- [x] The agents never receive the expected-outcome label

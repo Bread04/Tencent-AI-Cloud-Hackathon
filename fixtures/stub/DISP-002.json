@@ -1,0 +1,72 @@
+{
+  "_simulated": "Scripted replies for the offline model stub. Mock data, not model output.",
+  "rider_advocate": {
+    "author": "rider_advocate",
+    "claim_restated": "The rider says they waited at the pickup point and never saw the driver, so the no-show fee should be reversed.",
+    "facts_relied_on": [
+      "EV-FARE-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
+    "counter_arguments": [
+      {
+        "argument": "GPS places the driver at the pickup point for eight minutes.",
+        "response": "The lobby is large and the driver may have been at a different entrance."
+      }
+    ],
+    "policy_clause_ids": [],
+    "requested_outcome": "Reverse the $5.00 no-show fee."
+  },
+  "driver_advocate": {
+    "author": "driver_advocate",
+    "claim_restated": "The driver arrived two minutes early, stayed at the pickup point through the full free-wait and no-show window, and tried to reach the rider by message and call.",
+    "facts_relied_on": [
+      "EV-GPS-1",
+      "EV-CHAT-1",
+      "EV-FARE-1"
+    ],
+    "counter_arguments": [
+      {
+        "argument": "The rider says the driver was not there.",
+        "response": "GPS shows the driver stationary at the pickup point from arrival to cancellation."
+      }
+    ],
+    "policy_clause_ids": [],
+    "requested_outcome": "Uphold the $5.00 no-show fee."
+  },
+  "judge": {
+    "outcome": "reject",
+    "balance_of_evidence": "respondent",
+    "remedy": "no_action",
+    "argument_assessments": [
+      {
+        "author": "rider_advocate",
+        "argument": "The driver was not at the pickup point.",
+        "verdict": "rejected",
+        "reason": "GPS places the driver at the pickup point from arrival to cancellation.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      },
+      {
+        "author": "driver_advocate",
+        "argument": "The driver waited the full window and tried to make contact.",
+        "verdict": "accepted",
+        "reason": "GPS shows eight minutes at the pickup point and chat shows four messages and a call with no reply.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-CHAT-1"
+        ]
+      }
+    ],
+    "policy_fit": "clear",
+    "policy_fit_reason": "The driver waited past the no-show threshold, so the fee applies.",
+    "cited_evidence_ids": [
+      "EV-GPS-1",
+      "EV-CHAT-1",
+      "EV-FARE-1"
+    ],
+    "reasoning_summary": "The driver was at the pickup point for the whole wait and tried to contact the rider. The rider's position is unknown, so their claim is unproven and the fee stands."
+  }
+}
