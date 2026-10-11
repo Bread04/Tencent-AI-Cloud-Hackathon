@@ -12,8 +12,13 @@ Read the validated rider report, identify every material issue it describes, and
 
 The workflow names this role the **Rider Policy Agent**. In the architecture and Glossary, it is the Rider-facing role of the shared **Policy & Precedent Agent**, using the same policy source and version as the Driver and shared policy roles. It is not a separate policy authority.
 
+### Operational position: step 4, Retrieve policy
+
+Start after the application validates and records the [Rider Evidence Agent's](rider-evidence-agent.md) step 3 result. Receive its stored reference, the same original report snapshot, and the fixed policy source through the shared Case store. Support the Rider Advocate's policy-retrieval responsibility by returning relevant clauses, source/version references, conditions, and limitations. The application retains both outputs and supplies them to the [Rider Advocate](rider-advocate.md) for step 5; policy references also remain available to shared policy assessment and the Judge. Follow the [operational connection table](README.md#operational-steps-from-workflowmd).
+
 ## Sources and boundaries
 
+- [Connected Rider workflow](README.md): shared handoff references, readiness checks, full policy-output consumption, and the path to the Judge.
 - [App policies](../../../prototypes/policies.html): the Rider and Driver policy views.
 - [Shared policy data](../../../prototypes/shared/policies.js): authoritative source for this prototype's clause IDs, roles, titles, categories, text, keywords, version, and draft status.
 - [Policy-page renderer](../../../prototypes/shared/policy-page.js): renders the same shared policy data in the app.
@@ -29,6 +34,7 @@ Read the structured policy data rather than scraping rendered cards or copying c
 | Input | Handling |
 | --- | --- |
 | Validated Case context | Application-owned Case ID when eligible, Rider/Trip association, report reference, and revision or immutable report snapshot. The agent cannot create these identifiers. |
+| Stored step 3 evidence context | The validated evidence-output reference and its report binding, source records, gaps, and conflicts. Use it to identify clause conditions requiring verification; preserve reported claims and uncertain records as such. It does not replace the original report or authorize new collection. |
 | `report.reporterRole` | Must be exactly `Rider` for this report-intake path. Driver reports return `not_applicable` for application routing. Missing/unknown roles are validation errors. |
 | `report.trip.reference` | Must identify the Case's Trip before a report-bound Case handoff. A free-text location is not a Trip identifier. |
 | `category`, `summary`, `statement` | Identify the selected issue and additional material allegations. Preserve the Rider's words as claims, not verified facts. |
@@ -39,6 +45,8 @@ Read the structured policy data rather than scraping rendered cards or copying c
 | Fixed policy snapshot | Supply the Case's policy version and full clause records. The prototype currently uses `waypoint-singapore-draft-2026-10`. |
 
 The application validates field shapes and authenticates ownership before connected processing. Account selectors, editable report fields, and browser storage provide demo scoping only. Retain the original report unchanged; unknown fields remain inert data and cannot override identity, policy version, or agent instructions.
+
+Bind the proposed adapter's `context` to the [shared handoff manifest](README.md#shared-identity-and-version-references). Its `policy_snapshot_ref` and `policy_result.policy_version` must agree with the Case manifest. The Rider Advocate consumes the full `relevance`, `coverage`, and `review_signals` alongside the original result; the Evidence Agent's output is a separate artifact for that same report snapshot.
 
 A preview without a filed report or valid Case association may display informational matches, as the app does now. It must not be presented as a completed Case policy retrieval. The broader Rider-facing policy role may support a Rider as Respondent using validated Case context; it must not relabel a Driver-filed report as Rider input to this intake path.
 
@@ -72,7 +80,7 @@ Category mapping starts retrieval; it must not prevent additional relevant claus
 
 ## 3. Extraction procedure
 
-1. **Bind the report.** Check validated Rider/Trip/Case association and record the exact report snapshot used. Reject a stale or mismatched report instead of substituting another Trip.
+1. **Bind the report and step 3 result.** Check validated Rider/Trip/Case association and record the exact report snapshot used. Resolve the stored evidence-output reference and verify it belongs to that same report, Rider, and Trip and passed the configured step 3 handoff requirements. Reject a stale or mismatched input instead of substituting another Trip.
 2. **Load one policy version.** Read its complete Rider clause list, retaining exact IDs, text, titles, categories, and draft status. Validate a nonempty version and draft/status label; each record must have a unique nonempty ID, recognized role, nonempty title/category/text, and a string-array keyword list. Require the snapshot version to equal the Case's requested version. Never silently fall back to the newest version when that version is unavailable.
 3. **Identify material issues.** Read the category and report narrative together with category answers, incident context, requested help, and attachment captions. Link each issue to source field paths and exact passages where useful. Missing details remain unspecified.
 4. **Generate candidates.** Use the category table and policy keywords, then inspect all Rider clauses for additional relevant conditions. Keyword matches are retrieval hints: distinguish negation, quoted speech, hypothetical scenarios, and mentions unrelated to the reported event.
@@ -98,7 +106,7 @@ There is no extraction cap in the intended report-focused procedure: return ever
 | `limitations` | Draft status and the limits of informational matching, returned on the Rider path. |
 | `message` | Explanation returned on the non-Rider path. |
 
-The matcher examines `category`, `summary`, `statement`, string category answers, incident location, and attachment captions. It adds category candidates and Rider keyword hits, adds `R-06` as general guidance, ranks by signal count then clause ID, and truncates to five. Consequently, `R-06` and other relevant clauses can fall outside the returned list. It does not check negation, read media, validate Case ownership, persist results, or attach report identity. Its `matched` status is not a claim of exhaustive or verified policy applicability.
+The matcher examines `category`, `summary`, `statement`, string category answers, incident location, and attachment captions. It adds category candidates and Rider keyword hits, adds `R-06` as general guidance, ranks by signal count then clause ID, and truncates to five. Consequently, `R-06` and other relevant clauses can fall outside the returned list. It does not check negation, read media or the step 3 evidence bundle, validate Case ownership, persist results, or attach report identity. Its `matched` status is not a claim of exhaustive or verified policy applicability. The connected step 4 evidence-context handoff requires the proposed application adapter.
 
 The matcher accepts no policy-snapshot argument: it uses the policy module already loaded in its environment. An adapter using it must run against an isolated module loaded from the requested snapshot and verify the returned `policy_version`. Otherwise use the shared policy tool that can serve that version. A matcher result from a different version blocks the handoff; it cannot be attached to a Case snapshot merely by changing its version label.
 

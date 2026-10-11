@@ -5,7 +5,7 @@
   const time = value => new Intl.DateTimeFormat('en-SG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Singapore' }).format(new Date(value));
   const node = (tag, className, text) => { const n = document.createElement(tag); if (className) n.className = className; if (text !== undefined) n.textContent = text; return n; };
   const query = new URLSearchParams(location.search);
-  let riderId = query.get('rider') || data.riders()[0].id, tripId, tab = query.get('tab') === 'evidence' ? 'evidence' : 'overview', bundle = null;
+  let riderId = query.get('rider') || data.riders()[0].id, tripId, tab = ['evidence','case'].includes(query.get('tab')) ? query.get('tab') : 'overview', bundle = null;
   try { data.rider(riderId); } catch { riderId = data.riders()[0].id; }
   tripId = query.get('trip') || data.trips(riderId)[0].id;
   try { data.trip(riderId, tripId); } catch { tripId = data.trips(riderId)[0].id; showError('The requested trip is not available to this rider. Showing their own trip instead.'); }
@@ -14,13 +14,13 @@
     try { return RiderReportStore.read(riderId, tripId); }
     catch (error) { showError(`Session report unavailable: ${error.message}`); return null; }
   }
-  function updateLocation() { try { history.replaceState(null, '', `?rider=${encodeURIComponent(riderId)}&trip=${encodeURIComponent(tripId)}&tab=${tab}`); } catch {} }
+  function updateLocation() { try { history.replaceState(null, '', `?rider=${encodeURIComponent(riderId)}&trip=${encodeURIComponent(tripId)}&tab=${tab}${location.hash}`); } catch {} }
   function switchTab(next) {
     tab = next;
     document.querySelectorAll('[data-tab]').forEach(b => { const selected = b.dataset.tab === next; b.setAttribute('aria-pressed', String(selected)); el(b.dataset.tab).hidden = !selected; });
     updateLocation();
   }
-  function invalidate() { bundle = null; el('evidenceResults').hidden = true; el('collectionNotice').textContent = 'No evidence collected yet. Run the agent to inspect the records.'; }
+  function invalidate() { bundle = null; el('evidenceResults').hidden = true; el('riderCaseMount').replaceChildren(); el('collectionNotice').textContent = 'No evidence collected yet. Run the agent to inspect the records.'; }
   function render() {
     const rider = data.rider(riderId), trips = data.trips(riderId), trip = data.trip(riderId, tripId);
     el('greeting').textContent = rider.name.split(' ')[0]; el('avatar').textContent = rider.initials;
@@ -52,6 +52,7 @@
       const b = node('article', `message ${message.sender === 'Rider' ? 'mine' : ''}`); b.append(node('div','meta',`${message.sender === 'Rider' ? 'You' : 'Driver → you'} · ${time(message.timestamp)} SGT`),node('p','',message.text)); el('messageList').append(b);
     });
     const report = readReport(); el('savedHint').textContent = report ? 'A rider report is saved in this app session.' : 'Photos and files can be added in the report form.';
+    RiderCasePanel.load(el('riderCaseMount'),{riderId,tripId,report});
     // Keep recovery available even when a stored report is malformed.
     el('clearReport').hidden = !report && el('appError').hidden;
     switchTab(tab);
@@ -82,7 +83,7 @@
     const url = URL.createObjectURL(new Blob([JSON.stringify(bundle,null,2)], {type:'application/json'}));
     const a = node('a'); a.href = url; a.download = `${tripId}-rider-evidence.json`; document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
   };
-  el('clearReport').onclick = () => { if (!confirm('Clear the saved demo report for this trip from this browser session?')) return; try { RiderReportStore.remove(riderId,tripId); el('appError').hidden=true; invalidate(); render(); } catch(error){showError(error.message);} };
+  el('clearReport').onclick = () => { if (!confirm('Clear the saved demo report and Rider case for this trip from this browser session?')) return; try { RiderCaseStore.remove(riderId,tripId); RiderReportStore.remove(riderId,tripId); el('appError').hidden=true; invalidate(); render(); } catch(error){showError(error.message);} };
   window.addEventListener('pageshow', event => { if(event.persisted){ invalidate(); render(); } });
   render();
 })();

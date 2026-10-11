@@ -1,0 +1,22 @@
+{
+  "repository": "https://github.com/bmad-code-org/BMAD-METHOD",
+  "release": "v6.12.0",
+  "commit": "05bfbd46d00766ec88eb9b42e76be2c575d64d7b",
+  "files": [
+    {
+      "path": "scripts/render_skill.py",
+      "source": "https://raw.githubusercontent.com/bmad-code-org/BMAD-METHOD/05bfbd46d00766ec88eb9b42e76be2c575d64d7b/src/scripts/render_skill.py",
+      "sha256": "8496d0d8b449d64c21b42a9aab3b13fc8a813a430c0695ffd84ad75bb1da7942"
+    },
+    {
+      "path": "scripts/config_utils.py",
+      "source": "https://raw.githubusercontent.com/bmad-code-org/BMAD-METHOD/05bfbd46d00766ec88eb9b42e76be2c575d64d7b/src/scripts/config_utils.py",
+      "sha256": "48afe2bc18a29201e343cce3703be1e70df9c83ee74eeb68e57ef8ef42e8c651"
+    },
+    {
+      "path": "LICENSE",
+      "source": "https://raw.githubusercontent.com/bmad-code-org/BMAD-METHOD/05bfbd46d00766ec88eb9b42e76be2c575d64d7b/LICENSE",
+      "sha256": "0aa79baf6328b4a1e694ce10a12ffc36d7666554da128dff0e8fcda0fc536a66"
+    }
+  ]
+}

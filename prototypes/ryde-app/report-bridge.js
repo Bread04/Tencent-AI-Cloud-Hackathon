@@ -25,7 +25,7 @@
   prefill();
   get('reset').onclick = () => { if(clearDraft()) prefill(); };
   get('startAnother').onclick = () => { if(clearDraft()) prefill(); };
-  const helper = document.createElement('p'); helper.className = 'notice'; helper.textContent = 'Linked rider app demo: after creating a report, you can save its text and attachment metadata to this tab’s session. Original media files remain in this form and are not transferred.';
+  const helper = document.createElement('p'); helper.className = 'notice'; helper.textContent = 'Linked rider app demo: creating a Rider report prepares its case and saves text and attachment metadata in this tab’s session. Original media files remain in this form and are not transferred.';
   get('details').prepend(helper);
   const save = document.createElement('button'); save.type='button'; save.className='primary'; save.id='saveToRiderApp';save.textContent='Save demo report to rider app';
   const notice = document.createElement('p');notice.className='notice';notice.id='appSaveStatus';notice.hidden=true;notice.setAttribute('role','status');
@@ -44,5 +44,5 @@
   };
   const originalCreate=get('createReport').onclick;
   get('createReport').onclick=()=>{notice.hidden=true;originalCreate();if(generated){generated.trip.simulatedSourceTrip=true;}};
-  const side=document.querySelector('.side-foot');side.replaceChildren();const strong=document.createElement('strong');strong.textContent='A local rider app demo';side.append(strong,document.createTextNode('Saving to the rider app is optional. Saved report text and metadata remain in this tab’s session until cleared or the tab closes. No report is sent to Ryde.'));
+  const side=document.querySelector('.side-foot');side.replaceChildren();const strong=document.createElement('strong');strong.textContent='A local rider app demo';side.append(strong,document.createTextNode('Created Rider reports and prepared cases use this tab’s session until cleared or the tab closes. Only report text and media metadata are saved. No report is sent to Ryde.'));
 })();

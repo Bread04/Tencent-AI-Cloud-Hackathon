@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Draft Singapore rider and driver policy guidance for the Waypoint ride-hailing prototype.">
+  <title>Ride policies · Waypoint</title>
+  <link rel="stylesheet" href="shared/waypoint.css">
+  <link rel="icon" type="image/svg+xml" href="shared/waypoint-mark.svg">
+  <style>
+    main{padding-top:46px;padding-bottom:70px}.policy-intro{max-width:760px;color:#aeb9c9;line-height:1.8}.policy-notice{margin:26px 0;padding:19px 22px;border:1px solid #405477;background:#151f30;color:#dce5f6;font-size:13px;line-height:1.7}.policy-tabs{display:flex;gap:12px;margin:30px 0 22px}.policy-tabs button{min-height:44px;padding:10px 18px;border:1px solid #354052;border-radius:3px;background:transparent;color:#aeb9c9;cursor:pointer}.policy-tabs button[aria-selected=true]{background:#315cf5;border-color:#315cf5;color:white}.policy-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.policy-card{background:#fff;border:1px solid #dce1e8;padding:20px 22px;min-height:170px}.policy-ref{font:10px/1.5 Consolas,monospace;letter-spacing:1px;color:#315cf5}.policy-card h3{font-size:18px;font-weight:600;color:#17202d;margin:9px 0}.policy-card p{font-size:13px;line-height:1.75;color:#626b78;margin:0}.policy-category{display:block;margin-top:17px;font:9px/1.5 Consolas,monospace;letter-spacing:.8px;text-transform:uppercase;color:#737e8b}.policy-sources{margin-top:42px;padding-top:24px;border-top:1px solid #ffffff24;color:#aeb9c9}.policy-sources h2{font-size:19px;color:white}.policy-sources ul{display:flex;flex-wrap:wrap;gap:10px 24px;padding-left:18px;font-size:12px}.policy-sources a{color:#a7bbff}.policy-sources p{font-size:12px;max-width:740px;line-height:1.7}@media(max-width:700px){main{padding-top:27px}.policy-grid{grid-template-columns:1fr}.policy-tabs{gap:8px}.policy-tabs button{padding:9px 13px;font-size:12px}}
+  </style>
+  <script src="shared/policies.js" defer></script>
+  <script src="shared/policy-page.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="ryde-app/index.html"><img src="shared/waypoint-mark.svg" alt="" width="36" height="36">Waypoint</a>
+    <nav class="shared-nav" aria-label="Main navigation"><a href="ryde-app/index.html">Book a ride</a><a href="ryde-app/index.html#workspace">My trips</a><a href="ryde-report/index.html">Get help</a><a href="policies.html" aria-current="page">Policies</a></nav>
+    <span class="badge">Draft policy guide · Demo</span>
+  </header>
+  <main>
+    <section class="story-hero" aria-labelledby="policy-title">
+      <div class="hero-copy"><p class="eyebrow">Waypoint / Shared ride standards</p><h1 id="policy-title">Clearer trips,<br><em>on both sides.</em></h1><p class="policy-intro">A practical guide to the expectations riders and drivers share, from booking and pickup to safety, payments and support.</p><div class="hero-index" aria-hidden="true"><span>01 / Rider</span><span>02 / Driver</span><span>03 / Report support</span></div></div>
+      <div class="hero-art" aria-hidden="true"><span class="art-caption">A fairer way forward</span><img src="shared/pip.svg" alt=""></div>
+    </section>
+    <div class="policy-notice"><strong>Singapore draft for prototype review.</strong> These Waypoint policies are illustrative working guidance, not approved terms, legal advice or the policies of Grab, CDG Zig or Ryde. They are informed by publicly available platform examples and Singapore LTA guidance. No fixed waiting period, fee, refund entitlement or dispute outcome is set here.</div>
+    <div class="policy-tabs" role="tablist" aria-label="Choose policy audience"><button type="button" role="tab" id="riderTab" aria-selected="true" aria-controls="policyCards" data-role="Rider">Rider policies</button><button type="button" role="tab" id="driverTab" aria-selected="false" aria-controls="policyCards" data-role="Driver">Driver policies</button></div>
+    <section id="policyCards" class="policy-grid" role="tabpanel" aria-labelledby="riderTab" aria-live="polite"></section>
+    <section class="policy-sources" aria-labelledby="sources-title"><h2 id="sources-title">Reference points</h2><p>This draft draws on general themes from platform terms and support guidance and official Singapore requirements. Competitor wording and rules may change; their current terms govern their own services.</p><ul id="policySources"></ul></section>
+  </main>
+  <footer class="brand-footer"><div><span class="footer-name">Waypoint</span><br>A clearer way forward.</div><div class="footer-copy">Independent ride-support prototype · Singapore draft for review.<br>Policy matching in the report form is informational and does not decide a case.</div></footer>
+</body>
+</html>

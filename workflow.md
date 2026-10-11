@@ -155,6 +155,8 @@ flowchart TB
 
 **Throughout the process:** a visible communication log records evidence requests, agent exchanges, policy references, case submissions, and decision summaries.
 
+**Connected Rider agent documents:** the [Rider agent connection guide](src/agents/advocates/README.md) defines one report-bound handoff across the [Rider Evidence Agent](src/agents/advocates/rider-evidence-agent.md), [Rider Policy Agent](src/agents/advocates/rider-policy-agent.md), and [Rider Advocate](src/agents/advocates/rider-advocate.md). It specifies shared-store references, evidence sealing, full policy relevance, readiness/failure handling, and the independent Submission passed to the Judge alongside the driver case. These are Markdown integration specifications; executable app integration remains separate work.
+
 ### Operational Steps
 
 | Step | Owner | Operation | Output |

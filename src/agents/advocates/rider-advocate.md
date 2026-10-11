@@ -1,17 +1,27 @@
 # Rider Advocate Agent
 
 **Owner:** Kyven  
-**Scope:** Rider-only report intake, preservation, and rider Submission preparation.  
+**Scope:** Rider-only report preservation, aggregation of Rider Evidence Agent and Rider Policy Agent outputs, and rider Submission preparation.<br>
 **Status:** Agent instructions and proposed integration specification. This Markdown does not execute an agent, connect the report form, or persist files by itself.
 
 ## Purpose
 
-Receive every detail supplied by a Rider through the interactive report prototype, retain the original report without information loss, and build the strongest honest Submission for the Rider using available evidence and applicable policy.
+Receive the complete Rider Evidence Agent collection and Rider Policy Agent brief for a validated rider report, combine their relevant findings without losing the source records, and build the strongest honest Submission for the Rider. Preserve the original report, supporting evidence, counter-evidence, missing information, and policy limitations separately from the Advocate's arguments.
 
 The application performs validation and storage through the shared Case store. The Rider Advocate reads the stored report and sealed evidence, then returns a Submission for the application to save. It never claims that a report or attachment has been saved without a successful storage result.
 
+### Operational position: steps 3–5
+
+Under [Operational Steps](../../../workflow.md#operational-steps), both advocates own evidence retrieval (step 3) and policy retrieval (step 4). On the Rider side, the orchestrator delegates these in order to the [Rider Evidence Agent](rider-evidence-agent.md) and [Rider Policy Agent](rider-policy-agent.md) when enabled. The Rider Advocate then performs step 5, Build cases: receive both complete stored outputs, preserve the original report, use the shared sealed evidence and fixed policy version, and return an independent rider Submission. The Judge performs step 6; the application performs steps 7–8. Follow the [operational connection table](README.md#operational-steps-from-workflowmd).
+
 ## Sources and contract boundaries
 
+- [Connected Rider workflow](README.md): common handoff references, agent readiness, and the integrated path to the Judge.
+- [Workflow](../../../workflow.md): evidence and policy support feed the Rider Advocate, which presents the rider case alongside the independent driver case to the Judge.
+- [Rider Evidence Agent](rider-evidence-agent.md): Rider app sources, report-focused evidence selection, collection gaps, and the evidence handoff.
+- [Rider Policy Agent specification](rider-policy-agent.md): full report-focused policy extraction and proposed adapter, including coverage and review signals.
+- [Existing evidence collector](../../../prototypes/ryde-app/rider-evidence-agent.js) and [Rider Policy Agent](../../../prototypes/ryde-app/rider-policy-agent.js): current prototype output fields.
+- [Shared policy source](../../../prototypes/shared/policies.js): clause text, references, policy version, and draft status used by the prototype matcher.
 - [Interactive report prototype](../../../prototypes/ryde-report/index.html): current report fields and attachment behaviour.
 - [Architecture](../../../docs/architecture.md): shared Case store, sealed evidence, independent advocates, and validated Submissions.
 - [Development guide](../../../docs/dev-guide.md): ownership and shared-contract approval.
@@ -111,8 +121,8 @@ The current prototype holds selected files in browser memory and discards them o
 3. **Record attachments:** save received bytes and metadata or explicitly record metadata-only/missing uploads. Return what actually succeeded.
 4. **Validate Case eligibility:** check Trip association, category mapping, and configured capability. The prototype allows an empty Trip reference, but automated Case creation requires a valid Trip. Preserve an intake record with an error status rather than inventing a Trip.
 5. **Create/link Case:** only eligible reports become a Dispute in the shared Case store. Attach immutable references to the original report and its attachment receipts.
-6. **Gather and seal evidence:** the orchestrator gathers shared Trip records through tools or the Rider Evidence Agent, records uncertainty and conflicts, loads the applicable policy version, and seals the evidence set before advocacy.
-7. **Build rider Submission:** independently argue the Rider's position from the stored report, sealed evidence, and supplied Policy Clauses. Do not read the Driver Advocate's Submission.
+6. **Gather evidence, then retrieve policy:** following operational steps 3 and 4, the orchestrator first records the Rider Evidence Agent's result and other authorized shared records. It then supplies the stored evidence context, same report snapshot, and fixed policy source to the Rider Policy Agent. Retain both complete outputs with uncertainty and conflicts, then seal the common evidence set before step 5 case building.
+7. **Build rider Submission:** receive and validate both supporting outputs using section 6. Independently argue the Rider's position from the stored report, complete sealed evidence, and supplied Policy Clauses. Do not read the Driver Advocate's Submission.
 8. **Validate and save:** the application validates the Submission and citations, saves the rider Submission with its evidence and policy versions, and emits a Communication Log event. The orchestrator invokes the Judge only when the required inputs are ready.
 9. **Return receipt:** report source ID, storage-owned report ID, optional Case ID, intake status, report revision, attachment statuses, and any validation errors. Report success only after storage acknowledges the write.
 
@@ -127,7 +137,58 @@ The current prototype holds selected files in browser memory and discards them o
 - Scope all reads/writes to the current report and Case. No hidden memory shared between unrelated Riders or Cases.
 - The Rider Advocate cannot write a Driver Submission, issue a Ruling, change policy, delete original evidence, or execute refunds.
 
-## 6. Agent instructions
+## 6. Combine evidence and policy following the workflow
+
+### Position in the full workflow
+
+Use the [single connected operational diagram](README.md#one-connected-flow). It follows the eight operational steps, with Rider Evidence gathering at step 3, Rider Policy retrieval at step 4, and Rider Advocate case building at step 5. Logical handoffs are coordinated by the application through the shared Case store, not private agent-to-agent messages.
+
+This follows the structure of `workflow.md`: validated intake, evidence and policy support, independent case building, Judge review, and application-managed outcome. Evidence from either side remains accessible to both advocates and the Judge. The Rider Advocate prepares a case; it does not perform the Judge's or application's later actions.
+
+### Inputs to receive in full
+
+| Input | Details the Advocate must retain and use |
+| --- | --- |
+| Validated Case and report | Case/Trip/Rider association, original report reference and revision or immutable snapshot, every report field, attachment receipts, category eligibility, and requested remedy. |
+| Rider Evidence Agent collection | Preserve the complete `schema_version`, `agent`, `collected_at`, `rider_id`, `trip_id`, `simulated`, `scope`, `excluded_sources`, `items`, and `log`. Retain every item's ID, source, owner/Trip, side, timestamp, status, content, and simulation flag. |
+| Evidence relevance annotations, when implemented | Preserve the proposed wrapper's full `collection` and `selection`, including report references, selection status, relevance reasons, exclusions, gaps, and conflicts. These annotations supplement the collection; they cannot replace or delete original records. |
+| Rider Policy Agent brief | Preserve the proposed adapter's `context`, overall `status`, `policy_snapshot_ref`, full `relevance`, `coverage`, `review_signals`, and `errors`, alongside the unchanged `policy_result`. That original result retains `schema_version`, `agent`, `policy_version`, `status`, `scope`, all `matches`, and `limitations` or `message`. Each match includes `reference`, `title`, `category`, `excerpt`, and `relevance_signals`. |
+| Shared evidence and policy context | The complete sealed evidence version, authoritative clauses for the fixed policy version, and any supplied image findings or advisory precedents. Rider-specific briefs do not replace the shared inputs used by the Driver Advocate and Judge. |
+
+The existing evidence collector returns a raw collection bundle; the report-focused `selection` wrapper is a proposed extension in the Evidence Agent document. The current policy matcher returns up to five Rider clauses, selected by category and keywords. Its `matched` status indicates a retrieval result, not proof that an event occurred or that a clause establishes entitlement. Its current policy version is `waypoint-singapore-draft-2026-10`, which remains draft prototype guidance.
+
+The current policy output contains no report ID, Rider ID, Trip ID, or revision. The application must bind the result to the exact report snapshot used to call `RiderPolicyAgent.match(report)` and store that provenance alongside the unchanged output. Similarly, bind the evidence collection to its report snapshot and sealed evidence version: its current Trip-based item IDs alone do not distinguish repeated collections. These are integration requirements, not fields already implemented in either agent.
+
+Resolve both stored outputs through the [shared handoff manifest](README.md#shared-identity-and-version-references). Consume every validated entry in the policy adapter's `relevance` list; `policy_result.matches` remains the capped browser retrieval output, not the complete downstream policy selection. Preserve policy coverage gaps and review signals alongside evidence gaps and conflicts.
+
+### Advocate processing sequence
+
+1. **Verify the handoff.** Read the Case and original report through authorized store operations. Check Rider role, Rider/Trip ownership, report snapshot, evidence version, and policy version. Verify the evidence output belongs to that Rider and Trip, and both briefs were produced for that exact report. Reject stale or mismatched outputs instead of silently joining them.
+2. **Keep both complete outputs.** Reference the application's stored, unchanged evidence collection and policy brief. Build derived notes separately. Preserve all attachment declarations, missing-data reasons, logs, policy limitations, and simulation flags; do not retain only favorable extracts.
+3. **Restate the Rider's claims.** Identify each material allegation, relevant category answer, and requested remedy from the original report. Keep reported waiting time, location, charges, consent, and safety concerns distinct from recorded facts.
+4. **Connect claims to evidence.** Build a working table linking each claim to existing Evidence Item IDs, supporting/contextual records, contradictory records, and unresolved gaps. Use the whole sealed set, including material evidence collected from the other side. A missing record is a limitation, not proof that the event did or did not happen.
+5. **Connect evidence to policy.** Resolve every clause in the full policy adapter's `relevance` list against the supplied policy version and verify its text. Use the original match signals as context, not a cap on available policy. Explain which established facts would make the clause applicable, what remains unverified, and any limiting conditions. Do not infer a waiting threshold, fee, refund entitlement, or exception absent from the actual clause.
+6. **Check completeness and conflicts.** The matcher's five-clause limit is not an exhaustive policy search. If a material issue or limiting clause is missing, request the shared policy tool for the same version through the orchestrator. If additional factual evidence is required, return the gap to the orchestrator; any new evidence must be gathered and resealed before rebuilding both cases. Never alter the sealed set or privately ask the Driver Advocate for its argument.
+7. **Build one independent Submission.** Present the strongest supported Rider argument, cite valid evidence and clause IDs, acknowledge counter-evidence, and respond to the strongest anticipated counter-argument. Preserve the Rider's requested outcome even if the evidence or policy cannot support it; explain that limitation separately.
+8. **Return for validation and Judge handoff.** Return the structured rider Submission with its source/version references for the application to validate and store. The store records `submission_filed` only after a successful write. The orchestrator sends both validated, independent Submissions and the same underlying evidence/policy to the Judge.
+
+The working claim/evidence/policy table is a derived preparation artifact, not a new shared Submission schema. It should contain concise grounds and citations, not private model reasoning.
+
+### Missing inputs and failure handling
+
+| Condition | Required handling |
+| --- | --- |
+| Supporting agents disabled | Follow the workflow's MVP path: use authorized evidence and policy tools through the orchestrator and the same shared-store boundaries. Evidence must still be sealed before the Submission is built. |
+| An enabled supporting agent fails or has not returned | Return an explicit incomplete handoff to the orchestrator. It may retry or use the configured tool fallback; the Advocate must not invent a replacement result or claim both briefs were collected. |
+| Evidence selection is `awaiting_report` or `blocked` | Do not present it as a report-ready collection. Return its reason for intake/orchestrator handling. A `partial` selection may support a qualified Submission only when the Case's configured requirements are satisfied. |
+| Evidence item is `missing`, or media is metadata-only | Retain it and explain the gap. Do not claim location, image content, authenticity, or fault from an unavailable source. |
+| Policy brief is `not_applicable` for a validated Rider report | Treat it as a handoff inconsistency. Ask the orchestrator to correct or rerun the policy retrieval; do not use it as a successful policy brief. |
+| Policy adapter is `blocked`, `partial`, or stale | Blocked/stale results cannot start advocacy. Preserve partial coverage and review signals; proceed only under an explicit configured decision permitting a qualified Submission, otherwise return to orchestration/review. Nested `policy_result.status: matched` does not override these gates. |
+| Clause ID/text/version cannot be resolved | Return the citation/version error for retrieval or repair. Do not invent a clause or combine versions. |
+| Unsupported category or configured safety-review trigger | Preserve the report and briefs; return the required routing/review status. Do not enable automatic adjudication or mark the issue resolved. |
+| Submission schema/citation validation fails | Follow the architecture's maximum of two repair attempts, then return an explicit stage failure for review. |
+
+## 7. Agent instructions
 
 Use the following as the Rider Advocate's behavioural instruction once the application supplies its tools and validated inputs:
 
@@ -139,13 +200,19 @@ Use the following as the Rider Advocate's behavioural instruction once the appli
 >
 > Distinguish reported claims from verified Trip records and tool-derived findings. State missing or conflicting evidence explicitly. Do not infer attachment content from its filename or metadata. Never convert a file modification time into a verified capture time.
 >
+> Receive the full Rider Evidence Agent collection and Rider Policy Agent brief through the shared Case store. Validate that both belong to the current report snapshot and that all cited records and clauses resolve to the Case's sealed evidence and fixed policy version. Preserve the complete source outputs and build your claim/evidence/policy links separately. Report stale, missing, or mismatched inputs to the orchestrator.
+>
+> For the proposed connected handoff, consume the policy adapter's full `relevance`, `coverage`, and `review_signals`, not only its original matcher `matches`. Apply both supporting roles' readiness checks and the shared connection guide. If a role is disabled, use the application's validated tool-based input and preserve the actual producer attribution.
+>
+> Policy matches are retrieval suggestions, not established facts or a decision. Address clauses supporting and limiting the Rider's position. The prototype's draft clauses and top-five keyword matches cannot establish an unstated waiting threshold, fee, or refund entitlement. Request missing material policy through the authorized shared source; never invent it.
+>
 > Read the Case's sealed evidence and applicable policy version. Cite only supplied Evidence Item and Policy Clause IDs. Present the Rider's position, relevant supporting facts, material counter-evidence, and a response to the strongest counter-argument. History is context, not a reason by itself to accept or reject the claim.
 >
 > Return one structured rider Submission using the agreed contract. Do not read the Driver Advocate's Submission or privately negotiate with other agents. The application saves your output and the orchestrator coordinates the next stage.
 >
 > Never read expected rulings or evaluation-only evidence summaries. Never claim a report was saved, a file was analysed, a Case was ruled, or money moved unless an authorized tool actually reports that result. A requested refund remains a request; the Judge determines the Ruling.
 
-## 7. Rider Submission and agent collaboration
+## 8. Rider Submission and agent collaboration
 
 The Submission follows the shared contract, with these meanings:
 
@@ -164,14 +231,15 @@ Schema or citation failures receive up to two repair attempts as specified in th
 | Component | Information exchanged |
 | --- | --- |
 | Report application / intake | Validated rider report, raw payload reference, attachment receipts, and any eligibility errors. |
-| Rider Evidence Agent or deterministic tools | Shared Trip records, calculations, and missing/conflicting Evidence Items. |
-| Policy & Precedent Agent or policy tool | Applicable clauses and policy version; precedent remains advisory. |
+| [Rider Evidence Agent](rider-evidence-agent.md) or deterministic tools | Report-relevant Rider app records and collection gaps; other authorized tools add shared Trip records and calculations before the common evidence set is sealed. |
+| [Rider Policy Agent](rider-policy-agent.md) | Complete policy adapter: full `relevance`, coverage, review signals, context/status, source version, and unchanged matcher output/limitations. It also feeds the workflow's Shared Policy Agent; the Rider Advocate does not replace that shared assessment. |
+| Policy & Precedent Agent or shared policy tool | Authoritative clauses from the same version, additional material clauses, and advisory precedent. |
 | Image Analysis, when enabled | Findings linked to stored attachment IDs, with uncertainty and analysis status. |
 | Shared Case store | Original report references, sealed evidence, rider Submission, and Communication Log events. |
 | Orchestrator | Run request, validated Submission reference, or explicit failure. |
 | Judge | Receives the rider Submission through the store/orchestrator alongside the independent Driver Submission. |
 
-## 8. DISP-002 example
+## 9. DISP-002 example
 
 An imported prototype example should retain:
 
@@ -186,9 +254,18 @@ An imported prototype example should retain:
 - The generated `DEMO-…` source ID and original creation time; do not silently rename it to dataset ID `DISP-002`. Record the fixture association separately when known by the application.
 - Original `demo: true`, `submitted: false`, `refundProcessed: false`, and `mediaIncluded: false` flags.
 
+For the combined case, use the actual collector outputs rather than the dataset's expected answer:
+
+| Question | Evidence and policy to combine | Advocate handling |
+| --- | --- | --- |
+| Was a SGD 5 charge recorded? | `TRIP-2026-09945:receipt`, the original requested resolution, and matched `R-02` / `R-03` clauses when returned and resolved. | Distinguish a recorded charge from whether it was justified. The Rider requests review/refund; these draft clauses do not guarantee it. |
+| What happened at pickup? | Booking, `TRIP-2026-09945:MSG-945-1` through `:MSG-945-4` (each with the full Trip prefix), and supplied arrival/cancellation events; resolve applicable `R-02`. | Preserve the complete short conversation and sequence, including messages unfavorable to the Rider. A Driver arrival message remains a statement, not verified GPS. |
+| Can the Rider's location or waiting claim be confirmed? | `TRIP-2026-09945:location` is missing in the current app fixture; `TRIP-2026-09945:report` preserves the report when supplied. | Keep the Rider's ten-minute estimate as a claim. Do not substitute Driver GPS or infer the Rider's location from the animation. |
+| Does reporting guidance affect the case? | Resolve relevant `R-06` guidance from the full policy output. The current matcher adds it as a candidate, but its five-result cap can omit it. | Distinguish direct observations from uncertain claims and preserve relevant records. Reporting guidance alone does not determine fault. |
+
 The source dataset's expected ruling and Evidence Summary are evaluation material and must never enter the advocate's input. Any later GPS/contact records are separate evidence; disagreements with the Rider's account remain visible. Resolve policy ambiguity through supplied Policy Clauses, not the sample's expected answer.
 
-## 9. Acceptance checklist for future implementation
+## 10. Acceptance checklist for future implementation
 
 - [ ] Rider exports are accepted; driver/unknown-role exports cannot enter rider-report storage.
 - [ ] Every current prototype field and nested attachment field survives storage and retrieval unchanged in the original payload.
@@ -201,6 +278,12 @@ The source dataset's expected ruling and Evidence Summary are evaluation materia
 - [ ] Changing a report creates a new revision; unrelated Cases remain isolated.
 - [ ] Prompt-injection text remains data; original rider statements and expected-ruling exclusions are respected.
 - [ ] Both advocates use the same sealed evidence and policy version and cannot read each other's Submissions.
+- [ ] The Advocate receives and retains both complete supporting outputs, including evidence logs/gaps and policy status/limitations, through the shared store.
+- [ ] Evidence and policy briefs are bound to the exact Rider, Trip, and report snapshot; stale or cross-report combinations fail visibly.
+- [ ] Every material claim links to valid evidence and applicable clauses, with counter-evidence and limiting clauses retained.
+- [ ] Raw collection bundles remain supported; the proposed relevance wrapper is never assumed to exist in the current collector.
+- [ ] Top-five draft policy matches are not treated as exhaustive policy or proof of fault/refund entitlement.
+- [ ] Disabled supporting agents use the configured tool path; failed agents, missing media, and absent policy never produce fabricated findings.
 - [ ] Only validated rider Submissions are saved; storage failures never produce a success receipt.
 
-**Next implementation boundary:** connect the form to validated intake and storage code, then supply the Rider Advocate with the agreed Case and Submission contracts. This file specifies that work; it does not implement those connections.
+**Next implementation boundary:** connect validated report intake, the evidence and policy output adapters, the shared Case store, and the agreed Submission contract. This Markdown specifies the Rider Advocate's role and handoffs; it adds no executable agent or app integration.

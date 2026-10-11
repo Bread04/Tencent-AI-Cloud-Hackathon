@@ -7,6 +7,61 @@ html{scroll-behavior:smooth;scroll-padding-top:25px}.landing{margin:0;background
 @media(max-width:360px){.landing main{padding:0 14px}.landing .site-header{padding:15px 14px}.landing .shared-nav{gap:11px}.landing .shared-nav a{font-size:10px}.landing .hero h1{font-size:41px}.hero-actions{gap:15px}.landing .text-link{font-size:12px}.hero-drawing{min-height:240px}.scene-chip.evidence{left:5%}.visual-panel{padding:23px}.mini-trip{padding:20px}.vignette figcaption{grid-template-columns:27px 1fr;gap:10px}.evidence-tile{padding:17px 14px;font-size:12px}.closing-art img{width:125px}.closing-art blockquote{font-size:16px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.motion-enabled [data-reveal]{opacity:1;transform:none;transition:none;will-change:auto}}
 
+/* Scroll-scrubbed depth on the landing page, layered over the existing reveal. */
+.motion-enabled .landing .hero-drawing[data-reveal]{transform:perspective(1050px) rotateY(-8deg) rotateX(var(--depth-angle,0deg)) translate3d(0,calc(var(--reveal-offset,0px) + var(--depth-y-hero,0px)),0);transform-style:preserve-3d;background-position:calc(50% + var(--depth-bg-x,0px)) calc(50% + var(--depth-bg-y,0px));will-change:transform,background-position}
+.motion-enabled .landing .scene-chip{transform:translate3d(0,var(--depth-y-chip,0px),24px);transition:transform .08s linear;will-change:transform}
+.motion-enabled .landing .scene-chip.driver{transform:translate3d(0,var(--depth-y-driver,0px),42px)}
+.motion-enabled .landing .scene-chip.evidence{transform:translate3d(0,var(--depth-y-evidence,0px),58px)}
+.motion-enabled .landing .hero-drawing .pip{transform:translate3d(0,var(--depth-y-pip,0px),74px) rotateY(-5deg);will-change:transform}
+.motion-enabled .landing .visual-panel[data-reveal]{transform:perspective(900px) rotateX(var(--depth-angle-panel,0deg)) translate3d(0,calc(var(--reveal-offset,0px) + var(--depth-y-panel,0px)),0) scale(var(--reveal-scale,1));transform-style:preserve-3d;will-change:transform,opacity}
+.motion-enabled .landing .mini-trip{transform:translate3d(0,var(--depth-y-card,0px),38px) rotateX(var(--depth-angle-card,0deg)) rotate(-4deg);transform-style:preserve-3d;will-change:transform}
+.motion-enabled .landing .conversation-visual .mini-message{transform:translate3d(0,var(--depth-y-message,0px),var(--depth-z-message,12px));will-change:transform}
+.motion-enabled .landing .conversation-visual .mini-message.reply{transform:translate3d(0,var(--depth-y-reply,0px),34px)}
+.motion-enabled .landing .evidence-visual{transform:translate3d(0,var(--depth-y-cards,0px),28px) rotateX(var(--depth-angle-cards,0deg)) rotate(3deg);transform-style:preserve-3d;will-change:transform}
+.motion-enabled .landing .evidence-tile:nth-child(2n){transform:translateZ(18px)}
+.motion-enabled .landing .evidence-tile:nth-child(2n+1){transform:translateZ(3px)}
+.motion-enabled .landing .interaction-section waypoint-scene{transform:perspective(1200px) rotateX(var(--depth-angle-scene,0deg)) translate3d(0,var(--depth-y-scene,0px),0);transform-origin:50% 50%;will-change:transform}
+.motion-enabled .landing .closing-art[data-reveal]{transform:perspective(900px) rotateX(var(--depth-angle-closing,0deg)) translate3d(0,calc(var(--reveal-offset,0px) + var(--depth-y-closing,0px)),0) scale(var(--reveal-scale,1));transform-style:preserve-3d;will-change:transform,opacity}
+.motion-enabled .landing .closing-art img{transform:translate3d(0,var(--depth-y-mascot,0px),42px) rotate(-6deg);will-change:transform}
+.motion-enabled .landing .closing-art blockquote{transform:translate3d(0,var(--depth-y-quote,0px),20px)}
+@media(prefers-reduced-motion:reduce){.motion-enabled .landing .hero-drawing[data-reveal],.motion-enabled .landing .visual-panel[data-reveal],.motion-enabled .landing .closing-art[data-reveal],.motion-enabled .landing .interaction-section waypoint-scene,.motion-enabled .landing .scene-chip,.motion-enabled .landing .hero-drawing .pip,.motion-enabled .landing .mini-trip,.motion-enabled .landing .conversation-visual .mini-message,.motion-enabled .landing .evidence-visual,.motion-enabled .landing .evidence-tile,.motion-enabled .landing .closing-art img,.motion-enabled .landing .closing-art blockquote{transform:none!important;transition:none!important;will-change:auto}}
+
+/* Pinned ride chapter: each scroll position advances the map and its editorial caption. */
+.landing .scroll-journey{position:relative;width:100vw;height:420svh;margin:12px 0 0 calc(50% - 50vw);background:#f3f4f2}
+.landing .scroll-pin{position:sticky;top:0;height:100svh;min-height:520px;overflow:hidden;background:#f3f4f2;isolation:isolate}
+.landing .scroll-copy{position:absolute;z-index:10;left:clamp(20px,7vw,100px);bottom:clamp(28px,8vh,78px);width:min(385px,calc(100vw - 40px));padding:22px 25px 20px;background:#111619ed;border-left:2px solid #315cf5;color:#f7f8f6;box-shadow:0 14px 45px #1116212b;backdrop-filter:blur(8px)}
+.landing .scroll-copy .eyebrow{margin:0 0 14px;color:#92a9ff;font:10px/1.5 Consolas,monospace;letter-spacing:1.2px}
+.landing .scroll-stage{display:block;color:#aab4b6;font:10px/1.5 Consolas,monospace;letter-spacing:.7px;margin-bottom:9px}
+.landing .scroll-copy h3{font-size:clamp(25px,3.1vw,38px);font-weight:600;letter-spacing:-1.1px;line-height:1.1;margin:0 0 9px}
+.landing .scroll-copy>p:not(.eyebrow){font-size:13px;line-height:1.65;color:#d2d8d7;margin:0 0 20px;max-width:315px}
+.landing .scroll-progress{height:2px;background:#ffffff25;overflow:hidden}
+.landing .scroll-progress i{display:block;height:100%;width:0;background:#6483ff;box-shadow:0 0 12px #6483ff;will-change:width}
+.landing .scroll-hint{position:absolute;z-index:8;right:clamp(20px,6vw,80px);bottom:38px;margin:0;padding:10px 13px;border:1px solid #6d777975;background:#f3f4f2d9;color:#242b2f;font:9px/1.4 Consolas,monospace;letter-spacing:.8px}
+.landing .scroll-hint span{margin-left:12px;color:#315cf5;font-size:14px}
+.landing .scroll-view-toggle{position:absolute;z-index:9;top:clamp(18px,4vh,34px);right:clamp(20px,6vw,80px);display:flex;gap:3px;padding:4px;border:1px solid #bdc3c4;background:#f7f8f6e8}
+.landing .scroll-view-toggle button{min-height:36px;padding:8px 13px;border:0;background:transparent;color:#414b50;font:10px/1.2 Consolas,monospace}
+.landing .scroll-view-toggle button[aria-pressed=true]{background:#315cf5;color:#fff}
+.landing .scroll-view-toggle button:focus-visible{outline:2px solid #142033;outline-offset:2px}
+@media(max-width:680px){.landing .scroll-journey{height:340svh;margin-top:0}.landing .scroll-pin{min-height:0}.landing .scroll-copy{left:16px;bottom:20px;width:min(355px,calc(100vw - 32px));padding:18px 18px 16px}.landing .scroll-copy h3{font-size:28px}.landing .scroll-copy>p:not(.eyebrow){font-size:12px;margin-bottom:15px}.landing .scroll-hint{top:68px;right:16px;bottom:auto;padding:8px 10px;font-size:8px}.landing .scroll-view-toggle{top:14px;right:16px}.landing .scroll-view-toggle button{min-height:34px;padding:7px 10px}}
+@media(prefers-reduced-motion:reduce){.landing .scroll-journey{height:auto}.landing .scroll-pin{position:relative;height:min(100svh,780px);min-height:480px}.landing .scroll-hint{display:none}.landing .scroll-progress i{transition:none}}
+
+/* Keep the story captions in the sky area, clear of the animated street route. */
+.landing .scroll-journey{background:#0d1218}
+.landing .scroll-pin{background:radial-gradient(ellipse at 65% 40%,#1a2e4d 0%,#101925 58%,#0d1218 100%)}
+.landing .scroll-copy{left:clamp(24px,5vw,76px);top:clamp(96px,14vh,140px);bottom:auto;width:min(320px,calc(100vw - 40px));padding:18px 20px 16px}
+.landing .scroll-copy h3{font-size:clamp(24px,2.6vw,32px)}
+.landing .scroll-copy>p:not(.eyebrow){margin-bottom:13px}
+.landing .scroll-hint{background:#111b29ed;border-color:#40516d;color:#dce6fb}
+.landing .scroll-view-toggle{background:#111b29ed;border-color:#40516d}
+.landing .scroll-view-toggle button{color:#b8c7df}
+.landing .scroll-view-toggle button[aria-pressed=true]{background:#315cf5;color:white}
+@media(max-width:680px){
+  .landing .scroll-copy{left:12px;top:clamp(82px,13vh,120px);bottom:auto;width:min(285px,calc(100vw - 24px));padding:14px 15px 13px}
+  .landing .scroll-copy h3{font-size:23px}
+  .landing .scroll-copy .eyebrow{margin-bottom:8px}
+  .landing .scroll-copy>p:not(.eyebrow){font-size:11px;line-height:1.55;margin-bottom:10px}
+}
+
 /* Ride planning leads; support stays available below the trip tools. */
 .rider-app .app-header .brand{cursor:pointer}.rider-app .app-header .prototype{margin-left:auto}.rider-app .app-header .account{margin-left:0}
 .rider-app .app-introduction{min-height:min(70svh,630px);border-bottom:1px solid #ffffff24}
