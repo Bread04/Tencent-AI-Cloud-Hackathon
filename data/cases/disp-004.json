@@ -1,0 +1,71 @@
+{
+  "_simulated": "Mock report and trip records for the hackathon. Not a real trip.",
+  "_data_quality_notes": [
+    "Driver GPS is recorded at arrival and through 09:02 only. There are no GPS samples from after 09:02 through cancellation at 09:08.",
+    "App timer events measure elapsed time, not physical presence. The gap does not establish whether the driver stayed or left.",
+    "No rider location, photo or call recording is available. Chat statements and the driver statement are unverified party accounts."
+  ],
+  "dispute": {
+    "dispute_id": "DISP-004",
+    "trip_id": "TRIP-2026-09947",
+    "filed_by": "rider",
+    "category": "no_show_charge",
+    "description": "I went to the booked pickup bay at Tiong Bahru Plaza but could not find the car. At 09:03 I messaged the driver, who said they were still waiting. I called at 09:05 but we did not connect. At 09:08 the trip was cancelled and I was charged $5.00. I believe the driver had left and want the fee reversed.",
+    "requested_remedy": "Reverse the $5.00 no-show cancellation fee",
+    "filed_at": "2026-09-15T09:20:00+08:00",
+    "photos": [],
+    "driver_statement": "I arrived at the booked pickup bay at 09:00 and stayed until 09:08. My app lost its location connection, but I did not leave. I tried to contact the rider and could not find them."
+  },
+  "trip": {
+    "trip_id": "TRIP-2026-09947",
+    "rider_id": "R-7825",
+    "driver_id": "D-2400",
+    "pickup_location": {"name": "Tiong Bahru Plaza pickup bay", "lat": 1.2847, "lng": 103.8382},
+    "dropoff_location": {"name": "VivoCity", "lat": 1.2648, "lng": 103.8223},
+    "scheduled_time": "2026-09-15T09:00:00+08:00",
+    "driver_arrival_time": "2026-09-15T09:00:00+08:00",
+    "driver_wait_start": "2026-09-15T09:00:00+08:00",
+    "cancellation_time": "2026-09-15T09:08:00+08:00",
+    "cancellation_fee": "5.00",
+    "currency": "SGD",
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {"timestamp": "2026-09-15T09:00:00+08:00", "lat": 1.2847, "lng": 103.8382, "speed_kmh": 0, "status": "arrived"},
+    {"timestamp": "2026-09-15T09:01:00+08:00", "lat": 1.2847, "lng": 103.8382, "speed_kmh": 0, "status": "waiting"},
+    {"timestamp": "2026-09-15T09:02:00+08:00", "lat": 1.2847, "lng": 103.8382, "speed_kmh": 0, "status": "waiting"}
+  ],
+  "chat_logs": [
+    {"timestamp": "2026-09-15T09:00:10+08:00", "sender": "driver", "type": "message", "content": "I have arrived at the pickup bay."},
+    {"timestamp": "2026-09-15T09:03:00+08:00", "sender": "rider", "type": "message", "content": "I am at the booked bay but cannot see your car. Have you left?"},
+    {"timestamp": "2026-09-15T09:03:30+08:00", "sender": "driver", "type": "message", "content": "I am still at the pickup bay. My app location is not updating."},
+    {"timestamp": "2026-09-15T09:04:00+08:00", "sender": "driver", "type": "call", "content": "In-app call to rider rang for 20 seconds; no connection established."},
+    {"timestamp": "2026-09-15T09:05:00+08:00", "sender": "rider", "type": "call", "content": "In-app call to driver rang for 20 seconds; no connection established."},
+    {"timestamp": "2026-09-15T09:06:00+08:00", "sender": "rider", "type": "message", "content": "I still cannot find you. Please tell me exactly where you are."},
+    {"timestamp": "2026-09-15T09:07:00+08:00", "sender": "driver", "type": "message", "content": "I am waiting at the bay and will cancel when the timer reaches eight minutes."},
+    {"timestamp": "2026-09-15T09:08:00+08:00", "sender": "system", "type": "system", "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $5.00 applied."}
+  ],
+  "app_events": [
+    {"timestamp": "2026-09-15T08:45:00+08:00", "event_type": "booking_confirmed", "details": "Rider R-7825 booked TRIP-2026-09947 from Tiong Bahru Plaza pickup bay to VivoCity. Scheduled pickup 09:00."},
+    {"timestamp": "2026-09-15T09:00:00+08:00", "event_type": "driver_arrived", "details": "GPS recorded the driver at the booked pickup coordinates."},
+    {"timestamp": "2026-09-15T09:00:00+08:00", "event_type": "wait_timer_started", "details": "Five-minute free wait ends at 09:05. Eight-minute no-show threshold ends at 09:08."},
+    {"timestamp": "2026-09-15T09:02:01+08:00", "event_type": "location_updates_unavailable", "details": "Driver GPS was recorded from 09:00 through 09:02 only. No subsequent GPS samples were stored before cancellation at 09:08. Presence during that gap is unknown; elapsed timer values do not establish whether the driver stayed or left."},
+    {"timestamp": "2026-09-15T09:05:00+08:00", "event_type": "wait_timer_expired", "details": "Five minutes elapsed since arrival. Timer does not verify the driver's current position."},
+    {"timestamp": "2026-09-15T09:08:00+08:00", "event_type": "trip_cancelled", "details": "Driver cancelled with reason rider_no_show after eight elapsed minutes. Driver position at cancellation unavailable."},
+    {"timestamp": "2026-09-15T09:08:00+08:00", "event_type": "cancellation_fee_applied", "details": "$5.00 no-show cancellation fee charged to the rider."}
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": "5.00",
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation"
+  },
+  "rider_history": {
+    "rider_id": "R-7825", "account_age_days": 150, "total_trips": 30, "avg_rating": 4.8,
+    "dispute_history": {"total_disputes": 0, "upheld": 0, "rejected": 0}, "fraud_flags": 0
+  },
+  "driver_history": {
+    "driver_id": "D-2400", "account_age_days": 700, "total_trips": 2200, "avg_rating": 4.8,
+    "dispute_history": {"total_disputes": 0, "upheld_against": 0, "rejected": 0}, "fraud_flags": 0
+  }
+}

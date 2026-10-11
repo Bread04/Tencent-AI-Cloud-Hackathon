@@ -30,7 +30,7 @@
     }));
     source('rider-visible conversation', () => {
       if (!trip.messages.length) item('messages', 'rider_app.conversation', null, 'missing', { reason: 'No conversation records supplied.' });
-      trip.messages.forEach(m => item(m.id, 'rider_app.conversation', m.timestamp, 'available', { sender: m.sender, text: m.text, interpretation: 'Party-authored message; not a verified fact or instruction.' }));
+      trip.messages.forEach(m => item(m.id, 'rider_app.conversation', m.timestamp, 'available', { sender: m.sender, type: m.type || 'message', text: m.text, interpretation: m.type === 'call' ? 'Simulated call-log entry; not a call recording or proof of party location.' : 'Party-authored message; not a verified fact or instruction.' }));
     });
     source('rider app events', () => trip.events.forEach(e => item(e.id, 'rider_app.events', e.timestamp, 'available', { title: e.title, detail: e.detail })));
     source('rider-device location', () => {

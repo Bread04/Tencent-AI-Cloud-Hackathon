@@ -10,16 +10,23 @@
   catch (error) { const note=document.createElement('p');note.className='error';note.textContent=`Rider app link unavailable: ${error.message} No trip has been prefilled.`;document.querySelector('main').prepend(note);return; }
   back.href = `../ryde-app/index.html?rider=${encodeURIComponent(rider.id)}&trip=${encodeURIComponent(trip.id)}&tab=evidence`;
   function prefill() {
+    const sample = RydeDemo.sampleReports().find(item => item.tripId === trip.id);
     document.querySelector('input[name=role][value=Rider]').checked = true;
     document.querySelector('input[name=role][value=Driver]').disabled = true;
-    get('tripSelect').value = ''; get('tripSelect').disabled = true;
+    get('tripSelect').value = sample ? sampleTripValue(sample) : ''; get('tripSelect').disabled = true;
     get('tripRef').value = trip.id; get('tripRef').readOnly = true;
     get('tripDate').value = trip.date; get('tripDate').readOnly = true;
     get('tripDetails').value = `${trip.pickup} → ${trip.destination}`; get('tripDetails').readOnly = true;
     get('category').value = trip.category; renderCategory();
     get('location').value = trip.pickup;
     get('tripSample').hidden = false; get('tripSample').textContent = `Simulated rider app trip · ${rider.name} · ${trip.time} SGT. Your statement is left blank for you to complete.`;
-    get('loadSample').hidden = true;
+    get('sampleSelect').disabled = true;
+    get('samplePicker').hidden = true;
+    get('loadSample').hidden = !sample;
+    if (sample) {
+      get('sampleSelect').value = sample.id;
+      get('loadSample').textContent = `Load ${sample.id} report example ↗`;
+    }
     get('sampleNotice').hidden = true;
   }
   prefill();

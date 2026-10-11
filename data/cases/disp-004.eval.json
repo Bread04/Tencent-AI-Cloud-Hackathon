@@ -1,0 +1,43 @@
+{
+  "_note": "Evaluation label only. Agents must never read this file. The ambiguous scenario has no predetermined final ruling or remedy before human review.",
+  "dispute_id": "DISP-004",
+  "scenario_classification": "ambiguous",
+  "expected_outcome": null,
+  "expected_summary": "Escalate for human review. Arrival is verified and eight minutes elapsed, but GPS stops after two minutes. Neither the driver's continued physical presence nor the rider's claimed position is established for the remaining wait. Messages and timer events cannot fill the location gap. Missing GPS proves neither that the driver stayed nor that they left.",
+  "expected_remedy": null,
+  "expected_review_required": true,
+  "acceptable_review_triggers": [
+    "low_confidence",
+    "balanced_evidence"
+  ],
+  "expected_facts": {
+    "arrival_vs_scheduled_min": 0,
+    "elapsed_arrival_to_cancellation_min": 8,
+    "gps_coverage_end": "2026-09-15T09:02:00+08:00",
+    "gps_gap_to_cancellation_min": 6,
+    "continuous_presence_verified": false,
+    "free_wait_min": 5,
+    "no_show_threshold_min": 8,
+    "driver_messages": 3,
+    "driver_calls": 1,
+    "rider_messages": 2,
+    "rider_calls": 1,
+    "rider_location_status": "missing"
+  },
+  "relevant_policy_clause_ids": [
+    "R-01",
+    "R-02",
+    "R-03",
+    "R-06",
+    "D-02",
+    "D-03",
+    "D-06",
+    "D-09"
+  ],
+  "evaluation_caveats": [
+    "Do not treat ambiguous as a partial ruling or authorize a payment before review.",
+    "The current GPS evidence helper's minutes_at_pickup measures elapsed time from arrival to cancellation; it does not verify presence through a telemetry gap.",
+    "The existing demo ReplayModel uses the DISP-002 script for every case. These new datasets do not add case-specific advocate or Judge replies."
+  ],
+  "policy_version": "waypoint-singapore-draft-2026-10"
+}

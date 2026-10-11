@@ -1,0 +1,32 @@
+{
+  "_note": "Evaluation label only. Agents must never read this file.",
+  "dispute_id": "DISP-003",
+  "scenario_classification": "claimant_wins",
+  "expected_outcome": "uphold",
+  "expected_summary": "Rider claim upheld; reverse the $5.00 charge. Arrival at 10:00 and cancellation at 10:04 establish only four minutes of waiting, below both the five-minute grace period and eight-minute no-show threshold. Driver contact attempts and uncertainty about the rider's position do not satisfy the missing wait requirement.",
+  "expected_remedy": "fee_reversal",
+  "expected_amount": "5.00",
+  "expected_currency": "SGD",
+  "expected_facts": {
+    "arrival_vs_scheduled_min": 0,
+    "elapsed_arrival_to_cancellation_min": 4,
+    "free_wait_min": 5,
+    "no_show_threshold_min": 8,
+    "driver_messages": 2,
+    "driver_calls": 0,
+    "rider_messages": 1,
+    "rider_calls": 0,
+    "rider_location_status": "missing"
+  },
+  "relevant_policy_clause_ids": [
+    "R-01",
+    "R-02",
+    "R-03",
+    "R-06",
+    "D-02",
+    "D-03",
+    "D-06",
+    "D-09"
+  ],
+  "policy_version": "waypoint-singapore-draft-2026-10"
+}

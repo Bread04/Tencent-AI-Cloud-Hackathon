@@ -1,0 +1,62 @@
+{
+  "_simulated": "Mock report and trip records for the hackathon. Not a real trip.",
+  "dispute": {
+    "dispute_id": "DISP-003",
+    "trip_id": "TRIP-2026-09946",
+    "filed_by": "rider",
+    "category": "no_show_charge",
+    "description": "My driver arrived at the Bugis Junction pickup point at 10:00. I messaged at 10:01 that I was coming to the pickup bay, but the driver cancelled at 10:04 and I was charged $5.00 for a no-show. The app's five-minute free wait had not ended, and the eight-minute no-show threshold had not been reached. Please reverse the charge.",
+    "requested_remedy": "Reverse the $5.00 no-show cancellation fee",
+    "filed_at": "2026-09-14T10:15:00+08:00",
+    "photos": [],
+    "driver_statement": "I arrived at 10:00 and sent a message. The rider said they were coming, but I had not seen them by 10:04, so I cancelled."
+  },
+  "trip": {
+    "trip_id": "TRIP-2026-09946",
+    "rider_id": "R-7824",
+    "driver_id": "D-2399",
+    "pickup_location": {"name": "Bugis Junction pickup bay", "lat": 1.299, "lng": 103.855},
+    "dropoff_location": {"name": "Suntec City", "lat": 1.294, "lng": 103.859},
+    "scheduled_time": "2026-09-14T10:00:00+08:00",
+    "driver_arrival_time": "2026-09-14T10:00:00+08:00",
+    "driver_wait_start": "2026-09-14T10:00:00+08:00",
+    "cancellation_time": "2026-09-14T10:04:00+08:00",
+    "cancellation_fee": "5.00",
+    "currency": "SGD",
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {"timestamp": "2026-09-14T10:00:00+08:00", "lat": 1.299, "lng": 103.855, "speed_kmh": 0, "status": "arrived"},
+    {"timestamp": "2026-09-14T10:01:00+08:00", "lat": 1.299, "lng": 103.855, "speed_kmh": 0, "status": "waiting"},
+    {"timestamp": "2026-09-14T10:02:00+08:00", "lat": 1.299, "lng": 103.855, "speed_kmh": 0, "status": "waiting"},
+    {"timestamp": "2026-09-14T10:03:00+08:00", "lat": 1.299, "lng": 103.855, "speed_kmh": 0, "status": "waiting"},
+    {"timestamp": "2026-09-14T10:04:00+08:00", "lat": 1.299, "lng": 103.855, "speed_kmh": 0, "status": "cancelled"}
+  ],
+  "chat_logs": [
+    {"timestamp": "2026-09-14T10:00:10+08:00", "sender": "driver", "type": "message", "content": "I am at the booked pickup bay."},
+    {"timestamp": "2026-09-14T10:01:00+08:00", "sender": "rider", "type": "message", "content": "I am coming to the pickup bay. Please wait."},
+    {"timestamp": "2026-09-14T10:03:30+08:00", "sender": "driver", "type": "message", "content": "I cannot see you yet. I am going to cancel."},
+    {"timestamp": "2026-09-14T10:04:00+08:00", "sender": "system", "type": "system", "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $5.00 applied."}
+  ],
+  "app_events": [
+    {"timestamp": "2026-09-14T09:45:00+08:00", "event_type": "booking_confirmed", "details": "Rider R-7824 booked TRIP-2026-09946 from Bugis Junction pickup bay to Suntec City. Scheduled pickup 10:00."},
+    {"timestamp": "2026-09-14T10:00:00+08:00", "event_type": "driver_arrived", "details": "GPS recorded the driver at the booked pickup coordinates."},
+    {"timestamp": "2026-09-14T10:00:00+08:00", "event_type": "wait_timer_started", "details": "Five-minute free wait ends at 10:05. Eight-minute no-show threshold ends at 10:08."},
+    {"timestamp": "2026-09-14T10:04:00+08:00", "event_type": "trip_cancelled", "details": "Driver cancelled the trip with reason rider_no_show."},
+    {"timestamp": "2026-09-14T10:04:00+08:00", "event_type": "cancellation_fee_applied", "details": "$5.00 no-show cancellation fee charged to the rider."}
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": "5.00",
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation"
+  },
+  "rider_history": {
+    "rider_id": "R-7824", "account_age_days": 120, "total_trips": 21, "avg_rating": 4.7,
+    "dispute_history": {"total_disputes": 0, "upheld": 0, "rejected": 0}, "fraud_flags": 0
+  },
+  "driver_history": {
+    "driver_id": "D-2399", "account_age_days": 600, "total_trips": 1800, "avg_rating": 4.8,
+    "dispute_history": {"total_disputes": 0, "upheld_against": 0, "rejected": 0}, "fraud_flags": 0
+  }
+}

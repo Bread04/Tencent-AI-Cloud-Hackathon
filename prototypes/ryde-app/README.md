@@ -11,10 +11,10 @@ Start at `prototypes/index.html`. The app is at `/ryde-app/`, with ride planning
 
 ## Optional support and evidence flow
 
-1. Select Michael Wong's cancelled DISP-002 trip, or his invented route-deviation trip.
+1. Select Michael Wong's DISP-002 trip, or choose **Demo rider R-7824** for DISP-003 and **Demo rider R-7825** for DISP-004 in the Rider profile selector. His invented route-deviation trip remains available.
 2. Inspect Overview, Receipt, and Messages.
 3. Open Rider evidence and choose **Collect rider evidence**. Expand items or the Communication log, or download the evidence JSON.
-4. Choose **Report an issue** in Overview. The existing report form opens with the selected rider and trip. Enter your own statement, add optional files/photos, review, and create a demo report.
+4. Choose **Report an issue** in Overview. The report form opens with the selected rider and trip. Choose **Load DISP-003 report example** or **Load DISP-004 report example** to populate that trip's report, or write your own statement. Add optional files/photos, review, and create a demo report. From the standalone report page, use **Choose an example** and **Load sample report** for any of the three reports.
 5. Creating a confirmed Rider report automatically prepares a local Rider case: Evidence Agent → Policy Agent → Rider Advocate. Inspect the arguments, counter-evidence, missing information, full policy references and communication log below the report result.
 6. Choose **View in the Rider app**, or open **Your case** for the selected trip. The report and prepared case use this tab's session; download either JSON to retain a copy. Older saved reports can use **Prepare Rider case** in the app.
 7. Switch to Aisha Tan's demo account to see a separate trip and evidence scope.
@@ -27,12 +27,12 @@ Case building is configured for no-show/cancellation and route deviation. Other 
 
 The result is a Rider-only Submission draft, not the complete shared Case pipeline. Its in-memory evidence snapshot contains Rider-visible app records; the feature does not create a Driver Submission, seal the full shared evidence set, run the Judge, issue a Ruling, or process payment. Session data is client-editable and is not authenticated evidence. Failed/stale session saves are reported explicitly.
 
-Run the existing evidence checks and new case-flow checks with `node --test prototypes/ryde-app/tests/*.test.cjs` from the repository root (or pass the two test filenames explicitly on shells without glob expansion).
+Run the evidence, case-flow and sample checks with `node --test prototypes/ryde-app/tests/*.test.cjs` from the repository root (or pass `evidence.test.cjs`, `rider-case.test.cjs` and `samples.test.cjs` explicitly on shells without glob expansion).
 
 ## Data boundaries
 
 - The collector is deterministic JavaScript with source-labelled Evidence Items, explicit available/missing status, and real collection events. It makes no LLM or network calls and produces no Ruling.
-- `data.js` provides a rider-visible subset of DISP-002 and two clearly labelled invented fixtures. It does not include driver-private telemetry, driver history, expected rulings, or the evaluation summary.
+- `data.js` provides rider-visible subsets and report templates for DISP-002, DISP-003 and DISP-004, plus the two existing invented fixtures. Each new sample belongs to its own demo rider. It does not include driver-private telemetry, driver history, expected rulings, or evaluation labels. The Rider case feature prepares a review request; loading a sample does not force a ruling or refund.
 - Rider-visible conversations can include incoming driver messages. This does not grant access to private driver records.
 - DISP-002 contains no rider-device location data. Its driver GPS must never be relabelled as rider GPS. The route fixture has only two invented rider-device samples, insufficient to establish an actual route.
 - `rider-evidence-agent.js` validates trip ownership before reading sources. Changing account or trip invalidates the displayed collection. The report must match the selected trip and have the Rider role.
