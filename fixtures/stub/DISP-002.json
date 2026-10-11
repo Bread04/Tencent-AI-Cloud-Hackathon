@@ -16,7 +16,8 @@
       }
     ],
     "policy_clause_ids": [
-      "NS-7"
+      "R-02",
+      "R-03"
     ],
     "requested_outcome": "Reverse the $5.00 no-show fee."
   },
@@ -35,10 +36,8 @@
       }
     ],
     "policy_clause_ids": [
-      "NS-1",
-      "NS-2",
-      "NS-3",
-      "NS-4"
+      "D-02",
+      "D-03"
     ],
     "requested_outcome": "Uphold the $5.00 no-show fee."
   },
@@ -76,10 +75,8 @@
     ],
     "reasoning_summary": "The driver was at the pickup point for the whole wait and tried to contact the rider. The rider's position is unknown, so their claim is unproven and the fee stands.",
     "cited_policy_clause_ids": [
-      "NS-1",
-      "NS-3",
-      "NS-5",
-      "NS-7"
+      "R-02",
+      "D-02"
     ]
   }
 }

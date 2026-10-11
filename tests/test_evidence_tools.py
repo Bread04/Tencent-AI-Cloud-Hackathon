@@ -1,7 +1,9 @@
 """Seam: gather_evidence(trip_id, catalog) -> Evidence Items for one Trip."""
 
+import copy
+
 from src.contracts import EvidenceStatus
-from src.intake import load_catalog
+from src.intake import Catalog, load_catalog
 from src.tools.evidence import gather_evidence
 
 TRIP = "TRIP-2026-09945"  # the cleaned DISP-002 trip
@@ -51,3 +53,25 @@ def test_data_the_system_does_not_have_comes_back_marked_missing_with_a_reason()
 
     assert rider_position.status is EvidenceStatus.MISSING
     assert rider_position.content  # says why it is missing
+
+
+def test_the_wait_is_counted_from_the_drivers_arrival_not_the_scheduled_time():
+    fare = evidence_by_source()["fare"]
+
+    # Arrived 08:43, scheduled 08:45, cancelled 08:51: 8 minutes from arrival (6 from the scheduled time).
+    assert fare.derived["wait_minutes_from_arrival"] == 8
+    assert fare.derived["free_wait_expired"] is True
+    assert fare.derived["no_show_threshold_reached"] is True
+
+
+def test_a_cancellation_before_the_no_show_threshold_is_not_marked_as_reaching_it():
+    catalog = load_catalog()
+    record = copy.deepcopy(catalog.trip(TRIP))
+    record["trip"]["cancellation_time"] = "2026-09-13T08:47:00+08:00"  # 4 minutes after arrival
+    early = Catalog(disputes=catalog.disputes, trips={TRIP: record})
+
+    fare = {item.source: item for item in gather_evidence(TRIP, early)}["fare"]
+
+    assert fare.derived["wait_minutes_from_arrival"] == 4
+    assert fare.derived["free_wait_expired"] is False
+    assert fare.derived["no_show_threshold_reached"] is False

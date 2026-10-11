@@ -1,9 +1,11 @@
 """Seam: judge(case, rider_submission, driver_submission, model) -> Ruling."""
 
 import json
+
+import pytest
 from decimal import Decimal
 
-from src.agents.judge import judge
+from src.agents.judge import DraftRejected, judge
 from src.contracts import RulingOutcome, RulingStatus
 from src.llm.stub import StubModel
 
@@ -77,3 +79,22 @@ def test_judge_sees_both_submissions_but_never_the_history_of_either_party():
     assert "RIDER-MARKER" in prompt and "DRIVER-MARKER" in prompt
     assert "EV-HISTORY-1" not in prompt
     assert "flagged_for_frequent_late_cancellations" not in prompt  # ADR 0001
+
+
+@pytest.mark.parametrize(
+    "outcome, remedy, complaint",
+    [
+        ("partially_uphold", "fee_reversal", "partial"),  # No-Show is all or nothing
+        ("partially_uphold", "partial_refund", "partial"),
+        ("uphold", "no_action", "fee_reversal"),  # an upheld claim must reverse the fee
+        ("reject", "fee_reversal", "no_action"),  # a rejected claim must leave the fee
+        ("uphold", "full_refund", "fee_reversal"),  # not a Remedy that applies to a No-Show fee
+        ("uphold", "compensation_to_driver", "fee_reversal"),
+    ],
+)
+def test_judge_refuses_a_draft_whose_outcome_and_remedy_are_not_allowed_for_a_no_show(outcome, remedy, complaint):
+    claimant_leaning = "claimant" if outcome != "reject" else "respondent"
+    draft = a_judge_draft(outcome=outcome, remedy=remedy, balance_of_evidence=claimant_leaning)
+
+    with pytest.raises(DraftRejected, match=complaint):
+        run_judge(draft)

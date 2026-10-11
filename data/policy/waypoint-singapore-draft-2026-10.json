@@ -1,0 +1,304 @@
+{
+  "_simulated": "Ported unchanged from prototypes/shared/policies.js. Draft prototype guidance, not Ryde's approved terms. Re-sync with: node scripts/sync_policy.cjs",
+  "version": "waypoint-singapore-draft-2026-10",
+  "status": "Draft prototype guidance · for review",
+  "clauses": [
+    {
+      "clause_id": "R-01",
+      "role": "Rider",
+      "category": "General",
+      "title": "Accurate booking details",
+      "text": "Check that the pickup point, destination, ride option and passenger details in the booking are accurate. For a private hire car, book through the app and use the stated pickup and drop-off point rather than a taxi stand. Tell the driver about a material change through the app where possible.",
+      "keywords": [
+        "wrong pickup",
+        "wrong location",
+        "wrong destination",
+        "passenger",
+        "booking details",
+        "pickup point"
+      ]
+    },
+    {
+      "clause_id": "R-02",
+      "role": "Rider",
+      "category": "Cancellation and no-show",
+      "title": "Pickup, waiting and cancellation",
+      "text": "Use the in-app trip status and messages to coordinate at pickup. If a trip is cancelled or a no-show fee appears, keep the trip and payment details and ask the platform to review the specific charge. This draft sets no fixed waiting period or fee.",
+      "keywords": [
+        "no-show",
+        "no show",
+        "cancel",
+        "cancellation",
+        "wait",
+        "waiting",
+        "pickup",
+        "fee",
+        "charged"
+      ]
+    },
+    {
+      "clause_id": "R-03",
+      "role": "Rider",
+      "category": "Fare and payment",
+      "title": "Fare and payment questions",
+      "text": "Review the fare and payment information shown for the booking and the receipt after the trip. Raise an unexpected, duplicate or missing charge through the platform with the trip reference and available receipt details.",
+      "keywords": [
+        "fare",
+        "payment",
+        "receipt",
+        "price",
+        "charge",
+        "charged",
+        "duplicate",
+        "refund",
+        "amount",
+        "earnings"
+      ]
+    },
+    {
+      "clause_id": "R-04",
+      "role": "Rider",
+      "category": "Route and destination",
+      "title": "Route or destination changes",
+      "text": "Discuss a requested change to the destination or route with the driver through the app when practical. Keep the original booking and any in-app messages when reporting a route concern.",
+      "keywords": [
+        "route",
+        "detour",
+        "destination",
+        "drop-off",
+        "dropoff",
+        "stop",
+        "reroute",
+        "changed route"
+      ]
+    },
+    {
+      "clause_id": "R-05",
+      "role": "Rider",
+      "category": "Safety and conduct",
+      "title": "Safety, respectful conduct and help",
+      "text": "Wear a seat belt and follow applicable safety requirements. In Singapore, private hire cars must provide a suitable child restraint or booster seat for passengers below 1.35 m. Treat other trip participants respectfully. If there is immediate danger, contact emergency services first; use the platform report feature when safe.",
+      "keywords": [
+        "safety",
+        "unsafe",
+        "danger",
+        "seat belt",
+        "seatbelt",
+        "threat",
+        "conduct",
+        "harass",
+        "emergency",
+        "driving"
+      ]
+    },
+    {
+      "clause_id": "R-06",
+      "role": "Rider",
+      "category": "Privacy and reporting",
+      "title": "Respectful communication and reporting",
+      "text": "Use trip communications and report tools for ride-related matters. Share only information needed to describe the issue, and distinguish what you observed from what you are unsure about.",
+      "keywords": [
+        "message",
+        "communication",
+        "privacy",
+        "report",
+        "photo",
+        "recording",
+        "evidence",
+        "personal information"
+      ]
+    },
+    {
+      "clause_id": "R-07",
+      "role": "Rider",
+      "category": "Vehicle condition",
+      "title": "Vehicle care and damage concerns",
+      "text": "Take reasonable care of the vehicle and report damage, spills or cleanliness concerns with a clear description and relevant evidence when available. Any charge or responsibility requires a separate review.",
+      "keywords": [
+        "damage",
+        "mess",
+        "clean",
+        "spill",
+        "stain",
+        "vomit",
+        "vehicle",
+        "cleaning"
+      ]
+    },
+    {
+      "clause_id": "R-08",
+      "role": "Rider",
+      "category": "Lost property",
+      "title": "Lost or found property",
+      "text": "Report a missing or found item through the trip support flow and describe the item and where it was last seen. Avoid sharing sensitive access codes or unnecessary personal details.",
+      "keywords": [
+        "lost item",
+        "lost",
+        "left behind",
+        "found item",
+        "belonging",
+        "wallet",
+        "phone",
+        "property"
+      ]
+    },
+    {
+      "clause_id": "R-09",
+      "role": "Rider",
+      "category": "General",
+      "title": "Use of a booked ride",
+      "text": "Use the ride for the trip and passenger count shown in the booking, and follow applicable platform instructions and Singapore requirements.",
+      "keywords": [
+        "policy",
+        "booking",
+        "trip",
+        "passenger"
+      ]
+    },
+    {
+      "clause_id": "D-01",
+      "role": "Driver",
+      "category": "Eligibility",
+      "title": "Licensing and vehicle requirements",
+      "text": "Keep the required Singapore vocational licence, vehicle approvals, insurance and platform documents current before accepting rides. Follow applicable LTA requirements for the service and vehicle.",
+      "keywords": [
+        "licence",
+        "license",
+        "vehicle",
+        "insurance",
+        "lta",
+        "pdvl",
+        "documents"
+      ]
+    },
+    {
+      "clause_id": "D-02",
+      "role": "Driver",
+      "category": "Pickup and cancellation",
+      "title": "Pickup coordination and trip status",
+      "text": "Follow the in-app pickup details, use available trip communication to coordinate, and record the trip status accurately. Do not represent an arrival, cancellation or no-show as verified solely from a report claim.",
+      "keywords": [
+        "pickup",
+        "arrive",
+        "wait",
+        "no-show",
+        "no show",
+        "cancel",
+        "cancellation"
+      ]
+    },
+    {
+      "clause_id": "D-03",
+      "role": "Driver",
+      "category": "Fare and payment",
+      "title": "Fare transparency",
+      "text": "Use the booking and platform payment flow for trip charges, and ensure the fare is shown to the commuter upfront in the app. Do not add an undisclosed off-platform trip charge; retain relevant trip and receipt records for review.",
+      "keywords": [
+        "fare",
+        "payment",
+        "receipt",
+        "charge",
+        "charged",
+        "cash",
+        "amount"
+      ]
+    },
+    {
+      "clause_id": "D-04",
+      "role": "Driver",
+      "category": "Route and destination",
+      "title": "Route changes and passenger requests",
+      "text": "Confirm material destination or route changes with the passenger where practical and reflect the trip accurately in the app. Follow applicable traffic and pickup/drop-off rules.",
+      "keywords": [
+        "route",
+        "detour",
+        "destination",
+        "drop-off",
+        "dropoff",
+        "stop",
+        "traffic"
+      ]
+    },
+    {
+      "clause_id": "D-05",
+      "role": "Driver",
+      "category": "Safety and conduct",
+      "title": "Safe, respectful service",
+      "text": "Drive safely, follow applicable road rules, and communicate respectfully. For immediate danger, prioritise safety and contact emergency services as appropriate before using platform reporting tools.",
+      "keywords": [
+        "safety",
+        "unsafe",
+        "danger",
+        "threat",
+        "conduct",
+        "harass",
+        "emergency",
+        "driving"
+      ]
+    },
+    {
+      "clause_id": "D-06",
+      "role": "Driver",
+      "category": "Privacy and reporting",
+      "title": "Passenger privacy and incident reports",
+      "text": "Use passenger information only as needed to provide and support the booked trip. Keep reports factual, distinguish direct observations from assumptions, and use the platform’s support channel.",
+      "keywords": [
+        "privacy",
+        "personal information",
+        "report",
+        "photo",
+        "recording",
+        "evidence",
+        "message"
+      ]
+    },
+    {
+      "clause_id": "D-07",
+      "role": "Driver",
+      "category": "Vehicle condition",
+      "title": "Vehicle condition and damage reports",
+      "text": "Keep the vehicle fit and reasonably clean for service. Document a damage or cleanliness concern with relevant trip context and evidence where available; a report alone does not establish responsibility.",
+      "keywords": [
+        "damage",
+        "mess",
+        "clean",
+        "spill",
+        "stain",
+        "vehicle",
+        "cleaning"
+      ]
+    },
+    {
+      "clause_id": "D-08",
+      "role": "Driver",
+      "category": "Lost property",
+      "title": "Lost property handling",
+      "text": "Report a passenger’s missing or found item through the platform support flow and share only the details needed to identify and return it.",
+      "keywords": [
+        "lost item",
+        "lost",
+        "left behind",
+        "found item",
+        "belonging",
+        "wallet",
+        "phone",
+        "property"
+      ]
+    },
+    {
+      "clause_id": "D-09",
+      "role": "Driver",
+      "category": "General",
+      "title": "Accurate trip records",
+      "text": "Keep booking, trip status and support information accurate. Do not use another person’s platform account or misstate trip activity.",
+      "keywords": [
+        "account",
+        "booking",
+        "trip",
+        "record",
+        "fraud",
+        "accuracy"
+      ]
+    }
+  ]
+}

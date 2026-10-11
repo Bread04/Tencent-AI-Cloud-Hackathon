@@ -90,3 +90,6 @@ Placeholders the code currently runs on. Each needs a decision.
 | 16 | **Where citation rules run.** `citation_errors` is called by the agents (so they can repair), not by the store on `add_submission` or `set_ruling`. | Agents call it |
 | 17 | **Invalid Dispute Category.** It fails contract validation before a Case exists, so no `case_rejected` event is logged for it. Intake needs to decide how to show that rejection. | Validation error |
 | 18 | Still open from architecture section 12 and untouched here: precedent similarity (tags or embeddings), mock policy wording, timeouts per stage. | |
+| 7 | **Role-scoped policy.** Kyven's Rider and Driver Policy Agents each get only their own side's clauses (`R-*`, `D-*`). `PolicyClause` has no `role` field. | All agents get the same clause set, both sides' clauses included (architecture 5.3, "one source, three roles") |
+| 8 | **Source and version references on a Submission.** Kyven's advocate specs attach report-snapshot, evidence-version and policy-version refs. `Submission` has none. | Not recorded; the Case carries `evidence_version` and each clause carries its `version` |
+| 9 | **Where the Route Deviation refund formula lives.** The shared policy set has none (see ADR 0002). | Not defined |

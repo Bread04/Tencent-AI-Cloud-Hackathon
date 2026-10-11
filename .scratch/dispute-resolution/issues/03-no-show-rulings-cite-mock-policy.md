@@ -1,6 +1,6 @@
 # 03: No-Show rulings cite mock policy
 
-**What to build:** A mock company policy for No-Show Charge disputes, written as Policy Clauses with stable IDs and one version. It resolves the ambiguity in the sample data explicitly: whether the free wait counts from the arrival of the driver or from the scheduled pickup time, and whether the fee applies at the free-wait limit or at the no-show threshold. Advocates and the Judge look up the clauses for a Dispute Category and cite them by ID. A citation to a clause that does not exist is rejected in code. The policy is labelled as simulated wherever it is shown.
+**What to build:** One shared policy source for No-Show Charge disputes: the Waypoint clauses in `prototypes/shared/policies.js`, ported to the backend with stable IDs and one version. The source is generic and sets no wait time or fee, so the thresholds come from the trip's fare evidence and code computes whether each was reached, counting from the driver's arrival (see ADR 0002). Advocates and the Judge look up the clauses for a Dispute Category and cite them by ID. A citation to a clause that does not exist is rejected in code. The policy is labelled as a draft, not Ryde's approved terms, wherever it is shown.
 
 **Blocked by:** 02
 
@@ -8,11 +8,11 @@
 
 **Tier:** 0 · **Owner:** Braedon
 
-- [x] No-Show policy exists as Policy Clauses, each with a stable ID, text and version
-- [x] The free-wait and no-show threshold ambiguity is resolved in the wording
-- [x] The policy defines the closed list of Remedies and says whether No-Show allows a partial outcome
-- [x] A material-evidence checklist for No-Show is kept with the policy
+- [x] No-Show policy is served as Policy Clauses (the shared Waypoint set), each with a stable ID, text and version
+- [x] The free-wait and no-show threshold ambiguity is resolved in code from the fare evidence, counted from arrival (ADR 0002); the policy text states no numbers
+- [x] The closed Remedy list and the no-partial-outcome rule for No-Show are enforced by the Judge: only uphold with fee_reversal or reject with no_action are allowed (the shared policy set does not state them)
+- [x] A material-evidence checklist for No-Show is available through the policy module
 - [x] Looking up policy for the No-Show category returns the applicable clauses
 - [x] A Submission or Ruling citing a non-existent clause ID fails validation with a clear error
 - [x] The Communication Log records a policy lookup event
-- [x] The policy is labelled as simulated on screen
+- [x] The policy is labelled as a draft, not Ryde's approved terms, on screen

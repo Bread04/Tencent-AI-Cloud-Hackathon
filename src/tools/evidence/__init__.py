@@ -24,9 +24,13 @@ def gather_evidence(trip_id: str, catalog: Catalog) -> list[EvidenceItem]:
     ]
 
 
+def _arrival(record: dict) -> dict:
+    return next(point for point in record["gps_telemetry"] if point["status"] == "arrived")
+
+
 def _gps_item(trip_id: str, record: dict) -> EvidenceItem:
     trip, points = record["trip"], record["gps_telemetry"]
-    arrival = next(point for point in points if point["status"] == "arrived")
+    arrival = _arrival(record)
     arrived_at = datetime.fromisoformat(arrival["timestamp"])
     pickup = trip["pickup_location"]
     return EvidenceItem(
@@ -71,6 +75,9 @@ def _chat_item(trip_id: str, record: dict) -> EvidenceItem:
 
 def _fare_item(trip_id: str, record: dict) -> EvidenceItem:
     trip, policy = record["trip"], record["cancellation_policy"]
+    # The policy sets no wait time (see src/agents/policy), so the trip's own thresholds decide.
+    # The clock starts when the driver arrives at the pickup point, not at the scheduled time.
+    waited = _minutes_between(_arrival(record)["timestamp"], trip["cancellation_time"])
     return EvidenceItem(
         evidence_id="EV-FARE-1",
         source="fare",
@@ -84,6 +91,9 @@ def _fare_item(trip_id: str, record: dict) -> EvidenceItem:
             "currency": trip["currency"],
             "free_wait_min": policy["free_wait_time_min"],
             "no_show_threshold_min": policy["no_show_threshold_min"],
+            "wait_minutes_from_arrival": waited,
+            "free_wait_expired": waited >= policy["free_wait_time_min"],
+            "no_show_threshold_reached": waited >= policy["no_show_threshold_min"],
         },
     )
 
