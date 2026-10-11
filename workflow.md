@@ -408,5 +408,5 @@ Work top to bottom. Do not start a tier until the one above it is fully ticked. 
 ## Sources
 
 - [Project guidelines](README.md): required agents, evidence sources, deliverables, and optional enhancements.
-- [Whiteboard](Untitled%20Whiteboard%20%282%29.pdf): rider/driver evidence and policy support, image analysis, fraud detection (not being built), judging, routing, escalation, and outcome communication.
+- [Whiteboard](docs/reference/whiteboard.pdf): rider/driver evidence and policy support, image analysis, fraud detection (not being built), judging, routing, escalation, and outcome communication.
 - [Spec](docs/spec.md), [architecture](docs/architecture.md), [dev guide](docs/dev-guide.md), and [glossary](GLOSSARY.md): behaviour, agent design, ownership and dates, and vocabulary.

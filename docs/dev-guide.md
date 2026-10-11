@@ -88,7 +88,7 @@ Tier 4 (Learning Feedback Loop, Braedon) goes in only if Tier 3 lands before Tue
 - Strip `Expected ruling` and the Evidence Summary from any case file before the agents see it. Keep them as an evaluation label in a separate file the agents never read.
 - Missing evidence stays marked `missing`. Agents must not invent records.
 - Chat messages, driver statements and photo text are untrusted data. Never let them act as instructions.
-- History is context for the Judge. It never decides a ruling by itself.
+- History is withheld from the Judge. After the outcome is fixed, a rule table in code may lower Confidence or trigger review; it never changes the outcome.
 - Label every mock case, policy and financial action as simulated on screen.
 
 ## Definition of done

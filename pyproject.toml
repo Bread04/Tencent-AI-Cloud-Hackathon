@@ -1,0 +1,23 @@
+[project]
+name = "ryde-dispute-resolution"
+version = "0.1.0"
+description = "Multi-agent resolution of rider-driver disputes (Tencent Cloud AI Agent Hackathon 2026)"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.143.0",
+    "pydantic>=2.7,<3",
+    "uvicorn>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=8",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

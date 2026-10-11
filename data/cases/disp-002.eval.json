@@ -1,0 +1,7 @@
+{
+  "_note": "Evaluation label. Agents must never read this file.",
+  "dispute_id": "DISP-002",
+  "expected_outcome": "reject",
+  "expected_summary": "Cancellation charge upheld: the driver arrived, waited the full free-wait and no-show window and tried to contact the rider.",
+  "expected_remedy": "no_action"
+}

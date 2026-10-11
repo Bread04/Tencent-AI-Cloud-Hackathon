@@ -118,3 +118,13 @@ The system should handle at least two of the following dispute types:
 | Source code | Complete source code submitted through a GitHub repository. |
 
 > **Note:** The listed features provide guidance. Participants are strongly encouraged to explore alternative approaches that meaningfully address the problem statement.
+
+## Getting started
+
+Needs [uv](https://docs.astral.sh/uv/) (it fetches Python 3.11+ and the dependencies). One command installs everything and runs the test suite:
+
+```
+uv run pytest
+```
+
+The suite runs offline: the model is a stub with scripted replies. The proposed contract values and the questions still open are in [docs/contract-decisions.md](docs/contract-decisions.md).
