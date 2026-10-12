@@ -10,7 +10,7 @@
 
 **Tier:** 1 · **Owner:** Braedon
 
-- [x] A store of Precedents exists, seeded with mock past Rulings for both MVP categories (`data/precedents/seed.json`: six No-Show and two Route Deviation, `src/agents/policy/precedents.py`)
+- [x] A store of Precedents exists, seeded with mock past Rulings for both MVP categories (`data/precedents/seed.json`: six No-Show, four Safety Incident and two Route Deviation, `src/agents/policy/precedents.py`)
 - [x] Each Dispute Category has fixed Applicable Clauses, always served in full and identically to both advocates and the Judge; clauses are never retrieved by similarity (done for No-Show; Route Deviation has no clause list until ticket 06)
 - [x] For a Case, the agent returns the Applicable Clauses plus similar Precedents with the reason for similarity
 - [x] Precedents are ranked by category filter then tag overlap; with `precedent_retrieval = embeddings` they are reranked by a local open-source embedding model, and if that model is unavailable retrieval falls back to tags and says so in the Communication Log (the embedding rerank and the fallback are built behind an `Embedder` interface and tested with a fake model; `fastembed` is not installed, so with `retrieval = embeddings` today it falls back to tags and says so in the log)
@@ -26,3 +26,4 @@
 - [x] With the switch off, the Judge rules from policy alone as before (`switches.policy_precedent`, off by default; the console has a Use precedent box)
 
 **Still open:** the tag-versus-embedding comparison needs the evaluation harness (ticket 20), and a real embedding model (`fastembed`, ADR 0003) has not been installed or tried. The Learning Feedback Loop (ticket 16) is what will add human-confirmed Precedents.
+**Safety Incidents:** four seeded precedents (PREC-SF-01 to 04) are served to Safety Incident cases, with tags drawn from the trip record (speed, app alerts, the rider's complaints, how the trip ended). They are served only when the precedent and SLA routing switches are both on.

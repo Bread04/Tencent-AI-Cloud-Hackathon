@@ -29,10 +29,10 @@ def a_sealed_case(dispute_id: str):
 # --- The store ---------------------------------------------------------------------------------------------------------
 
 
-def test_the_store_is_seeded_for_both_mvp_categories_and_every_precedent_says_its_source():
+def test_the_store_is_seeded_for_every_category_and_every_precedent_says_its_source():
     seeded = seeded_precedents()
 
-    assert {p.category for p in seeded} == {DisputeCategory.NO_SHOW_CHARGE, DisputeCategory.ROUTE_DEVIATION}
+    assert {p.category for p in seeded} == {DisputeCategory.NO_SHOW_CHARGE, DisputeCategory.ROUTE_DEVIATION, DisputeCategory.SAFETY_INCIDENT}
     assert len({p.precedent_id for p in seeded}) == len(seeded)
     assert {p.source for p in seeded} == {PrecedentSource.SEEDED}
 
@@ -153,3 +153,34 @@ def test_a_model_that_fails_while_embedding_falls_back_too():
     result = retrieve_precedents(a_sealed_case("DISP-002"), seeded_precedents(), mode="embeddings", embedder=Broken())
 
     assert result.mode_used == "tags" and result.served and "model file missing" in result.note
+
+
+# --- Safety Incidents -------------------------------------------------------------------------------------------------------------
+
+
+def test_the_store_has_precedents_for_all_three_categories_the_system_resolves():
+    assert {p.category for p in seeded_precedents()} >= {DisputeCategory.NO_SHOW_CHARGE, DisputeCategory.SAFETY_INCIDENT, DisputeCategory.ROUTE_DEVIATION}
+
+
+def test_a_safety_case_is_described_by_what_the_trip_record_shows_about_speed_alerts_and_complaints():
+    assert case_tags(a_sealed_case("DISP-005")) == {"speed_far_above_limit", "speed_alert_raised", "rider_complained_in_chat", "rider_ended_trip_early"}
+    assert case_tags(a_sealed_case("DISP-006")) == {"speed_near_limit", "no_alert_raised", "no_complaint_in_chat", "trip_completed"}
+
+
+def test_a_safety_case_is_not_described_in_no_show_terms():
+    assert not case_tags(a_sealed_case("DISP-005")) & {"driver_at_pickup", "free_wait_over", "no_show_threshold_reached"}
+
+
+def test_the_closest_safety_precedent_comes_first_and_only_safety_ones_are_served():
+    strong = retrieve_precedents(a_sealed_case("DISP-005"), seeded_precedents())
+    weak = retrieve_precedents(a_sealed_case("DISP-006"), seeded_precedents())
+
+    assert strong.served[0].precedent.precedent_id == "PREC-SF-01" and weak.served[0].precedent.precedent_id == "PREC-SF-02"
+    assert {s.precedent.category for s in strong.served + weak.served} == {DisputeCategory.SAFETY_INCIDENT}
+    assert "speed alert raised" in strong.served[0].why
+
+
+def test_no_show_cases_are_not_served_safety_precedents():
+    result = retrieve_precedents(a_sealed_case("DISP-003"), seeded_precedents())
+
+    assert all(s.precedent.category is DisputeCategory.NO_SHOW_CHARGE for s in result.served)

@@ -1,0 +1,59 @@
+{
+  "_simulated": "Scripted replies used when the precedent switch is on. They overlay the base script: only the agents listed here change. Mock data, not model output.",
+  "judge": {
+    "outcome": "uphold",
+    "balance_of_evidence": "claimant",
+    "remedy": "full_refund",
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "accepted",
+        "reason": "GPS records speeds of 84 and 91 km/h and a speed alert, and the driver's own message dismisses the request to slow down.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "rejected",
+        "reason": "The driver's statement that the roads were clear does not explain the recorded speeds.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "rejected",
+        "reason": "The driver's message shows he heard the request and refused it; the recorded speed contradicts a safe pace.",
+        "evidence_ids": [
+          "EV-CHAT-1",
+          "EV-GPS-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "rejected",
+        "reason": "Being late is not a reason to drive above the limit.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      }
+    ],
+    "policy_fit": "clear",
+    "policy_fit_reason": "The recorded conduct falls under the safe-driving clauses.",
+    "cited_evidence_ids": [
+      "EV-GPS-1",
+      "EV-CHAT-1"
+    ],
+    "cited_policy_clause_ids": [
+      "R-05",
+      "D-05"
+    ],
+    "reasoning_summary": "GPS shows the vehicle at 84 to 91 km/h for several minutes, the app raised a speed alert, and the driver refused the rider's request to slow down. The rider's claim is made out. Because this is a Safety Incident, the proposal goes to a person.",
+    "cited_precedent_ids": [
+      "PREC-SF-01"
+    ],
+    "precedent_departure": "PREC-SF-04 rejected a claim made on a complaint alone. Here the GPS speeds and the app's speed alert back the complaint."
+  }
+}

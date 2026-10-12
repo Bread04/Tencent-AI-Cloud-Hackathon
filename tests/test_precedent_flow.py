@@ -120,3 +120,18 @@ def test_following_every_shown_precedent_needs_no_explanation():
     _, case, _ = run(precedents=same, model=scripted("DISP-003", precedent_departure=None, cited_precedent_ids=["PREC-NS-02"]))
 
     assert case.ruling is not None and case.ruling.cited_precedent_ids == ["PREC-NS-02"]
+
+
+# --- A Safety Incident with precedent ----------------------------------------------------------------------------------------------
+
+
+def test_a_safety_incident_is_served_safety_precedents_and_the_ruling_cites_one_and_still_goes_to_a_person():
+    switches = Switches(policy_precedent=True, sla_routing=True, escalation=True)
+    catalog, store = load_catalog(), CaseStore()
+    from src.api.demo import ReplayModel
+
+    case = run_dispute(catalog.dispute("DISP-005"), store=store, model=ReplayModel(store), catalog=catalog, switches=switches)
+
+    assert case.precedents and {p.category.value for p in case.precedents} == {"safety_incident"}
+    assert "PREC-SF-01" in case.ruling.cited_precedent_ids
+    assert case.status is CaseStatus.PENDING_REVIEW  # a Safety Incident is always held, with or without precedent

@@ -1,0 +1,58 @@
+{
+  "_simulated": "Scripted replies used when the precedent switch is on. They overlay the base script: only the agents listed here change. Mock data, not model output.",
+  "judge": {
+    "outcome": "reject",
+    "balance_of_evidence": "respondent",
+    "remedy": "no_action",
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "unproven",
+        "reason": "GPS shows steady speeds near the limit and nothing in the chat or app events records unsafe driving.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "The driver's account matches the steady speeds in the record.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "accepted",
+        "reason": "The record shows a normal trip at steady speed that was completed.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "Lane changes are not recorded in the evidence, so they cannot be weighed.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      }
+    ],
+    "policy_fit": "clear",
+    "policy_fit_reason": "The evidence is complete enough to apply the safe-driving clauses.",
+    "cited_evidence_ids": [
+      "EV-GPS-1",
+      "EV-CHAT-1"
+    ],
+    "cited_policy_clause_ids": [
+      "R-05",
+      "D-05"
+    ],
+    "reasoning_summary": "Speeds stayed between 48 and 52 km/h, no alert was raised and no message reports a concern. The rider's account is unproven. Because this is a Safety Incident, the proposal goes to a person.",
+    "cited_precedent_ids": [
+      "PREC-SF-02"
+    ],
+    "precedent_departure": "PREC-SF-03 upheld a claim backed by an app alert and a complaint. Here there is no alert and no complaint in the conversation."
+  }
+}

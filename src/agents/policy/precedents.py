@@ -10,6 +10,7 @@ bring History back to the Judge. A Precedent stores no party ID, trip ID or Hist
 
 import json
 import math
+import re
 from collections.abc import Sequence
 from decimal import Decimal
 from pathlib import Path
@@ -37,6 +38,8 @@ SEED_FILE = Path(__file__).resolve().parents[3] / "data" / "precedents" / "seed.
 RETRIEVABLE = frozenset({PrecedentSource.SEEDED, PrecedentSource.HUMAN_CONFIRMED, PrecedentSource.HUMAN_OVERRIDE})
 NO_PRECEDENT = "No precedent found for this Case."
 NEAR_PICKUP_M = 50  # the driver counts as at the pickup point within this distance on arrival
+FAR_ABOVE_LIMIT_KMH = 80  # a recorded speed at or above this is far above any road limit in the mock data
+COMPLAINT = re.compile(r"slow down|unsafe|dangerous|scared|too fast|reckless|stop the car", re.IGNORECASE)
 
 
 class Embedder(Protocol):
@@ -102,8 +105,16 @@ def _precedent(spec: dict) -> Precedent:
 
 
 def case_tags(case: Case) -> set[str]:
-    """Describe the Case from its sealed evidence, in the same vocabulary the Precedents use. History is never read."""
-    by_source = {item.source: item for item in case.evidence if item.source != "history"}
+    """Describe the Case from its sealed evidence, in the vocabulary the Precedents of its category use. History is never read."""
+    evidence = {item.source: item for item in case.evidence if item.source != "history"}  # ADR 0001: retrieval cannot bring History back
+    if case.dispute.category is DisputeCategory.SAFETY_INCIDENT:
+        return _safety_tags(evidence)
+    if case.dispute.category is DisputeCategory.NO_SHOW_CHARGE:
+        return _no_show_tags(case, evidence)
+    return set()
+
+
+def _no_show_tags(case: Case, by_source: dict) -> set[str]:
     tags: set[str] = set()
     gps, chat, fare = (by_source.get(name) for name in ("gps", "chat", "fare"))
     if gps and gps.status is not EvidenceStatus.MISSING:
@@ -125,6 +136,23 @@ def case_tags(case: Case) -> set[str]:
             tags.add("rider_replied")
     if any(item.source == "rider_location" and item.status is EvidenceStatus.MISSING for item in case.evidence):
         tags.add("rider_location_missing")
+    return tags
+
+
+def _safety_tags(by_source: dict) -> set[str]:
+    """What the trip record shows about speed, the app's own alerts, the rider's complaints and how the trip ended."""
+    tags: set[str] = set()
+    gps, chat, fare = (by_source.get(name) for name in ("gps", "chat", "fare"))
+    if gps and gps.status is not EvidenceStatus.MISSING and isinstance(gps.content, list):
+        fastest = max((point.get("speed_kmh", 0) for point in gps.content), default=0)
+        tags.add("speed_far_above_limit" if fastest >= FAR_ABOVE_LIMIT_KMH else "speed_near_limit")
+    if fare and fare.status is not EvidenceStatus.MISSING and isinstance(fare.content, list):
+        events = {event.get("event_type") for event in fare.content}
+        tags.add("speed_alert_raised" if "speed_alert" in events else "no_alert_raised")
+        tags.add("rider_ended_trip_early" if "trip_ended_early" in events else "trip_completed")
+    if chat and chat.status is not EvidenceStatus.MISSING and isinstance(chat.content, list):
+        complained = any(m.get("sender") == "rider" and COMPLAINT.search(m.get("content", "")) for m in chat.content)
+        tags.add("rider_complained_in_chat" if complained else "no_complaint_in_chat")
     return tags
 
 

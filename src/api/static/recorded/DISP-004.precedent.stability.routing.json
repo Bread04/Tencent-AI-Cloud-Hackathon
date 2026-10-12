@@ -630,13 +630,13 @@
       }
     ],
     "review_record": null,
-    "created_at": "2026-10-12T07:22:05.680131Z",
-    "updated_at": "2026-10-12T07:22:05.690005Z"
+    "created_at": "2026-10-12T08:04:42.743568Z",
+    "updated_at": "2026-10-12T08:04:42.749760Z"
   },
   "log": [
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.680131Z",
+      "timestamp": "2026-10-12T08:04:42.743568Z",
       "agent": "intake",
       "kind": "case_filed",
       "summary": "Rider filed a no_show_charge Dispute on trip TRIP-2026-09947.",
@@ -647,7 +647,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.680488Z",
+      "timestamp": "2026-10-12T08:04:42.743730Z",
       "agent": "intake",
       "kind": "priority_set",
       "summary": "Priority set to 20: no show charge (+20)",
@@ -655,7 +655,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.680576Z",
+      "timestamp": "2026-10-12T08:04:42.743787Z",
       "agent": "orchestrator",
       "kind": "evidence_requested",
       "summary": "Requested GPS, chat, fare and History evidence for trip TRIP-2026-09947.",
@@ -665,7 +665,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.680729Z",
+      "timestamp": "2026-10-12T08:04:42.743883Z",
       "agent": "evidence",
       "kind": "evidence_returned",
       "summary": "5 Evidence Item(s) returned, 1 marked missing.",
@@ -679,7 +679,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.680897Z",
+      "timestamp": "2026-10-12T08:04:42.743993Z",
       "agent": "orchestrator",
       "kind": "evidence_sealed",
       "summary": "Evidence set sealed as CASE-0001-evidence-v1 with 5 item(s).",
@@ -689,7 +689,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.681352Z",
+      "timestamp": "2026-10-12T08:04:42.744250Z",
       "agent": "policy",
       "kind": "policy_retrieved",
       "summary": "8 applicable Policy Clause(s) retrieved.",
@@ -706,7 +706,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.682165Z",
+      "timestamp": "2026-10-12T08:04:42.744815Z",
       "agent": "policy",
       "kind": "precedent_retrieved",
       "summary": "3 similar precedent(s) retrieved by tags: PREC-NS-05 (seeded), PREC-NS-01 (seeded), PREC-NS-06 (seeded).",
@@ -718,7 +718,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.683284Z",
+      "timestamp": "2026-10-12T08:04:42.745457Z",
       "agent": "rider_advocate",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -726,7 +726,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.683926Z",
+      "timestamp": "2026-10-12T08:04:42.745969Z",
       "agent": "driver_advocate",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -734,7 +734,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.684384Z",
+      "timestamp": "2026-10-12T08:04:42.746432Z",
       "agent": "rider_advocate",
       "kind": "submission_filed",
       "summary": "Submission filed: Seek reversal of the no-show fee, with human review of the unresolved location gap before a final decision.",
@@ -748,7 +748,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.684720Z",
+      "timestamp": "2026-10-12T08:04:42.746648Z",
       "agent": "driver_advocate",
       "kind": "submission_filed",
       "summary": "Submission filed: Seek retention of the no-show fee on the driver's account, subject to human review because continuous presence is unverified.",
@@ -762,7 +762,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.685532Z",
+      "timestamp": "2026-10-12T08:04:42.747131Z",
       "agent": "judge",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -770,7 +770,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.686030Z",
+      "timestamp": "2026-10-12T08:04:42.747430Z",
       "agent": "judge_self_check",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -778,7 +778,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.686314Z",
+      "timestamp": "2026-10-12T08:04:42.747594Z",
       "agent": "judge",
       "kind": "self_check_passed",
       "summary": "Self-check passed: each cited item supports the claim made about it.",
@@ -786,7 +786,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.686569Z",
+      "timestamp": "2026-10-12T08:04:42.747752Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "rider_advocate#claim: unproven. GPS stops after 09:02. The rider's messages report not finding the car, but neither those statements nor the absence of later GPS samples proves departure.",
@@ -798,7 +798,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.686813Z",
+      "timestamp": "2026-10-12T08:04:42.747903Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "rider_advocate#counter-1: unproven. The driver's claim of staying throughout the wait is not verified beyond the last GPS sample at 09:02. Elapsed time and messages do not establish location.",
@@ -810,7 +810,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.687053Z",
+      "timestamp": "2026-10-12T08:04:42.748051Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "driver_advocate#claim: unproven. GPS supports arrival and coverage through 09:02 only. Later driver messages are unverified statements. Fare timer events show eight elapsed minutes and do not establish physical presence throughout the gap.",
@@ -822,7 +822,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.687290Z",
+      "timestamp": "2026-10-12T08:04:42.748206Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "driver_advocate#counter-1: unproven. The rider's belief that the driver left cannot be verified from a gap in GPS coverage; no independent record establishes departure.",
@@ -833,7 +833,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.687734Z",
+      "timestamp": "2026-10-12T08:04:42.748475Z",
       "agent": "judge_second_pass",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies failed after 0.0s: StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.",
@@ -841,7 +841,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.687994Z",
+      "timestamp": "2026-10-12T08:04:42.748638Z",
       "agent": "judge",
       "kind": "stability_check",
       "summary": "Stability check: The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias.",
@@ -849,7 +849,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.688556Z",
+      "timestamp": "2026-10-12T08:04:42.748988Z",
       "agent": "judge",
       "kind": "ruling_drafted",
       "summary": "Proposal recorded: no final decision or payment authorization. Pending review: stability_disagreement: The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias.; balanced_evidence: The Judge found the evidence evenly balanced, so the Ruling is a proposal for a Human Reviewer.; policy_gap: Policy Gap: No clause covers a gap in the driver's GPS record during the wait.; low_confidence: Calculated confidence 0.5 is below the configured threshold 0.7.",
@@ -866,7 +866,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.688866Z",
+      "timestamp": "2026-10-12T08:04:42.749185Z",
       "agent": "escalation",
       "kind": "escalated",
       "summary": "Sent to a Human Reviewer: The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias.; The Judge found the evidence evenly balanced, so the Ruling is a proposal for a Human Reviewer.; Policy Gap: No clause covers a gap in the driver's GPS record during the wait.; Calculated confidence 0.5 is below the configured threshold 0.7.",
@@ -879,7 +879,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.689463Z",
+      "timestamp": "2026-10-12T08:04:42.749565Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
       "summary": "Outcome sent to the rider (pending_review).",
@@ -887,7 +887,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:22:05.690005Z",
+      "timestamp": "2026-10-12T08:04:42.749760Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
       "summary": "Outcome sent to the driver (pending_review).",
@@ -900,7 +900,7 @@
       "agent": "rider_advocate",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T07:22:05.683204Z",
+      "started_at": "2026-10-12T08:04:42.745420Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -922,7 +922,7 @@
       "agent": "driver_advocate",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T07:22:05.683888Z",
+      "started_at": "2026-10-12T08:04:42.745932Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -944,7 +944,7 @@
       "agent": "judge",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T07:22:05.685465Z",
+      "started_at": "2026-10-12T08:04:42.747094Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -966,7 +966,7 @@
       "agent": "judge_self_check",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T07:22:05.686002Z",
+      "started_at": "2026-10-12T08:04:42.747414Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -988,7 +988,7 @@
       "agent": "judge_second_pass",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T07:22:05.687711Z",
+      "started_at": "2026-10-12T08:04:42.748462Z",
       "seconds": 0.0,
       "messages": [
         {
