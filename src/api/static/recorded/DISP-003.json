@@ -1,0 +1,573 @@
+{
+  "case": {
+    "case_id": "CASE-0001",
+    "dispute": {
+      "dispute_id": "DISP-003",
+      "trip_id": "TRIP-2026-09946",
+      "filed_by": "rider",
+      "category": "no_show_charge",
+      "description": "My driver arrived at the Bugis Junction pickup point at 10:00. I messaged at 10:01 that I was coming to the pickup bay, but the driver cancelled at 10:04 and I was charged $5.00 for a no-show. The app's five-minute free wait had not ended, and the eight-minute no-show threshold had not been reached. Please reverse the charge.",
+      "requested_remedy": "Reverse the $5.00 no-show cancellation fee",
+      "filed_at": "2026-09-14T10:15:00+08:00",
+      "photos": [],
+      "driver_statement": "I arrived at 10:00 and sent a message. The rider said they were coming, but I had not seen them by 10:04, so I cancelled."
+    },
+    "status": "notified",
+    "priority": 0,
+    "priority_reason": null,
+    "switches": {
+      "evidence_agents": false,
+      "policy_precedent": false,
+      "image_analysis": false,
+      "escalation": false,
+      "sla_routing": false,
+      "learning_loop": false
+    },
+    "evidence": [
+      {
+        "evidence_id": "EV-GPS-1",
+        "source": "gps",
+        "trip_id": "TRIP-2026-09946",
+        "side": "driver",
+        "timestamp": "2026-09-14T10:00:00+08:00",
+        "status": "available",
+        "content": [
+          {
+            "timestamp": "2026-09-14T10:00:00+08:00",
+            "lat": 1.299,
+            "lng": 103.855,
+            "speed_kmh": 0,
+            "status": "arrived"
+          },
+          {
+            "timestamp": "2026-09-14T10:01:00+08:00",
+            "lat": 1.299,
+            "lng": 103.855,
+            "speed_kmh": 0,
+            "status": "waiting"
+          },
+          {
+            "timestamp": "2026-09-14T10:02:00+08:00",
+            "lat": 1.299,
+            "lng": 103.855,
+            "speed_kmh": 0,
+            "status": "waiting"
+          },
+          {
+            "timestamp": "2026-09-14T10:03:00+08:00",
+            "lat": 1.299,
+            "lng": 103.855,
+            "speed_kmh": 0,
+            "status": "waiting"
+          },
+          {
+            "timestamp": "2026-09-14T10:04:00+08:00",
+            "lat": 1.299,
+            "lng": 103.855,
+            "speed_kmh": 0,
+            "status": "cancelled"
+          }
+        ],
+        "derived": {
+          "arrival_time": "2026-09-14T10:00:00+08:00",
+          "distance_to_pickup_at_arrival_m": 0,
+          "arrival_vs_scheduled_min": 0,
+          "minutes_at_pickup": 4
+        },
+        "conflicts_with": []
+      },
+      {
+        "evidence_id": "EV-CHAT-1",
+        "source": "chat",
+        "trip_id": "TRIP-2026-09946",
+        "side": "shared",
+        "timestamp": null,
+        "status": "available",
+        "content": [
+          {
+            "timestamp": "2026-09-14T10:00:10+08:00",
+            "sender": "driver",
+            "type": "message",
+            "content": "I am at the booked pickup bay."
+          },
+          {
+            "timestamp": "2026-09-14T10:01:00+08:00",
+            "sender": "rider",
+            "type": "message",
+            "content": "I am coming to the pickup bay. Please wait."
+          },
+          {
+            "timestamp": "2026-09-14T10:03:30+08:00",
+            "sender": "driver",
+            "type": "message",
+            "content": "I cannot see you yet. I am going to cancel."
+          },
+          {
+            "timestamp": "2026-09-14T10:04:00+08:00",
+            "sender": "system",
+            "type": "system",
+            "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $5.00 applied."
+          }
+        ],
+        "derived": {
+          "driver_messages": 2,
+          "driver_calls": 0,
+          "rider_messages": 1
+        },
+        "conflicts_with": []
+      },
+      {
+        "evidence_id": "EV-FARE-1",
+        "source": "fare",
+        "trip_id": "TRIP-2026-09946",
+        "side": "shared",
+        "timestamp": "2026-09-14T10:04:00+08:00",
+        "status": "available",
+        "content": [
+          {
+            "timestamp": "2026-09-14T09:45:00+08:00",
+            "event_type": "booking_confirmed",
+            "details": "Rider R-7824 booked TRIP-2026-09946 from Bugis Junction pickup bay to Suntec City. Scheduled pickup 10:00."
+          },
+          {
+            "timestamp": "2026-09-14T10:00:00+08:00",
+            "event_type": "driver_arrived",
+            "details": "GPS recorded the driver at the booked pickup coordinates."
+          },
+          {
+            "timestamp": "2026-09-14T10:00:00+08:00",
+            "event_type": "wait_timer_started",
+            "details": "Five-minute free wait ends at 10:05. Eight-minute no-show threshold ends at 10:08."
+          },
+          {
+            "timestamp": "2026-09-14T10:04:00+08:00",
+            "event_type": "trip_cancelled",
+            "details": "Driver cancelled the trip with reason rider_no_show."
+          },
+          {
+            "timestamp": "2026-09-14T10:04:00+08:00",
+            "event_type": "cancellation_fee_applied",
+            "details": "$5.00 no-show cancellation fee charged to the rider."
+          }
+        ],
+        "derived": {
+          "cancellation_fee": "5.00",
+          "currency": "SGD",
+          "free_wait_min": 5,
+          "no_show_threshold_min": 8,
+          "wait_minutes_from_arrival": 4,
+          "free_wait_expired": false,
+          "no_show_threshold_reached": false
+        },
+        "conflicts_with": []
+      },
+      {
+        "evidence_id": "EV-HISTORY-1",
+        "source": "history",
+        "trip_id": "TRIP-2026-09946",
+        "side": "shared",
+        "timestamp": null,
+        "status": "available",
+        "content": {
+          "rider": {
+            "rider_id": "R-7824",
+            "account_age_days": 120,
+            "total_trips": 21,
+            "avg_rating": 4.7,
+            "dispute_history": {
+              "total_disputes": 0,
+              "upheld": 0,
+              "rejected": 0
+            },
+            "fraud_flags": 0
+          },
+          "driver": {
+            "driver_id": "D-2399",
+            "account_age_days": 600,
+            "total_trips": 1800,
+            "avg_rating": 4.8,
+            "dispute_history": {
+              "total_disputes": 0,
+              "upheld_against": 0,
+              "rejected": 0
+            },
+            "fraud_flags": 0
+          }
+        },
+        "derived": {},
+        "conflicts_with": []
+      },
+      {
+        "evidence_id": "EV-RIDERLOC-1",
+        "source": "rider_location",
+        "trip_id": "TRIP-2026-09946",
+        "side": "rider",
+        "timestamp": null,
+        "status": "missing",
+        "content": "No rider location was recorded for this Trip, so the rider's position is unknown.",
+        "derived": {},
+        "conflicts_with": []
+      }
+    ],
+    "evidence_version": "CASE-0001-evidence-v1",
+    "policy_clauses": [
+      {
+        "clause_id": "R-01",
+        "category": "no_show_charge",
+        "text": "Check that the pickup point, destination, ride option and passenger details in the booking are accurate. For a private hire car, book through the app and use the stated pickup and drop-off point rather than a taxi stand. Tell the driver about a material change through the app where possible.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "R-02",
+        "category": "no_show_charge",
+        "text": "Use the in-app trip status and messages to coordinate at pickup. If a trip is cancelled or a no-show fee appears, keep the trip and payment details and ask the platform to review the specific charge. This draft sets no fixed waiting period or fee.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "R-03",
+        "category": "no_show_charge",
+        "text": "Review the fare and payment information shown for the booking and the receipt after the trip. Raise an unexpected, duplicate or missing charge through the platform with the trip reference and available receipt details.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "R-06",
+        "category": "no_show_charge",
+        "text": "Use trip communications and report tools for ride-related matters. Share only information needed to describe the issue, and distinguish what you observed from what you are unsure about.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "D-02",
+        "category": "no_show_charge",
+        "text": "Follow the in-app pickup details, use available trip communication to coordinate, and record the trip status accurately. Do not represent an arrival, cancellation or no-show as verified solely from a report claim.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "D-03",
+        "category": "no_show_charge",
+        "text": "Use the booking and platform payment flow for trip charges, and ensure the fare is shown to the commuter upfront in the app. Do not add an undisclosed off-platform trip charge; retain relevant trip and receipt records for review.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "D-06",
+        "category": "no_show_charge",
+        "text": "Use passenger information only as needed to provide and support the booked trip. Keep reports factual, distinguish direct observations from assumptions, and use the platform\u2019s support channel.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "D-09",
+        "category": "no_show_charge",
+        "text": "Keep booking, trip status and support information accurate. Do not use another person\u2019s platform account or misstate trip activity.",
+        "version": "waypoint-singapore-draft-2026-10"
+      }
+    ],
+    "precedents": [],
+    "submissions": [
+      {
+        "author": "rider_advocate",
+        "claim_restated": "The driver cancelled four minutes after arriving, before the five-minute free wait ended and well before the eight-minute no-show threshold, so the $5.00 fee was charged too early and should be reversed.",
+        "facts_relied_on": [
+          "EV-GPS-1",
+          "EV-CHAT-1",
+          "EV-FARE-1"
+        ],
+        "missing_evidence_ids": [
+          "EV-RIDERLOC-1"
+        ],
+        "counter_arguments": [
+          {
+            "argument": "The driver was at the pickup bay and messaged the rider.",
+            "response": "Being there is not enough: the fare evidence shows only four minutes elapsed from arrival, so neither the free wait nor the no-show threshold had passed when the driver cancelled."
+          }
+        ],
+        "policy_clause_ids": [
+          "R-02",
+          "R-03"
+        ],
+        "requested_outcome": "Reverse the $5.00 no-show fee."
+      },
+      {
+        "author": "driver_advocate",
+        "claim_restated": "The driver arrived on time, stayed at the pickup bay and messaged the rider, who gave no position, so the driver was entitled to cancel for a rider no-show.",
+        "facts_relied_on": [
+          "EV-GPS-1",
+          "EV-CHAT-1"
+        ],
+        "missing_evidence_ids": [
+          "EV-RIDERLOC-1"
+        ],
+        "counter_arguments": [
+          {
+            "argument": "Only four minutes passed after arrival, which is less than the five-minute free wait.",
+            "response": "The rider's one message gave no location or arrival time, so the driver could not tell when the rider would reach the bay."
+          }
+        ],
+        "policy_clause_ids": [
+          "D-02",
+          "D-03"
+        ],
+        "requested_outcome": "Uphold the $5.00 no-show fee."
+      }
+    ],
+    "ruling": {
+      "status": "final",
+      "outcome": "uphold",
+      "balance_of_evidence": "claimant",
+      "remedy": "fee_reversal",
+      "amount": "5.00",
+      "currency": "SGD",
+      "calculation": {
+        "formula": "no-show fee charged, reversed in full",
+        "input_evidence_ids": [
+          "EV-FARE-1"
+        ],
+        "result": "5.00"
+      },
+      "argument_assessments": [
+        {
+          "author": "rider_advocate",
+          "argument": "The driver cancelled four minutes after arriving, before the five-minute free wait ended and well before the eight-minute no-show threshold, so the $5.00 fee was charged too early and should be reversed.",
+          "verdict": "accepted",
+          "reason": "The fare evidence shows four minutes from arrival to cancellation, under the five-minute free wait and the eight-minute threshold.",
+          "evidence_ids": [
+            "EV-FARE-1",
+            "EV-GPS-1"
+          ]
+        },
+        {
+          "author": "rider_advocate",
+          "argument": "The driver was at the pickup bay and messaged the rider.",
+          "verdict": "accepted",
+          "reason": "The driver's presence is not disputed, but it does not make up the missing wait time.",
+          "evidence_ids": [
+            "EV-GPS-1",
+            "EV-FARE-1"
+          ]
+        },
+        {
+          "author": "driver_advocate",
+          "argument": "The driver arrived on time, stayed at the pickup bay and messaged the rider, who gave no position, so the driver was entitled to cancel for a rider no-show.",
+          "verdict": "rejected",
+          "reason": "The driver cancelled before the free wait ended, so the conditions for a no-show charge were not met.",
+          "evidence_ids": [
+            "EV-FARE-1"
+          ]
+        },
+        {
+          "author": "driver_advocate",
+          "argument": "Only four minutes passed after arrival, which is less than the five-minute free wait.",
+          "verdict": "rejected",
+          "reason": "The rider gave no position, but that does not shorten the wait the driver must give.",
+          "evidence_ids": [
+            "EV-CHAT-1"
+          ]
+        }
+      ],
+      "own_findings": [],
+      "policy_fit": "clear",
+      "policy_fit_reason": "The thresholds in the fare evidence were not reached, so the fee does not apply.",
+      "policy_gap": null,
+      "cited_evidence_ids": [
+        "EV-GPS-1",
+        "EV-CHAT-1",
+        "EV-FARE-1"
+      ],
+      "missing_evidence_ids": [],
+      "cited_policy_clause_ids": [
+        "R-02",
+        "D-02"
+      ],
+      "cited_precedent_ids": [],
+      "reasoning_summary": "The driver cancelled after four minutes, before the five-minute free wait or the eight-minute no-show threshold. The fee was charged too early and is reversed in full.",
+      "confidence": {
+        "value": 0.8,
+        "components": {
+          "policy_fit": 0.95,
+          "evidence_completeness": 0.8,
+          "consistency": 0.95
+        }
+      },
+      "history_adjustments": [],
+      "material_evidence": [
+        {
+          "key": "driver_at_pickup",
+          "label": "Driver position at the pickup point",
+          "evidence_ids": [
+            "EV-GPS-1"
+          ]
+        },
+        {
+          "key": "arrival_vs_scheduled",
+          "label": "Arrival time against the scheduled time",
+          "evidence_ids": [
+            "EV-GPS-1"
+          ]
+        },
+        {
+          "key": "wait_timers",
+          "label": "Free-wait and no-show timers",
+          "evidence_ids": [
+            "EV-FARE-1"
+          ]
+        },
+        {
+          "key": "contact_attempts",
+          "label": "Driver contact attempts",
+          "evidence_ids": [
+            "EV-CHAT-1"
+          ]
+        },
+        {
+          "key": "rider_position",
+          "label": "Rider position",
+          "evidence_ids": []
+        }
+      ],
+      "review_triggers": []
+    },
+    "outcomes": [
+      {
+        "party": "rider",
+        "ruling_summary": "Your claim was upheld. The SGD 5.00 no-show fee will be reversed. Reason: The driver cancelled after four minutes, before the five-minute free wait or the eight-minute no-show threshold. The fee was charged too early and is reversed in full.",
+        "action_status": "recommended"
+      },
+      {
+        "party": "driver",
+        "ruling_summary": "The rider's claim was upheld. The SGD 5.00 no-show fee is reversed. Reason: The driver cancelled after four minutes, before the five-minute free wait or the eight-minute no-show threshold. The fee was charged too early and is reversed in full.",
+        "action_status": "recommended"
+      }
+    ],
+    "review_record": null,
+    "created_at": "2026-10-12T04:42:14.168685Z",
+    "updated_at": "2026-10-12T04:42:14.171666Z"
+  },
+  "log": [
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.168685Z",
+      "agent": "intake",
+      "kind": "case_filed",
+      "summary": "Rider filed a no_show_charge Dispute on trip TRIP-2026-09946.",
+      "references": [
+        "DISP-003",
+        "TRIP-2026-09946"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.168796Z",
+      "agent": "orchestrator",
+      "kind": "evidence_requested",
+      "summary": "Requested GPS, chat, fare and History evidence for trip TRIP-2026-09946.",
+      "references": [
+        "TRIP-2026-09946"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.168897Z",
+      "agent": "evidence",
+      "kind": "evidence_returned",
+      "summary": "5 Evidence Item(s) returned, 1 marked missing.",
+      "references": [
+        "EV-GPS-1",
+        "EV-CHAT-1",
+        "EV-FARE-1",
+        "EV-HISTORY-1",
+        "EV-RIDERLOC-1"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.169006Z",
+      "agent": "orchestrator",
+      "kind": "evidence_sealed",
+      "summary": "Evidence set sealed as CASE-0001-evidence-v1 with 5 item(s).",
+      "references": [
+        "CASE-0001-evidence-v1"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.169304Z",
+      "agent": "policy",
+      "kind": "policy_retrieved",
+      "summary": "8 applicable Policy Clause(s) retrieved.",
+      "references": [
+        "R-01",
+        "R-02",
+        "R-03",
+        "R-06",
+        "D-02",
+        "D-03",
+        "D-06",
+        "D-09"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.170124Z",
+      "agent": "rider_advocate",
+      "kind": "submission_filed",
+      "summary": "Submission filed: Reverse the $5.00 no-show fee.",
+      "references": [
+        "EV-GPS-1",
+        "EV-CHAT-1",
+        "EV-FARE-1",
+        "R-02",
+        "R-03"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.170360Z",
+      "agent": "driver_advocate",
+      "kind": "submission_filed",
+      "summary": "Submission filed: Uphold the $5.00 no-show fee.",
+      "references": [
+        "EV-GPS-1",
+        "EV-CHAT-1",
+        "D-02",
+        "D-03"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.170888Z",
+      "agent": "judge",
+      "kind": "self_check_passed",
+      "summary": "Self-check passed: each cited item supports the claim made about it.",
+      "references": []
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.171163Z",
+      "agent": "judge",
+      "kind": "ruling_drafted",
+      "summary": "Ruling (final): uphold, fee_reversal SGD 5.00.",
+      "references": [
+        "EV-GPS-1",
+        "EV-CHAT-1",
+        "EV-FARE-1",
+        "R-02",
+        "D-02"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.171471Z",
+      "agent": "orchestrator",
+      "kind": "outcome_sent",
+      "summary": "Outcome sent to the rider (recommended).",
+      "references": []
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.171666Z",
+      "agent": "orchestrator",
+      "kind": "outcome_sent",
+      "summary": "Outcome sent to the driver (recommended).",
+      "references": []
+    }
+  ],
+  "run_error": null
+}

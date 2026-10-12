@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dispute console · Waypoint</title>
+<link rel="stylesheet" href="/prototypes/ryde-app/styles.css">
+<link rel="stylesheet" href="/prototypes/shared/waypoint.css">
+<link rel="stylesheet" href="/prototypes/shared/experience.css">
+<link rel="stylesheet" href="/static/console.css">
+<link rel="icon" type="image/svg+xml" href="/prototypes/shared/waypoint-mark.svg">
+</head>
+<body class="rider-app console" data-threshold="{{THRESHOLD}}">
+<header class="app-header">
+  <a class="brand" href="/"><img src="/prototypes/shared/waypoint-mark.svg" alt="" width="36" height="36">Waypoint</a>
+  <nav class="shared-nav" aria-label="Main navigation">
+    <a href="/" aria-current="page">Dispute console</a>
+    <a href="/prototypes/ryde-app/index.html">Rider app</a>
+    <a href="/prototypes/ryde-report/index.html">Help</a>
+    <a href="/prototypes/policies.html">Policies</a>
+  </nav>
+  <span class="prototype">Dispute demo</span>
+  <div class="account">
+    <label for="pace">Replay speed
+      <select id="pace">
+        <option value="600">Presenter</option>
+        <option value="150">Fast</option>
+        <option value="0">Instant</option>
+      </select>
+    </label>
+  </div>
+</header>
+
+<main>
+  <section class="welcome story-hero app-introduction" aria-labelledby="console-title">
+    <div class="hero-copy">
+      <p class="eyebrow">A fairer ruling starts here</p>
+      <h1 id="console-title">Every dispute, resolved in the open.</h1>
+      <p class="muted">Choose a prepared dispute. Two advocates argue it, a Judge rules, and every step lands in the log.</p>
+      <div class="intro-actions">
+        <a class="solid-link" href="#workspace">Pick a dispute <span aria-hidden="true">↓</span></a>
+        <a class="text-link" href="/prototypes/ryde-app/index.html">Open the rider app</a>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true"><span class="art-caption">Your claim · Your ruling</span><img src="/prototypes/shared/pip.svg" alt=""></div>
+  </section>
+  <div id="workspace" class="work-heading">
+    <div>
+      <p class="eyebrow">Prepared disputes · Simulated</p>
+      <h2>Pick a dispute and watch it ruled.</h2>
+    </div>
+    <a class="text-link" href="/prototypes/policies.html">Read the policy</a>
+  </div>
+  <div class="notice" role="note">{{SIMULATED}} Mock policy. A recommended action is never executed.</div>
+  <div id="appError" class="notice error" role="alert" hidden></div>
+
+  <div class="workspace">
+    <aside class="trip-column">
+      <div class="section-title"><h2>Prepared disputes</h2><span class="count">{{COUNT}}</span></div>
+      <div id="disputeList" class="trip-list" aria-label="Choose a dispute">{{DISPUTES}}</div>
+      <div class="side-note">
+        <img class="guide-portrait" src="/prototypes/shared/pip.svg" alt="Pip, the Waypoint route guide">
+        <span class="guide-label">Meet Pip / Your route guide</span>
+        <h3>Every claim, argued.<br>Every ruling, shown.</h3>
+        <p>Choose a dispute. Two advocates argue it, a Judge rules, and every step lands in the log.</p>
+        <p class="small">All trips, evidence, policy and payments here are simulated.</p>
+      </div>
+    </aside>
+
+    <section class="trip-panel" aria-labelledby="caseTitle">
+      <div class="journey-head">
+        <div>
+          <p id="caseMeta" class="eyebrow">No dispute selected</p>
+          <h2 id="caseTitle">Choose a dispute to run</h2>
+          <p id="caseId" class="small muted"></p>
+        </div>
+        <span id="caseStatus" class="status"></span>
+      </div>
+      <div class="route-banner">
+        <div class="route-points">
+          <div><span class="route-dot"></span><p class="small muted">Pickup</p><h3 id="pickup">–</h3></div>
+          <div><span class="route-dot destination"></span><p class="small muted">Destination</p><h3 id="destination">–</h3></div>
+        </div>
+        <div class="fare"><span class="small muted">Fee in dispute</span><strong id="fare">–</strong><span class="small muted">Simulated payment</span></div>
+      </div>
+      <nav class="tabs" aria-label="Case details">
+        <button type="button" data-tab="overview" aria-pressed="true">Overview</button>
+        <button type="button" data-tab="ruling" aria-pressed="false">Ruling</button>
+        <button type="button" data-tab="evidence" aria-pressed="false">Evidence and policy</button>
+        <button type="button" data-tab="submissions" aria-pressed="false">Submissions</button>
+      </nav>
+
+      <div id="overview" class="tab-panel">
+        <ol id="pipeline" class="pipeline" aria-label="Where the run is"></ol>
+        <div class="split">
+          <div>
+            <h3>Communication log</h3>
+            <p id="status" class="muted small" role="status">Nothing running. Choose a dispute on the left.</p>
+            <ol id="log" class="timeline"></ol>
+          </div>
+          <div id="summaryCard" class="support-card">
+            <span class="support-symbol" aria-hidden="true">?</span>
+            <h3>No ruling yet</h3>
+            <p>Run a dispute and the Judge's ruling will appear here as soon as it is made.</p>
+          </div>
+        </div>
+        <div id="outcomes" class="outcomes-block" hidden>
+          <div class="section-title"><h3>What each person is told</h3></div>
+          <div id="outcomePair" class="split"></div>
+        </div>
+        <p id="disputeNote" class="source-note"></p>
+      </div>
+
+      <div id="ruling" class="tab-panel" hidden><p class="muted">No ruling yet.</p></div>
+      <div id="evidence" class="tab-panel" hidden><p class="muted">Run a dispute to see its sealed evidence and the policy clauses.</p></div>
+      <div id="submissions" class="tab-panel" hidden><p class="muted">Run a dispute to see what each advocate argued.</p></div>
+    </section>
+  </div>
+
+  <footer class="brand-footer">
+    <div><span class="footer-name">Waypoint</span><br>A clearer way forward.</div>
+    <div class="footer-copy">Independent dispute-resolution prototype · Simulated Ryde trip data.<br>No live Ryde connection. Nothing here moves money.</div>
+  </footer>
+</main>
+<div id="hovercard" class="hovercard" role="tooltip" hidden></div>
+<script src="/static/console.js"></script>
+</body>
+</html>

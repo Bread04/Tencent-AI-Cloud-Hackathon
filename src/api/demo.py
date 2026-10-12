@@ -2,31 +2,39 @@
 
     uv run uvicorn src.api.demo:app
 
-Every run replays the same scripted replies, whatever the Case ID, so a
-Dispute can be run any number of times. Replaced by the real model in ticket 08.
+Every run of a Dispute replays that Dispute's own scripted replies (`fixtures/stub/<id>.json`), whatever the
+Case ID, so a Dispute can be run any number of times. Replaced by the real model in ticket 08.
 """
 
 from fastapi import FastAPI
 
 from src.api import create_app
 from src.intake import load_catalog
+from src.llm.adapter import ModelError
 from src.llm.stub import StubModel, load_replies
 from src.store import CaseStore
 
-DEMO_DISPUTE = "DISP-002"
-ANY_CASE = "*"
-
 
 class ReplayModel(StubModel):
-    """A stub that answers every Case with the same script."""
+    """A stub that answers each Case with the script of the Dispute it was filed for."""
+
+    def __init__(self, scripts: dict[str, dict], store: CaseStore):
+        super().__init__({})
+        self._scripts = scripts
+        self._store = store
 
     def _next_reply(self, case_id: str, agent: str):
-        return super()._next_reply(ANY_CASE, agent)
+        dispute_id = self._store.get_case(case_id).dispute.dispute_id
+        script = self._scripts.get(dispute_id, {})
+        if agent not in script:
+            raise ModelError(f"No scripted reply for {dispute_id}, agent {agent}.")
+        return script[agent]
 
 
 def create_demo_app() -> FastAPI:
-    script = {(ANY_CASE, agent): reply for agent, reply in load_replies(DEMO_DISPUTE).items()}
-    return create_app(store=CaseStore(), model=ReplayModel(script), catalog=load_catalog())
+    catalog, store = load_catalog(), CaseStore()
+    scripts = {dispute_id: load_replies(dispute_id) for dispute_id in catalog.disputes}
+    return create_app(store=store, model=ReplayModel(scripts, store), catalog=catalog)
 
 
 app = create_demo_app()

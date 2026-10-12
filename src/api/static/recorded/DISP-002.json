@@ -1,0 +1,607 @@
+{
+  "case": {
+    "case_id": "CASE-0001",
+    "dispute": {
+      "dispute_id": "DISP-002",
+      "trip_id": "TRIP-2026-09945",
+      "filed_by": "rider",
+      "category": "no_show_charge",
+      "description": "I was at the pickup point at Tiong Bahru Plaza on time but the driver never showed up. I waited 10 minutes at the lobby and couldn't find the car. The app charged me a $5.00 cancellation fee for a 'no-show' which is completely unfair \u2014 I was there, the driver was not. I want the charge reversed immediately.",
+      "requested_remedy": "Reverse the $5.00 no-show cancellation fee",
+      "filed_at": "2026-09-13T09:20:00+08:00",
+      "photos": [],
+      "driver_statement": null
+    },
+    "status": "notified",
+    "priority": 0,
+    "priority_reason": null,
+    "switches": {
+      "evidence_agents": false,
+      "policy_precedent": false,
+      "image_analysis": false,
+      "escalation": false,
+      "sla_routing": false,
+      "learning_loop": false
+    },
+    "evidence": [
+      {
+        "evidence_id": "EV-GPS-1",
+        "source": "gps",
+        "trip_id": "TRIP-2026-09945",
+        "side": "driver",
+        "timestamp": "2026-09-13T08:43:00+08:00",
+        "status": "available",
+        "content": [
+          {
+            "timestamp": "2026-09-13T08:31:00+08:00",
+            "lat": 1.292,
+            "lng": 103.845,
+            "speed_kmh": 8,
+            "status": "en_route"
+          },
+          {
+            "timestamp": "2026-09-13T08:34:00+08:00",
+            "lat": 1.289,
+            "lng": 103.843,
+            "speed_kmh": 7,
+            "status": "en_route"
+          },
+          {
+            "timestamp": "2026-09-13T08:38:00+08:00",
+            "lat": 1.2865,
+            "lng": 103.84,
+            "speed_kmh": 4,
+            "status": "en_route"
+          },
+          {
+            "timestamp": "2026-09-13T08:41:00+08:00",
+            "lat": 1.2852,
+            "lng": 103.8388,
+            "speed_kmh": 3,
+            "status": "en_route"
+          },
+          {
+            "timestamp": "2026-09-13T08:43:00+08:00",
+            "lat": 1.2847,
+            "lng": 103.8382,
+            "speed_kmh": 0,
+            "status": "arrived"
+          },
+          {
+            "timestamp": "2026-09-13T08:45:00+08:00",
+            "lat": 1.2847,
+            "lng": 103.8382,
+            "speed_kmh": 0,
+            "status": "waiting"
+          },
+          {
+            "timestamp": "2026-09-13T08:48:00+08:00",
+            "lat": 1.2847,
+            "lng": 103.8382,
+            "speed_kmh": 0,
+            "status": "waiting"
+          },
+          {
+            "timestamp": "2026-09-13T08:51:00+08:00",
+            "lat": 1.2847,
+            "lng": 103.8382,
+            "speed_kmh": 0,
+            "status": "cancelled"
+          }
+        ],
+        "derived": {
+          "arrival_time": "2026-09-13T08:43:00+08:00",
+          "distance_to_pickup_at_arrival_m": 0,
+          "arrival_vs_scheduled_min": -2,
+          "minutes_at_pickup": 8
+        },
+        "conflicts_with": []
+      },
+      {
+        "evidence_id": "EV-CHAT-1",
+        "source": "chat",
+        "trip_id": "TRIP-2026-09945",
+        "side": "shared",
+        "timestamp": null,
+        "status": "available",
+        "content": [
+          {
+            "timestamp": "2026-09-13T08:43:00+08:00",
+            "sender": "driver",
+            "type": "message",
+            "content": "I've arrived at the pickup point, I'm at the lobby area."
+          },
+          {
+            "timestamp": "2026-09-13T08:45:20+08:00",
+            "sender": "driver",
+            "type": "message",
+            "content": "I'm waiting at the lobby area, white Honda HR-V plate SGP 4521 M."
+          },
+          {
+            "timestamp": "2026-09-13T08:47:05+08:00",
+            "sender": "driver",
+            "type": "call",
+            "content": "Outgoing call to rider \u2014 not answered (rang 22s, no response)."
+          },
+          {
+            "timestamp": "2026-09-13T08:49:30+08:00",
+            "sender": "driver",
+            "type": "message",
+            "content": "Hi, are you coming down? I've been waiting a while."
+          },
+          {
+            "timestamp": "2026-09-13T08:50:45+08:00",
+            "sender": "driver",
+            "type": "message",
+            "content": "Please let me know, otherwise I'll have to cancel the trip."
+          },
+          {
+            "timestamp": "2026-09-13T08:51:00+08:00",
+            "sender": "system",
+            "type": "system",
+            "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $5.00 applied."
+          }
+        ],
+        "derived": {
+          "driver_messages": 4,
+          "driver_calls": 1,
+          "rider_messages": 0
+        },
+        "conflicts_with": []
+      },
+      {
+        "evidence_id": "EV-FARE-1",
+        "source": "fare",
+        "trip_id": "TRIP-2026-09945",
+        "side": "shared",
+        "timestamp": "2026-09-13T08:51:00+08:00",
+        "status": "available",
+        "content": [
+          {
+            "timestamp": "2026-09-13T08:30:00+08:00",
+            "event_type": "booking_confirmed",
+            "details": "Rider R-7823 booked trip TRIP-2026-09945 from Tiong Bahru Plaza to VivoCity. Scheduled pickup 08:45."
+          },
+          {
+            "timestamp": "2026-09-13T08:43:00+08:00",
+            "event_type": "driver_arrived",
+            "details": "Driver GPS within 10m of pickup point. Speed 0 km/h. Auto-arrival confirmed."
+          },
+          {
+            "timestamp": "2026-09-13T08:43:10+08:00",
+            "event_type": "wait_timer_started",
+            "details": "Free wait timer started. 5 min free wait period ends at 08:48."
+          },
+          {
+            "timestamp": "2026-09-13T08:48:10+08:00",
+            "event_type": "wait_timer_expired",
+            "details": "Free 5-min wait period expired. Rider had not boarded."
+          },
+          {
+            "timestamp": "2026-09-13T08:51:00+08:00",
+            "event_type": "cancellation_fee_applied",
+            "details": "No-show threshold (8 min) reached. $5.00 cancellation fee charged to rider payment method (e-wallet)."
+          }
+        ],
+        "derived": {
+          "cancellation_fee": "5.00",
+          "currency": "SGD",
+          "free_wait_min": 5,
+          "no_show_threshold_min": 8,
+          "wait_minutes_from_arrival": 8,
+          "free_wait_expired": true,
+          "no_show_threshold_reached": true
+        },
+        "conflicts_with": []
+      },
+      {
+        "evidence_id": "EV-HISTORY-1",
+        "source": "history",
+        "trip_id": "TRIP-2026-09945",
+        "side": "shared",
+        "timestamp": null,
+        "status": "available",
+        "content": {
+          "rider": {
+            "rider_id": "R-7823",
+            "account_age_days": 210,
+            "total_trips": 34,
+            "avg_rating": 3.9,
+            "dispute_history": {
+              "total_disputes": 4,
+              "upheld": 1,
+              "rejected": 3
+            },
+            "fraud_flags": 1,
+            "fraud_flag_details": "flagged_for_frequent_late_cancellations"
+          },
+          "driver": {
+            "driver_id": "D-2398",
+            "account_age_days": 900,
+            "total_trips": 3201,
+            "avg_rating": 4.9,
+            "dispute_history": {
+              "total_disputes": 1,
+              "upheld_against": 0,
+              "rejected": 1
+            },
+            "fraud_flags": 0
+          }
+        },
+        "derived": {},
+        "conflicts_with": []
+      },
+      {
+        "evidence_id": "EV-RIDERLOC-1",
+        "source": "rider_location",
+        "trip_id": "TRIP-2026-09945",
+        "side": "rider",
+        "timestamp": null,
+        "status": "missing",
+        "content": "No rider location was recorded for this Trip, so the rider's position is unknown.",
+        "derived": {},
+        "conflicts_with": []
+      }
+    ],
+    "evidence_version": "CASE-0001-evidence-v1",
+    "policy_clauses": [
+      {
+        "clause_id": "R-01",
+        "category": "no_show_charge",
+        "text": "Check that the pickup point, destination, ride option and passenger details in the booking are accurate. For a private hire car, book through the app and use the stated pickup and drop-off point rather than a taxi stand. Tell the driver about a material change through the app where possible.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "R-02",
+        "category": "no_show_charge",
+        "text": "Use the in-app trip status and messages to coordinate at pickup. If a trip is cancelled or a no-show fee appears, keep the trip and payment details and ask the platform to review the specific charge. This draft sets no fixed waiting period or fee.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "R-03",
+        "category": "no_show_charge",
+        "text": "Review the fare and payment information shown for the booking and the receipt after the trip. Raise an unexpected, duplicate or missing charge through the platform with the trip reference and available receipt details.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "R-06",
+        "category": "no_show_charge",
+        "text": "Use trip communications and report tools for ride-related matters. Share only information needed to describe the issue, and distinguish what you observed from what you are unsure about.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "D-02",
+        "category": "no_show_charge",
+        "text": "Follow the in-app pickup details, use available trip communication to coordinate, and record the trip status accurately. Do not represent an arrival, cancellation or no-show as verified solely from a report claim.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "D-03",
+        "category": "no_show_charge",
+        "text": "Use the booking and platform payment flow for trip charges, and ensure the fare is shown to the commuter upfront in the app. Do not add an undisclosed off-platform trip charge; retain relevant trip and receipt records for review.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "D-06",
+        "category": "no_show_charge",
+        "text": "Use passenger information only as needed to provide and support the booked trip. Keep reports factual, distinguish direct observations from assumptions, and use the platform\u2019s support channel.",
+        "version": "waypoint-singapore-draft-2026-10"
+      },
+      {
+        "clause_id": "D-09",
+        "category": "no_show_charge",
+        "text": "Keep booking, trip status and support information accurate. Do not use another person\u2019s platform account or misstate trip activity.",
+        "version": "waypoint-singapore-draft-2026-10"
+      }
+    ],
+    "precedents": [],
+    "submissions": [
+      {
+        "author": "rider_advocate",
+        "claim_restated": "The rider says they waited at the pickup point and never saw the driver, so the no-show fee should be reversed.",
+        "facts_relied_on": [
+          "EV-FARE-1"
+        ],
+        "missing_evidence_ids": [
+          "EV-RIDERLOC-1"
+        ],
+        "counter_arguments": [
+          {
+            "argument": "GPS places the driver at the pickup point for eight minutes.",
+            "response": "The lobby is large and the driver may have been at a different entrance."
+          }
+        ],
+        "policy_clause_ids": [
+          "R-02",
+          "R-03"
+        ],
+        "requested_outcome": "Reverse the $5.00 no-show fee."
+      },
+      {
+        "author": "driver_advocate",
+        "claim_restated": "The driver arrived two minutes early, stayed at the pickup point through the full free-wait and no-show window, and tried to reach the rider by message and call.",
+        "facts_relied_on": [
+          "EV-GPS-1",
+          "EV-CHAT-1",
+          "EV-FARE-1"
+        ],
+        "missing_evidence_ids": [],
+        "counter_arguments": [
+          {
+            "argument": "The rider says the driver was not there.",
+            "response": "GPS shows the driver stationary at the pickup point from arrival to cancellation."
+          }
+        ],
+        "policy_clause_ids": [
+          "D-02",
+          "D-03"
+        ],
+        "requested_outcome": "Uphold the $5.00 no-show fee."
+      }
+    ],
+    "ruling": {
+      "status": "final",
+      "outcome": "reject",
+      "balance_of_evidence": "respondent",
+      "remedy": "no_action",
+      "amount": null,
+      "currency": null,
+      "calculation": null,
+      "argument_assessments": [
+        {
+          "author": "rider_advocate",
+          "argument": "The rider says they waited at the pickup point and never saw the driver, so the no-show fee should be reversed.",
+          "verdict": "unproven",
+          "reason": "No record places the rider at the pickup point, and the rider's location is missing.",
+          "evidence_ids": [
+            "EV-RIDERLOC-1"
+          ]
+        },
+        {
+          "author": "rider_advocate",
+          "argument": "GPS places the driver at the pickup point for eight minutes.",
+          "verdict": "rejected",
+          "reason": "GPS places the driver at the pickup point from arrival to cancellation.",
+          "evidence_ids": [
+            "EV-GPS-1"
+          ]
+        },
+        {
+          "author": "driver_advocate",
+          "argument": "The driver arrived two minutes early, stayed at the pickup point through the full free-wait and no-show window, and tried to reach the rider by message and call.",
+          "verdict": "accepted",
+          "reason": "GPS shows eight minutes at the pickup point and chat shows four messages and a call with no reply.",
+          "evidence_ids": [
+            "EV-GPS-1",
+            "EV-CHAT-1"
+          ]
+        },
+        {
+          "author": "driver_advocate",
+          "argument": "The rider says the driver was not there.",
+          "verdict": "accepted",
+          "reason": "GPS shows the driver stationary at the pickup point from arrival to cancellation.",
+          "evidence_ids": [
+            "EV-GPS-1"
+          ]
+        }
+      ],
+      "own_findings": [],
+      "policy_fit": "clear",
+      "policy_fit_reason": "The driver waited past the no-show threshold, so the fee applies.",
+      "policy_gap": null,
+      "cited_evidence_ids": [
+        "EV-GPS-1",
+        "EV-CHAT-1",
+        "EV-FARE-1"
+      ],
+      "missing_evidence_ids": [],
+      "cited_policy_clause_ids": [
+        "R-02",
+        "D-02"
+      ],
+      "cited_precedent_ids": [],
+      "reasoning_summary": "The driver was at the pickup point for the whole wait and tried to contact the rider. The rider's position is unknown, so their claim is unproven and the fee stands.",
+      "confidence": {
+        "value": 0.6,
+        "components": {
+          "policy_fit": 0.95,
+          "evidence_completeness": 0.8,
+          "consistency": 0.95
+        }
+      },
+      "history_adjustments": [
+        {
+          "rule": "prior_rejected",
+          "reason": "The Claimant has 3 prior rejected disputes.",
+          "confidence_step": 0.1
+        },
+        {
+          "rule": "late_cancel_flag",
+          "reason": "The Claimant is flagged for frequent late cancellations.",
+          "confidence_step": 0.1
+        }
+      ],
+      "material_evidence": [
+        {
+          "key": "driver_at_pickup",
+          "label": "Driver position at the pickup point",
+          "evidence_ids": [
+            "EV-GPS-1"
+          ]
+        },
+        {
+          "key": "arrival_vs_scheduled",
+          "label": "Arrival time against the scheduled time",
+          "evidence_ids": [
+            "EV-GPS-1"
+          ]
+        },
+        {
+          "key": "wait_timers",
+          "label": "Free-wait and no-show timers",
+          "evidence_ids": [
+            "EV-FARE-1"
+          ]
+        },
+        {
+          "key": "contact_attempts",
+          "label": "Driver contact attempts",
+          "evidence_ids": [
+            "EV-CHAT-1"
+          ]
+        },
+        {
+          "key": "rider_position",
+          "label": "Rider position",
+          "evidence_ids": []
+        }
+      ],
+      "review_triggers": []
+    },
+    "outcomes": [
+      {
+        "party": "rider",
+        "ruling_summary": "Your claim was not upheld. The no-show fee stands. Reason: The driver was at the pickup point for the whole wait and tried to contact the rider. The rider's position is unknown, so their claim is unproven and the fee stands.",
+        "action_status": "recommended"
+      },
+      {
+        "party": "driver",
+        "ruling_summary": "The rider's claim was not upheld. The no-show fee stands. Reason: The driver was at the pickup point for the whole wait and tried to contact the rider. The rider's position is unknown, so their claim is unproven and the fee stands.",
+        "action_status": "recommended"
+      }
+    ],
+    "review_record": null,
+    "created_at": "2026-10-12T04:42:14.163914Z",
+    "updated_at": "2026-10-12T04:42:14.167534Z"
+  },
+  "log": [
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.163914Z",
+      "agent": "intake",
+      "kind": "case_filed",
+      "summary": "Rider filed a no_show_charge Dispute on trip TRIP-2026-09945.",
+      "references": [
+        "DISP-002",
+        "TRIP-2026-09945"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.164042Z",
+      "agent": "orchestrator",
+      "kind": "evidence_requested",
+      "summary": "Requested GPS, chat, fare and History evidence for trip TRIP-2026-09945.",
+      "references": [
+        "TRIP-2026-09945"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.164175Z",
+      "agent": "evidence",
+      "kind": "evidence_returned",
+      "summary": "5 Evidence Item(s) returned, 1 marked missing.",
+      "references": [
+        "EV-GPS-1",
+        "EV-CHAT-1",
+        "EV-FARE-1",
+        "EV-HISTORY-1",
+        "EV-RIDERLOC-1"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.164297Z",
+      "agent": "orchestrator",
+      "kind": "evidence_sealed",
+      "summary": "Evidence set sealed as CASE-0001-evidence-v1 with 5 item(s).",
+      "references": [
+        "CASE-0001-evidence-v1"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.164615Z",
+      "agent": "policy",
+      "kind": "policy_retrieved",
+      "summary": "8 applicable Policy Clause(s) retrieved.",
+      "references": [
+        "R-01",
+        "R-02",
+        "R-03",
+        "R-06",
+        "D-02",
+        "D-03",
+        "D-06",
+        "D-09"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.165975Z",
+      "agent": "rider_advocate",
+      "kind": "submission_filed",
+      "summary": "Submission filed: Reverse the $5.00 no-show fee.",
+      "references": [
+        "EV-FARE-1",
+        "R-02",
+        "R-03"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.166152Z",
+      "agent": "driver_advocate",
+      "kind": "submission_filed",
+      "summary": "Submission filed: Uphold the $5.00 no-show fee.",
+      "references": [
+        "EV-GPS-1",
+        "EV-CHAT-1",
+        "EV-FARE-1",
+        "D-02",
+        "D-03"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.166684Z",
+      "agent": "judge",
+      "kind": "self_check_passed",
+      "summary": "Self-check passed: each cited item supports the claim made about it.",
+      "references": []
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.167051Z",
+      "agent": "judge",
+      "kind": "ruling_drafted",
+      "summary": "Ruling (final): reject, no_action.",
+      "references": [
+        "EV-GPS-1",
+        "EV-CHAT-1",
+        "EV-FARE-1",
+        "R-02",
+        "D-02"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.167372Z",
+      "agent": "orchestrator",
+      "kind": "outcome_sent",
+      "summary": "Outcome sent to the rider (recommended).",
+      "references": []
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T04:42:14.167534Z",
+      "agent": "orchestrator",
+      "kind": "outcome_sent",
+      "summary": "Outcome sent to the driver (recommended).",
+      "references": []
+    }
+  ],
+  "run_error": null
+}

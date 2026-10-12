@@ -1,0 +1,152 @@
+/* Only what the rider app's own stylesheets lack. Loaded after prototypes/shared/waypoint.css and uses its tokens
+   (--blue, --ink, --muted, --line, --mono), so the console looks like the rest of Waypoint. */
+
+/* Timeline: the Communication Log reuses the rider app's .timeline */
+.timeline li.now strong { color: var(--blue); }
+.timeline li.now:before { background: var(--blue); box-shadow: 0 0 0 4px #edf2ff; }
+.timeline .agent { font: 10px/1.5 var(--mono); color: var(--muted); }
+.timeline .refs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+/* Citation buttons: every ID jumps to its Evidence Item or Policy Clause */
+.cite, .timeline button.cite, .trip-panel button.cite, .trip-panel .tab-panel button.cite {
+  font: 11px/1.4 var(--mono); padding: 0 6px !important; min-height: 0 !important; height: auto; width: auto; background: #fbfcfe; border: 1px solid #d9e0ea;
+  border-radius: 2px; color: var(--teal); cursor: pointer;
+}
+.cite:hover { border-color: var(--blue); background: var(--light); }
+
+/* Ruling summary and detail */
+.verdict { font-size: 22px; font-weight: 500; line-height: 1.25; letter-spacing: -.4px; margin: 4px 0 6px; }
+.badge-line { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 8px 0 12px; }
+.chip { font: 10px/1.5 var(--mono); letter-spacing: .5px; padding: 3px 8px; border: 1px solid #cbd7fa; border-radius: 2px; background: #fff; color: #3152aa; }
+.chip.proposal { background: #fff6df; color: #75521b; border-color: #ecd297; }
+.chip.final { background: #edf7f0; color: #276b41; border-color: #c4dfcf; }
+.big-number { font-size: 34px; font-weight: 500; letter-spacing: -1px; line-height: 1.1; }
+.link-button { background: transparent; border: 0; padding: 0; color: var(--teal); font-size: 12px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+.bars { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+.bar { display: grid; grid-template-columns: 150px 1fr 40px; align-items: center; gap: 12px; font-size: 12px; }
+.bar .track { height: 10px; background: #eef1f6; border: 1px solid #dce1e8; border-radius: 2px; overflow: hidden; }
+.bar .fill { display: block; height: 100%; background: #b8c2d4; }
+.bar.weakest .fill { background: var(--blue); }
+.bar.weakest .name { font-weight: 700; }
+.bar .num { text-align: right; font: 11px/1 var(--mono); color: var(--muted); }
+.weakest-note { color: var(--muted); font-size: 12px; margin-top: 10px; }
+.history { margin-top: 10px; padding: 8px 10px; background: #fff6df; color: #75521b; border-left: 3px solid #ecd297; font-size: 12px; }
+
+.detail-section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line); }
+.detail-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+.assessments, .checklist, .plain-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; font-size: 13px; }
+.checklist { gap: 5px; }
+.checklist .missing { color: #9b3b2f; }
+.verdict-tag { font: 10px/1.5 var(--mono); letter-spacing: .5px; margin-right: 8px; padding: 1px 6px; border-radius: 2px; border: 1px solid; }
+.verdict-accepted { color: #276b41; border-color: #c4dfcf; background: #edf7f0; }
+.verdict-rejected { color: #9b3b2f; border-color: #ebc8c2; background: #fdf0ee; }
+.verdict-unproven, .verdict-not_decisive { color: #75521b; border-color: #ecd297; background: #fff6df; }
+.who { color: var(--muted); font-size: 12px; margin: 3px 0; }
+.cites { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+/* Outcomes: a recommended action must look different from an executed one */
+.outcomes-block { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); }
+.support-card.outcome { background: #fff; border: 2px dashed var(--blue); }
+.support-card.outcome h3 { font-size: 15px; font-weight: 600; }
+.support-card.outcome .action { display: block; font: 11px/1.5 var(--mono); letter-spacing: .5px; color: var(--teal); margin: 6px 0 10px; }
+.support-card.outcome.executed { background: #edf7f0; border: 2px solid #3d8a5e; }
+.support-card.outcome.executed .action { color: #276b41; }
+.support-card.outcome.pending_review { background: #fff6df; border: 2px dashed #c9a24a; }
+.support-card.outcome.pending_review .action { color: #75521b; }
+.support-card.outcome.failed { background: #fdf0ee; border: 2px solid #c06a5d; }
+.support-card.outcome.failed .action { color: #9b3b2f; }
+
+/* Evidence and submissions */
+.evidence-item.flash { outline: 2px solid var(--blue); outline-offset: 2px; }
+.evidence-item .state.conflicting { background: #fff6df; color: #75521b; }
+.evidence-item dl { display: grid; grid-template-columns: max-content 1fr; gap: 3px 14px; font-size: 12px; margin: 0 0 10px; }
+.evidence-item dt { color: var(--muted); }
+.evidence-item dd { margin: 0; overflow-wrap: anywhere; }
+.missing-note { background: #fdf0ee; color: #9b3b2f; padding: 8px 10px; font-size: 12px; margin-bottom: 10px; }
+.submission { border: 1px solid var(--line); border-radius: 2px; padding: 18px; margin-bottom: 14px; }
+.submission h3 { font-size: 16px; margin-bottom: 8px; }
+.submission p { font-size: 13px; line-height: 1.6; }
+
+/* Plain server-rendered pages (/cases/...) */
+body.plain { background: #fff; color: var(--ink); max-width: 760px; margin: 0 auto; padding: 24px 20px 48px; font: 15px/1.6 "Nunito", "Segoe UI", sans-serif; }
+body.plain a { color: var(--teal); }
+
+@media (max-width: 720px) {
+  .bar { grid-template-columns: 110px 1fr 36px; }
+}
+
+/* Pipeline stepper: ported from 21st.dev stepper-03 (spring line, travelling dot, pulsing ring), in Waypoint colours */
+.pipeline { margin: 0 0 28px; }
+.stepper { --p: 0; --edge: calc(100% / 12); position: relative; padding-top: 0; }
+.stepper ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); position: relative; }
+.stepper-track, .stepper-line { position: absolute; top: 19px; left: var(--edge); right: var(--edge); height: 2px; }
+.stepper-track { background: #dce1e8; }
+.stepper-line { background: var(--blue); transform-origin: left; transform: scaleX(var(--p)); transition: transform .8s cubic-bezier(.34, 1.25, .5, 1); }
+.stepper-dot {
+  position: absolute; top: 20px; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); z-index: 2;
+  left: calc(var(--edge) + var(--p) * (100% - 2 * var(--edge))); transform: translate(-50%, -50%);
+  transition: left .9s cubic-bezier(.34, 1.25, .5, 1);
+}
+.stepper .step { display: grid; justify-items: center; gap: 8px; text-align: center; position: relative; z-index: 1; }
+.stepper .circle { position: relative; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #eef1f6; color: var(--muted); transition: background-color .3s, color .3s, transform .3s; }
+.stepper .step.current .circle { background: var(--blue); color: #fff; transform: scale(1.1); }
+.stepper .step.done .circle { background: var(--blue); color: #fff; }
+.stepper .step.review .circle { background: #c9831a; }
+.stepper .face { display: grid; place-items: center; font: 700 16px/1 var(--mono); }
+.stepper .face.pop { animation: stepper-pop .4s cubic-bezier(.3, 1.6, .5, 1) both; }
+.stepper .ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(49, 92, 245, .5); animation: stepper-pulse 2.2s ease-in-out infinite alternate; }
+.stepper .step-name { font-size: 12px; font-weight: 500; color: var(--muted); transition: color .3s; }
+.stepper .step.done .step-name, .stepper .step.current .step-name { color: var(--ink); }
+.stepper .step.review .step-name { color: #75521b; font-weight: 600; }
+@keyframes stepper-pop { from { transform: scale(0) rotate(-90deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+@keyframes stepper-pulse { from { transform: scale(1); opacity: 1; } to { transform: scale(1.45); opacity: .2; } }
+@media (prefers-reduced-motion: reduce) {
+  .stepper-line, .stepper-dot, .stepper .circle { transition: none; }
+  .stepper .face.pop, .stepper .ring { animation: none; }
+}
+
+/* Confidence gauge: ported from 21st.dev financial-score-cards (half-circle arc, strength badge, sliding digits) */
+.gauge { margin: 4px 0 12px; }
+.gauge-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.gauge-title { font-size: 14px; font-weight: 600; }
+.gauge-badge { font: 700 10px/1.5 var(--mono); letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; animation: gauge-rise .8s .8s both; }
+.gauge-badge.strong { background: #dcf5e4; color: #1d6b3a; }
+.gauge-badge.moderate { background: #fdf0d2; color: #8a5a14; }
+.gauge-badge.weak { background: #fde0dd; color: #a3322b; }
+.gauge-body { position: relative; max-width: 260px; margin: 0 auto; }
+.gauge-dial { display: block; width: 100%; height: auto; }
+.gauge-track, .gauge-fill { fill: none; stroke-width: 10; }
+.gauge-track { stroke: #e7ebf3; }
+.gauge-tick { stroke: var(--ink); stroke-width: 1.6; }
+.gauge-display { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; }
+.gauge-digits { font-size: 34px; font-weight: 500; line-height: 1.15; overflow: hidden; height: 40px; }
+.gauge-digits .digit { display: inline-block; animation: gauge-slide .8s both; }
+.gauge-label { font: 10px/1.6 var(--mono); letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+.gauge-note { font-size: 12px; color: var(--muted); text-align: center; margin: 8px 0 0; }
+.gauge-note.low { color: #75521b; font-weight: 600; }
+@keyframes gauge-slide { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes gauge-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .gauge-badge, .gauge-digits .digit { animation: none; } }
+
+/* Hover card for cited IDs (idea from 21st.dev hover-card components) */
+.hovercard {
+  position: fixed; z-index: 20; width: 280px; background: #fff; color: var(--ink); border: 1px solid #cbd7fa;
+  border-radius: 2px; padding: 12px 14px; box-shadow: 0 10px 28px rgba(13, 18, 24, .22); font-size: 12px; line-height: 1.6; pointer-events: none;
+}
+.hovercard[hidden] { display: none; }
+.hovercard strong { font: 600 12px/1.5 var(--mono); display: block; margin-bottom: 2px; }
+.hovercard p { margin: 4px 0 0; }
+.hovercard .hint { color: var(--teal); font-size: 11px; }
+.hovercard dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 6px 0 0; }
+.hovercard dt { color: var(--muted); }
+.hovercard dd { margin: 0; overflow-wrap: anywhere; }
+.hovercard .state { font: 10px/1.5 var(--mono); padding: 1px 6px; background: #edf7f0; color: #276b41; border-radius: 2px; }
+.hovercard .state.missing { background: #fdf0ee; color: #9b3b2f; }
+
+@media (max-width: 720px) {
+  .stepper .step-name { font-size: 10px; }
+  .stepper .circle { width: 32px; height: 32px; }
+  .stepper-track, .stepper-line { top: 15px; }
+  .stepper-dot { top: 16px; }
+}
