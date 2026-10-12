@@ -42,8 +42,18 @@ def model_from_environment(env: Mapping[str, str], *, stub: ModelAdapter) -> Mod
         api_key=env["MODEL_API_KEY"],
         model=env["MODEL_NAME"],
         timeout_seconds=_timeout(env),
+        rate_limit_retries=_rate_limit_retries(env),
         structured_output=_structured_output(env),
     )
+
+
+def _rate_limit_retries(env: Mapping[str, str]) -> int:
+    raw = env.get("MODEL_RATE_LIMIT_RETRIES")
+    if raw is None:
+        return CONFIG.model.rate_limit_retries
+    if not raw.isdigit():
+        raise ModelNotConfigured(f"MODEL_RATE_LIMIT_RETRIES must be a whole number of zero or more, not '{raw}'.")
+    return int(raw)
 
 
 def _structured_output(env: Mapping[str, str]) -> str:

@@ -61,7 +61,8 @@ class ModelSettings(_Settings):
 
     structured_output: Literal["json_schema", "json_object"] = "json_schema"  # JSON the reply must match, validated in code; json_object puts the schema in the prompt for providers without schema support
     repair_attempts: int = Field(default=2, ge=0)  # retries with the validation error fed back
-    timeout_seconds: float = Field(default=30.0, gt=0)  # every model call; a timeout is a failure, not a hang
+    timeout_seconds: float = Field(default=120.0, gt=0)  # every model call; a timeout is a failure, not a hang. Reasoning models are slow
+    rate_limit_retries: int = Field(default=6, ge=0)  # how often a call waits out a provider's rate limit before it fails
 
 
 class HistoryRule(_Settings):

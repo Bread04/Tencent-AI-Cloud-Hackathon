@@ -2,6 +2,7 @@
 
 import pytest
 
+from src.config import CONFIG
 from src.contracts import CaseStatus, LogEventKind
 from src.intake import load_catalog
 from src.llm import ModelError
@@ -139,3 +140,27 @@ def test_a_missing_dotenv_file_is_fine(tmp_path):
     from src.llm.factory import environment_with_dotenv
 
     assert environment_with_dotenv(tmp_path / "nope.env", environ={"A": "1"}) == {"A": "1"}
+
+
+# --- Timeouts and rate-limit patience, for slow or limited models ----------------------------------------------------------------
+
+
+def test_a_model_call_is_given_two_minutes_by_default_and_the_environment_can_change_it():
+    assert CONFIG.model.timeout_seconds == 120
+    default = model_from_environment(REAL, stub=a_stub_for("CASE-0001"))
+    longer = model_from_environment({**REAL, "MODEL_TIMEOUT_SECONDS": "300"}, stub=a_stub_for("CASE-0001"))
+
+    assert default._timeout == 120 and longer._timeout == 300
+
+
+def test_the_client_waits_out_a_rate_limit_six_times_by_default_and_the_environment_can_change_it():
+    default = model_from_environment(REAL, stub=a_stub_for("CASE-0001"))
+    patient = model_from_environment({**REAL, "MODEL_RATE_LIMIT_RETRIES": "10"}, stub=a_stub_for("CASE-0001"))
+
+    assert default._rate_limit_retries == CONFIG.model.rate_limit_retries == 6 and patient._rate_limit_retries == 10
+
+
+@pytest.mark.parametrize("value", ["many", "-1"])
+def test_a_rate_limit_retry_count_that_is_not_a_whole_number_of_zero_or_more_says_which_setting_is_wrong(value):
+    with pytest.raises(ModelNotConfigured, match="MODEL_RATE_LIMIT_RETRIES"):
+        model_from_environment({**REAL, "MODEL_RATE_LIMIT_RETRIES": value}, stub=a_stub_for("CASE-0001"))
