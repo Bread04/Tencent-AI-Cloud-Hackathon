@@ -9,10 +9,14 @@
 **Tier:** 0 · **Owner:** Kyven
 
 - [ ] The provider and model are confirmed and recorded, including whether it accepts images
-- [ ] One setting switches between the stub and the real model
-- [ ] Credentials are read from the environment and are absent from the repo
-- [ ] Structured output is requested and validated against the contract
-- [ ] A timed-out call is treated as a failure, not a hang
-- [ ] Invalid output is retried with the validation error, up to two times, using the shared repair helper from ticket 04
-- [ ] With the model unreachable, the user sees a clear error and the Case is marked for review
+- [x] One setting switches between the stub and the real model (`MODEL_PROVIDER=stub|openai_compatible`, `src/llm/factory.py`)
+- [x] Credentials are read from the environment and are absent from the repo (`MODEL_BASE_URL`, `MODEL_API_KEY`, `MODEL_NAME`; names only in `.env.example`; the key is never in the repr or an error message)
+- [x] Structured output is requested and validated against the contract (`response_format` json_schema, then `model_validate_json`; `src/llm/client.py`)
+- [x] A timed-out call is treated as a failure, not a hang (`MODEL_TIMEOUT_SECONDS`, default 30)
+- [x] Invalid output is retried with the validation error, up to two times, using the shared repair helper from ticket 04 (the advocates and the Judge already use `complete_with_repair`; the client raises `ValidationError` for it)
+- [x] With the model unreachable, the user sees a clear error and the Case is marked for review (checked on a real HTTP timeout with `scripts/try_model.py`)
 - [ ] One mock case resolves end to end on the real model
+
+**Still open:** confirm the provider and model (and whether it accepts images), then run one mock case on it:
+`MODEL_PROVIDER=openai_compatible MODEL_BASE_URL=... MODEL_API_KEY=... MODEL_NAME=... uv run python -m scripts.try_model DISP-003`.
+Until a real key has been used, the client has only been tested against a fake HTTP server.

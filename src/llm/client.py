@@ -1,0 +1,97 @@
+"""The real model: a client for any OpenAI-compatible chat endpoint (architecture.md sections 6.4 and 8).
+
+Every call has a timeout. A timeout, an unreachable provider or an HTTP error is a
+`ModelError` with a clear message, never a hang and never an invented reply. A reply that
+breaks the schema raises pydantic's `ValidationError`, so the shared repair loop can feed
+the problem back. The API key lives only in the Authorization header: it is not in the
+repr and is never put in an error message.
+"""
+
+import base64
+import json
+import mimetypes
+import re
+from pathlib import Path
+from typing import TypeVar
+
+import httpx
+from pydantic import BaseModel
+
+from src.llm.adapter import Message, ModelError
+
+T = TypeVar("T", bound=BaseModel)
+
+FENCE = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.DOTALL)
+
+
+class OpenAICompatibleModel:
+    def __init__(
+        self,
+        *,
+        base_url: str,
+        api_key: str,
+        model: str,
+        timeout_seconds: float,
+        transport: httpx.BaseTransport | None = None,
+    ):
+        self._url = base_url.rstrip("/") + "/chat/completions"
+        self._headers = {"Authorization": f"Bearer {api_key}"}
+        self._model = model
+        self._timeout = timeout_seconds
+        self._transport = transport
+
+    def __repr__(self) -> str:
+        return f"OpenAICompatibleModel(url={self._url!r}, model={self._model!r})"
+
+    def complete(self, messages: list[Message], *, case_id: str, agent: str, schema: type[T] | None = None, images: list[str] | None = None):
+        body: dict = {"model": self._model, "messages": _with_images(messages, images)}
+        if schema is not None:
+            body["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {"name": schema.__name__, "schema": schema.model_json_schema()},
+            }
+        content = self._post(body, agent)
+        if schema is None:
+            return content
+        return schema.model_validate_json(_unfenced(content))
+
+    def _post(self, body: dict, agent: str) -> str:
+        try:
+            with httpx.Client(timeout=self._timeout, transport=self._transport) as http:
+                response = http.post(self._url, json=body, headers=self._headers)
+        except httpx.TimeoutException as error:
+            raise ModelError(f"The model timed out after {self._timeout:g} seconds (agent {agent}).") from error
+        except httpx.HTTPError as error:
+            raise ModelError(f"The model could not be reached at {self._url} ({type(error).__name__}).") from error
+        if response.status_code >= 400:
+            raise ModelError(f"The model returned HTTP {response.status_code} (agent {agent}).")
+        try:
+            content = response.json()["choices"][0]["message"]["content"]
+        except (ValueError, KeyError, IndexError, TypeError):
+            content = None
+        if not content:
+            raise ModelError(f"The model returned no content (agent {agent}).")
+        return content
+
+
+def _unfenced(content: str) -> str:
+    """Some providers wrap JSON in a code fence even when asked for plain JSON."""
+    match = FENCE.match(content.strip())
+    return match.group(1) if match else content
+
+
+def _with_images(messages: list[Message], images: list[str] | None) -> list[dict]:
+    if not images:
+        return [dict(message) for message in messages]
+    *rest, last = messages
+    parts = [{"type": "text", "text": last["content"]}] + [{"type": "image_url", "image_url": {"url": _image_url(image)}} for image in images]
+    return [*(dict(message) for message in rest), {**last, "content": parts}]
+
+
+def _image_url(image: str) -> str:
+    """A URL passes through; a local file is sent inline as a data URL."""
+    if image.startswith(("http://", "https://", "data:")):
+        return image
+    path = Path(image)
+    mime = mimetypes.guess_type(path.name)[0] or "image/jpeg"
+    return f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}"

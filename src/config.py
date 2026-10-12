@@ -54,6 +54,7 @@ class ModelSettings(_Settings):
 
     structured_output: Literal["json_schema"] = "json_schema"  # schema-constrained JSON, validated in code
     repair_attempts: int = Field(default=2, ge=0)  # retries with the validation error fed back
+    timeout_seconds: float = Field(default=30.0, gt=0)  # every model call; a timeout is a failure, not a hang
 
 
 class HistoryRule(_Settings):

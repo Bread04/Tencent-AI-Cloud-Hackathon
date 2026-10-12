@@ -15,7 +15,7 @@ from src.agents.outcomes import outcomes_for, pending_outcomes
 from src.agents.policy import policy_for
 from src.contracts import Advocate, Case, Dispute, DisputeCategory, LogEventKind, ReviewTrigger, ReviewTriggerRecord, Submission
 from src.intake import Catalog, UnknownTrip
-from src.llm.adapter import ModelAdapter
+from src.llm.adapter import ModelAdapter, ModelError
 from src.llm.repair import StageFailed
 from src.store import CaseStore
 from src.tools.evidence import gather_evidence
@@ -61,8 +61,8 @@ def run_dispute(dispute: Dispute, *, store: CaseStore, model: ModelAdapter, cata
             model,
             record=lambda kind, summary: store.log_event(case_id, "judge", kind, summary),
         )
-    except StageFailed as failure:
-        reason = ReviewTriggerRecord(trigger=ReviewTrigger.STAGE_FAILED, reason=f"The Judge could not produce a valid Ruling: {failure}")
+    except (StageFailed, ModelError) as failure:
+        reason = ReviewTriggerRecord(trigger=ReviewTrigger.STAGE_FAILED, reason=_judge_failure(failure))
         _hold_for_review(store, case_id, [reason], pending_outcomes())
         return store.get_case(case_id)
 
@@ -79,21 +79,32 @@ def run_dispute(dispute: Dispute, *, store: CaseStore, model: ModelAdapter, cata
 def _build_submissions(sealed: Case, model: ModelAdapter) -> tuple[dict[Advocate, Submission], list[str]]:
     """Run both advocates at once; neither can see the other, since each reads only the sealed snapshot."""
 
-    def attempt(advocate: Advocate) -> Submission | StageFailed:
+    def attempt(advocate: Advocate) -> Submission | StageFailed | ModelError:
         try:
             return build_submission(advocate, sealed, model)
-        except StageFailed as failure:
+        except (StageFailed, ModelError) as failure:  # a dead model is a failed stage, never a crash or an invented reply
             return failure
 
     with ThreadPoolExecutor(max_workers=len(Advocate)) as pool:
         results = dict(zip(Advocate, pool.map(attempt, Advocate)))
     submissions = {advocate: result for advocate, result in results.items() if isinstance(result, Submission)}
     failures = [
-        f"The {advocate.value.replace('_', ' ')} could not produce a valid Submission: {result}"
-        for advocate, result in results.items()
-        if isinstance(result, StageFailed)
+        _advocate_failure(advocate, result) for advocate, result in results.items() if isinstance(result, (StageFailed, ModelError))
     ]
     return submissions, failures
+
+
+def _advocate_failure(advocate: Advocate, failure: Exception) -> str:
+    name = advocate.value.replace("_", " ")
+    if isinstance(failure, ModelError):
+        return f"The {name} could not run because the model failed: {failure}"
+    return f"The {name} could not produce a valid Submission: {failure}"
+
+
+def _judge_failure(failure: Exception) -> str:
+    if isinstance(failure, ModelError):
+        return f"The Judge could not run because the model failed: {failure}"
+    return f"The Judge could not produce a valid Ruling: {failure}"
 
 
 def _rejection_reason(dispute: Dispute, catalog: Catalog) -> str | None:

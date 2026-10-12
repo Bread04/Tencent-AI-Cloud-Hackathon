@@ -2,17 +2,20 @@
 
     uv run uvicorn src.api.demo:app
 
-Every Case replays its stored Dispute's prepared script independently.
-Replaced by the real model in ticket 08.
+By default every Case replays its stored Dispute's prepared script independently.
+Set MODEL_PROVIDER=openai_compatible (and the credentials in `.env.example`) to run on a real model instead.
 """
 
-from fastapi import FastAPI
+import os
 from copy import deepcopy
+
+from fastapi import FastAPI
 
 from src.api import create_app
 from src.intake import load_catalog
 from src.llm.stub import StubModel, load_replies
 from src.llm.adapter import ModelError
+from src.llm.factory import model_from_environment
 from src.store import CaseStore
 
 PREPARED_DISPUTES = ("DISP-002", "DISP-003", "DISP-004")
@@ -42,7 +45,8 @@ class ReplayModel(StubModel):
 
 def create_demo_app() -> FastAPI:
     store = CaseStore()
-    return create_app(store=store, model=ReplayModel(store), catalog=load_catalog())
+    model = model_from_environment(os.environ, stub=ReplayModel(store))
+    return create_app(store=store, model=model, catalog=load_catalog())
 
 
 app = create_demo_app()
