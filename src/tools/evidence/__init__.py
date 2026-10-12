@@ -22,12 +22,36 @@ def gather_evidence(trip_id: str, catalog: Catalog) -> list[EvidenceItem]:
             content="No route conversation records were supplied; consent remains unknown.")
         return [*gather_route_evidence(trip_id, record), chat,
                 _history_item(trip_id, record), _rider_location_item(trip_id)]
+    if record["dispute"]["category"] == "property_damage":
+        return _property_damage_evidence(trip_id, record)
     return [
         _gps_item(trip_id, record),
         _chat_item(trip_id, record),
         _fare_item(trip_id, record),
         _history_item(trip_id, record),
         _rider_location_item(trip_id),
+    ]
+
+
+def _property_damage_evidence(trip_id: str, record: dict) -> list[EvidenceItem]:
+    """What a cleaning-fee claim rests on besides photos: the claim itself, the Trip, the chat and History (ADR 0005)."""
+    from src.config import CONFIG
+
+    claim, trip = record["damage_claim"], record["trip"]
+    return [
+        EvidenceItem(
+            evidence_id="EV-DAMAGE-1", source="damage_claim", trip_id=trip_id, side="driver", status="available",
+            content=f"The {claim['claimed_by']} claims a cleaning fee of {claim['currency']} {claim['cleaning_fee_claimed']} for damage on this trip.",
+            derived={"claimed_fee": claim["cleaning_fee_claimed"], "currency": claim["currency"], "cap": str(CONFIG.cleaning_fee_cap)},
+        ),
+        EvidenceItem(
+            evidence_id="EV-TRIP-1", source="trip", trip_id=trip_id, side="shared", status="available",
+            timestamp=datetime.fromisoformat(trip["completion_time"]),
+            content={"scheduled_time": trip["scheduled_time"], "completion_time": trip["completion_time"],
+                     "pickup": trip["pickup_location"]["name"], "dropoff": trip["dropoff_location"]["name"]},
+        ),
+        _chat_item(trip_id, record),
+        _history_item(trip_id, record),
     ]
 
 

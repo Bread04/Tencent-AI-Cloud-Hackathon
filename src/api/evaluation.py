@@ -43,7 +43,7 @@ def add_evaluation_routes(
         def work():
             try:
                 # Safety Incidents are only resolvable with SLA routing, so the evaluation turns it on.
-                switches = CONFIG.switches.model_copy(update={"sla_routing": True})
+                switches = CONFIG.switches.model_copy(update={"sla_routing": True, "image_analysis": True})
                 report = evaluate(catalog=catalog, model_for=model_for, switches=switches, model_label=model_label)
                 state.update(state="done", report=report.as_json())
             except Exception as error:  # shown on the page, never hidden

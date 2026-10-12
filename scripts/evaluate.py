@@ -23,7 +23,7 @@ def main() -> int:
     report = evaluate(
         catalog=load_catalog(),
         model_for=lambda store: model_from_environment(env, stub=ReplayModel(store)),
-        switches=CONFIG.switches.model_copy(update={"sla_routing": True}),  # Safety Incidents are only resolvable with routing on
+        switches=CONFIG.switches.model_copy(update={"sla_routing": True, "image_analysis": True}),  # Safety Incidents are only resolvable with routing on
         model_label=label,
     )
     print(render_table(report))

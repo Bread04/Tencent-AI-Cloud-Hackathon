@@ -1,0 +1,12 @@
+{
+  "_note": "Evaluation label only. Agents must never read this file.",
+  "dispute_id": "DISP-012",
+  "scenario_classification": "photo_unreliable",
+  "expected_outcome": "reject",
+  "expected_summary": "Claim not made out: the only photo was taken two weeks before the trip and the rider says the stain was already there. Held for a person because the photo check failed.",
+  "expected_remedy": "no_action",
+  "expected_review_required": true,
+  "acceptable_review_triggers": [
+    "authenticity_check"
+  ]
+}

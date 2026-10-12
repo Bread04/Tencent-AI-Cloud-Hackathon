@@ -1,0 +1,10 @@
+{
+  "_note": "Evaluation label only. Agents must never read this file.",
+  "dispute_id": "DISP-011",
+  "scenario_classification": "claimant_wins",
+  "expected_outcome": "uphold",
+  "expected_summary": "Cleaning fee upheld in full: the rider admitted the spill in chat and the photo, taken during the trip, shows the stain.",
+  "expected_remedy": "compensation_to_driver",
+  "expected_amount": "40.00",
+  "expected_currency": "SGD"
+}

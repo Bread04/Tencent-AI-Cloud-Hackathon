@@ -106,7 +106,14 @@ class Config(_Settings):
             "trip_route": "Route, speed and stops recorded for the trip",
             "conversation": "Messages between rider and driver",
         },
+        DisputeCategory.PROPERTY_DAMAGE: {
+            "damage_claim": "The cleaning fee claimed and who claims it",
+            "damage_photos": "Photo findings: what they show, when taken, signs of AI generation",
+            "conversation": "Messages between rider and driver",
+            "trip_record": "The Trip the damage is said to have happened on",
+        },
     }
+    cleaning_fee_cap: Decimal = Decimal("50.00")  # PLACEHOLDER (ADR 0005): the most a cleaning fee can be, in SGD
 
     # PLACEHOLDER table, taken from the Judge prototype.
     history_rules: tuple[HistoryRule, ...] = (

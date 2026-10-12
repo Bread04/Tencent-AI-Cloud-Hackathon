@@ -1,0 +1,98 @@
+{
+  "_simulated": "Scripted replies for the offline model stub. Mock data, not model output.",
+  "rider_advocate": {
+    "author": "rider_advocate",
+    "claim_restated": "The rider asks that no cleaning fee be charged unless the driver shows the rider caused damage that justifies the amount claimed.",
+    "facts_relied_on": [
+      "EV-DAMAGE-1",
+      "EV-CHAT-1"
+    ],
+    "missing_evidence_ids": [],
+    "counter_arguments": [
+      {
+        "argument": "The driver reported the stain during the trip.",
+        "response": "A report alone does not establish who is responsible or what it should cost to clean (R-07, D-07)."
+      }
+    ],
+    "policy_clause_ids": [
+      "R-07"
+    ],
+    "requested_outcome": "Reject the cleaning fee claim."
+  },
+  "driver_advocate": {
+    "author": "driver_advocate",
+    "claim_restated": "The driver reports a stain on the rear seat left by the rider and asks for the SGD 40.00 cleaning fee. The photo shows the stain and was taken during the trip.",
+    "facts_relied_on": [
+      "EV-DAMAGE-1",
+      "EV-CHAT-1"
+    ],
+    "missing_evidence_ids": [],
+    "counter_arguments": [
+      {
+        "argument": "The rider says they did not cause the damage or that it was small.",
+        "response": "The chat shows the driver raised the stain during the trip and asked for it to be cleaned."
+      }
+    ],
+    "policy_clause_ids": [
+      "D-07"
+    ],
+    "requested_outcome": "Charge the rider the cleaning fee claimed."
+  },
+  "judge": {
+    "outcome": "uphold",
+    "balance_of_evidence": "claimant",
+    "remedy": "compensation_to_driver",
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "rejected",
+        "reason": "The rider's own chat message admits the spill.",
+        "evidence_ids": [
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "not_decisive",
+        "reason": "A report alone does not establish responsibility, but here the rider admitted it in chat.",
+        "evidence_ids": [
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "accepted",
+        "reason": "The rider admitted the spill in chat.",
+        "evidence_ids": [
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "not_decisive",
+        "reason": "The driver raised it during the trip and the rider confirmed it.",
+        "evidence_ids": [
+          "EV-CHAT-1"
+        ]
+      }
+    ],
+    "policy_fit": "arguable",
+    "policy_fit_reason": "R-07 and D-07 say a report alone does not establish responsibility and that a charge needs review; they set no amount, so the cleaning fee uses the code rule in ADR 0005.",
+    "cited_evidence_ids": [
+      "EV-DAMAGE-1",
+      "EV-CHAT-1"
+    ],
+    "cited_policy_clause_ids": [
+      "R-07",
+      "D-07"
+    ],
+    "reasoning_summary": "The rider admitted the spill in chat. No photo findings are available, so the stain itself is taken from the driver's report. Uphold the claim at the cleaning fee claimed, within the cap.",
+    "amount_input_evidence_ids": [
+      "EV-DAMAGE-1"
+    ]
+  },
+  "judge_self_check": {
+    "supported": true,
+    "problems": []
+  }
+}

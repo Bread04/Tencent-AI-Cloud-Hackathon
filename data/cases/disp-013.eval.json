@@ -1,0 +1,14 @@
+{
+  "_note": "Evaluation label only. Agents must never read this file.",
+  "dispute_id": "DISP-013",
+  "scenario_classification": "photo_unreliable",
+  "expected_outcome": "partially_uphold",
+  "expected_summary": "Partly upheld on the rider's own admission of a small spill, at half the claimed fee. The photo looks AI-generated, so it was not relied on and the Case is held for a person.",
+  "expected_remedy": "compensation_to_driver",
+  "expected_amount": "20.00",
+  "expected_currency": "SGD",
+  "expected_review_required": true,
+  "acceptable_review_triggers": [
+    "authenticity_check"
+  ]
+}

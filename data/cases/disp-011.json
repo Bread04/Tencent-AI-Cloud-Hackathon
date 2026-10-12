@@ -1,0 +1,77 @@
+{
+  "_simulated": "Mock report and trip records for the hackathon. Not a real trip. The photo is a plain placeholder image: what it shows is scripted.",
+  "dispute": {
+    "dispute_id": "DISP-011",
+    "trip_id": "TRIP-2026-09970",
+    "filed_by": "driver",
+    "category": "property_damage",
+    "description": "The rider spilled a drink on the rear seat and left a stain on the fabric. I had to stop taking trips for about forty minutes to clean it. I am asking for the $40.00 cleaning fee.",
+    "requested_remedy": "Charge the rider the SGD 40.00 cleaning fee",
+    "filed_at": "2026-09-14T11:00:00+08:00",
+    "photos": [
+      "data/photos/seat-stain.png"
+    ],
+    "driver_statement": null
+  },
+  "trip": {
+    "trip_id": "TRIP-2026-09970",
+    "rider_id": "R-3101",
+    "driver_id": "D-4101",
+    "pickup_location": {
+      "name": "Raffles Place MRT",
+      "lat": 1.2839,
+      "lng": 103.8515
+    },
+    "dropoff_location": {
+      "name": "Changi Business Park",
+      "lat": 1.334,
+      "lng": 103.964
+    },
+    "scheduled_time": "2026-09-14T09:40:00+08:00",
+    "completion_time": "2026-09-14T10:05:00+08:00",
+    "currency": "SGD"
+  },
+  "damage_claim": {
+    "cleaning_fee_claimed": "40.00",
+    "currency": "SGD",
+    "claimed_by": "driver"
+  },
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T10:00:20+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Your drink has spilled on the rear seat. Please help me wipe it before you leave."
+    },
+    {
+      "timestamp": "2026-09-14T10:00:50+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Sorry, I did spill my drink. I do not have anything to clean it with."
+    }
+  ],
+  "rider_history": {
+    "rider_id": "R-3101",
+    "account_age_days": 400,
+    "total_trips": 150,
+    "avg_rating": 4.8,
+    "fraud_flags": 0,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    }
+  },
+  "driver_history": {
+    "driver_id": "D-4101",
+    "account_age_days": 400,
+    "total_trips": 150,
+    "avg_rating": 4.8,
+    "fraud_flags": 0,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    }
+  }
+}

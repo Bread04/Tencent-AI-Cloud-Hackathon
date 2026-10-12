@@ -1,0 +1,77 @@
+{
+  "_simulated": "Mock report and trip records for the hackathon. Not a real trip. The photo is a plain placeholder image: what it shows is scripted.",
+  "dispute": {
+    "dispute_id": "DISP-013",
+    "trip_id": "TRIP-2026-09972",
+    "filed_by": "driver",
+    "category": "property_damage",
+    "description": "The rider left a large stain across the whole rear seat. I am asking for the $40.00 cleaning fee.",
+    "requested_remedy": "Charge the rider the SGD 40.00 cleaning fee",
+    "filed_at": "2026-09-14T11:00:00+08:00",
+    "photos": [
+      "data/photos/seat-stain-synthetic.png"
+    ],
+    "driver_statement": null
+  },
+  "trip": {
+    "trip_id": "TRIP-2026-09972",
+    "rider_id": "R-3103",
+    "driver_id": "D-4103",
+    "pickup_location": {
+      "name": "Raffles Place MRT",
+      "lat": 1.2839,
+      "lng": 103.8515
+    },
+    "dropoff_location": {
+      "name": "Changi Business Park",
+      "lat": 1.334,
+      "lng": 103.964
+    },
+    "scheduled_time": "2026-09-14T09:40:00+08:00",
+    "completion_time": "2026-09-14T10:05:00+08:00",
+    "currency": "SGD"
+  },
+  "damage_claim": {
+    "cleaning_fee_claimed": "40.00",
+    "currency": "SGD",
+    "claimed_by": "driver"
+  },
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T10:00:25+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "There is a stain on the rear seat from your drink."
+    },
+    {
+      "timestamp": "2026-09-14T10:00:50+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "A few drops of coffee spilled and I wiped most of it. It was not a big stain."
+    }
+  ],
+  "rider_history": {
+    "rider_id": "R-3103",
+    "account_age_days": 400,
+    "total_trips": 150,
+    "avg_rating": 4.8,
+    "fraud_flags": 0,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    }
+  },
+  "driver_history": {
+    "driver_id": "D-4103",
+    "account_age_days": 400,
+    "total_trips": 150,
+    "avg_rating": 4.8,
+    "fraud_flags": 0,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    }
+  }
+}

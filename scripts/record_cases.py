@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 
 from src.intake import load_catalog
-from src.api.demo_switches import DEMO_SWITCHES
+from src.api.demo_switches import DEMO_SWITCHES, applicable_switches
 from src.config import CONFIG
 from src.llm.stub import StubModel, load_replies
 from src.orchestrator import run_dispute
@@ -26,8 +26,9 @@ def main(dispute_ids: list[str] | None = None) -> None:
     for dispute_id, dispute in catalog.disputes.items():
         if dispute_ids and dispute_id not in dispute_ids:
             continue
-        for flags in itertools.product([False, True], repeat=len(DEMO_SWITCHES)):  # every combination of the demo switches
-            variants = tuple(s.name for s, on in zip(DEMO_SWITCHES, flags) if on)
+        applicable = applicable_switches(dispute)
+        for flags in itertools.product([False, True], repeat=len(applicable)):  # every combination of the switches that can change this Dispute
+            variants = tuple(s.name for s, on in zip(applicable, flags) if on)
             store = CaseStore()
             model = StubModel({("CASE-0001", agent): reply for agent, reply in load_replies(dispute_id, *variants).items()})
             on = {s.field: s.name in variants for s in DEMO_SWITCHES}

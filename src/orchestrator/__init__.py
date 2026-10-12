@@ -44,7 +44,7 @@ from src.llm.repair import StageFailed
 from src.store import CaseStore
 from src.tools.evidence import gather_evidence
 
-SUPPORTED_CATEGORIES = frozenset({DisputeCategory.NO_SHOW_CHARGE, DisputeCategory.ROUTE_DEVIATION})
+SUPPORTED_CATEGORIES = frozenset({DisputeCategory.NO_SHOW_CHARGE, DisputeCategory.ROUTE_DEVIATION, DisputeCategory.PROPERTY_DAMAGE})
 ROUTED_CATEGORIES = SUPPORTED_CATEGORIES | {DisputeCategory.SAFETY_INCIDENT}
 
 
@@ -64,7 +64,7 @@ def run_dispute(
 
     if case.switches.sla_routing:  # a Priority and its reason for every Case; without the switch all Cases share one
         record = catalog.trip(dispute.trip_id)
-        charged = record["receipt"]["paid_net"] if dispute.category is DisputeCategory.ROUTE_DEVIATION else record["trip"]["cancellation_fee"]
+        charged = {DisputeCategory.ROUTE_DEVIATION: lambda: record["receipt"]["paid_net"], DisputeCategory.PROPERTY_DAMAGE: lambda: record["damage_claim"]["cleaning_fee_claimed"]}.get(dispute.category, lambda: record["trip"]["cancellation_fee"])()
         priority = score(dispute, Decimal(charged))
         store.set_priority(case_id, priority.value, priority.reason)
 
@@ -83,7 +83,7 @@ def run_dispute(
         store.add_evidence(case_id, gather_evidence(dispute.trip_id, catalog), agent="evidence")
     if case.switches.image_analysis and dispute.photos:  # findings join the evidence before it is sealed; with the switch off photos are only stored
         trip = catalog.trip(dispute.trip_id)["trip"]
-        window = (datetime.fromisoformat(trip["scheduled_time"]), datetime.fromisoformat(trip["cancellation_time"]))
+        window = (datetime.fromisoformat(trip["scheduled_time"]), datetime.fromisoformat(trip.get("completion_time") or trip["cancellation_time"]))
         findings = analyse_photos(store.get_case(case_id), window, model)
         store.add_evidence(case_id, findings, agent="image_analysis")
         for number, photo in enumerate(dispute.photos, start=1):

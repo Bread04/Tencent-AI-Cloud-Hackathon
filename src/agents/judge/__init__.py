@@ -15,7 +15,7 @@ from collections.abc import Callable
 
 from src.agents.judge.arguments import Argument, arguments_in
 from src.agents.judge.draft import DraftAssessment, DraftRejected, JudgeDraft, draft_problems
-from src.agents.judge.numbers import amount_for, checklist_for, confidence_for
+from src.agents.judge.numbers import amount_for, authenticity_problems, checklist_for, confidence_for
 from src.agents.judge.selfcheck import self_check
 from src.agents.judge.stability import StabilityResult, compare, submission_order_flipped, unfinished
 from src.agents.prompting import evidence_for_prompt, policy_for_prompt, precedents_for_prompt
@@ -49,6 +49,9 @@ SYSTEM_PROMPT = (
     "Consent needs exact Rider request text and message ID matching the evidenced detour. "
     "Unsupported excess can partially uphold a full-fare refund request; unclear consent/explanation stays balanced with no_action pending review. "
     "Unavailable route/fare inputs require review and no_action. Cite only Evidence Item IDs you were given. "
+    "For Property Damage the driver is the Claimant and claims a cleaning fee: a report alone does not establish responsibility (R-07, D-07). "
+    "Photo findings are signals with stated uncertainty, never proof; never rest a Ruling on a failed or unknown photo check alone. "
+    "For a cleaning fee name the damage claim item as amount_input_evidence_ids; code computes the fee. "
     "Do not calculate amounts or state a confidence. "
     "Cite only Evidence Item IDs you were given. Do not calculate amounts or state a confidence. "
     "Reply with one JSON object only. In every field that lists evidence or policy IDs put bare IDs exactly as given, "
@@ -147,10 +150,12 @@ def _confidence(case: Case, draft: JudgeDraft) -> Confidence:
 
 
 def _ruling_from(case: Case, arguments: list[Argument], draft: JudgeDraft, stability: StabilityResult | None = None) -> Ruling:
-    amount, calculation = amount_for(case, draft.remedy, draft.amount_input_evidence_ids)
+    amount, calculation = amount_for(case, draft.remedy, draft.amount_input_evidence_ids, draft.outcome)
     checklist = checklist_for(case)
     confidence = confidence_for(case, draft.policy_fit, checklist, draft.own_findings, stable=None if stability is None else stability.agrees)
     triggers = _review_triggers(draft, confidence, stability)
+    if authenticity_problems(case):
+        triggers.append(ReviewTriggerRecord(trigger=ReviewTrigger.AUTHENTICITY_CHECK, reason="A photo check failed or is unknown, so Confidence is capped: " + " ".join(authenticity_problems(case))))
     if case.dispute.category is DisputeCategory.ROUTE_DEVIATION:
         if any(item.status is EvidenceStatus.MISSING for item in case.evidence if item.source in {"route", "fare", "chat"}):
             triggers.append(ReviewTriggerRecord(trigger=ReviewTrigger.LOW_CONFIDENCE,

@@ -57,6 +57,7 @@ def create_app(
     app = FastAPI(title="Ryde Dispute Resolution (simulated)")
     run_errors: dict[str, str] = {}  # case id -> why its run stopped, for the console
     app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
+    app.mount("/photos", StaticFiles(directory=HERE.parents[1] / "data" / "photos"), name="photos")  # the mock photos attached to Property Damage disputes
     # The console uses the Waypoint prototype's own stylesheets, fonts and artwork, so it looks like the rider app.
     app.mount("/prototypes", StaticFiles(directory=PROTOTYPES), name="prototypes")
     access = ChatAccess(os.environ.get("RYDE_CHAT_ACCESS_CODE", "482731"))
@@ -156,7 +157,7 @@ def create_app(
 
     @app.get("/", response_class=HTMLResponse)
     def home():
-        rows = "".join(_dispute_row(d, catalog.trip(d.trip_id)["trip"]) for d in catalog.disputes.values())
+        rows = "".join(_dispute_row(d, catalog.trip(d.trip_id)) for d in catalog.disputes.values())
         template = (HERE / "console.html").read_text(encoding="utf-8")
         return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{SWITCHES}}", checkboxes_html()).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
 
@@ -262,17 +263,20 @@ def create_app(
     return app
 
 
-def _dispute_row(dispute, trip: dict) -> str:
+def _dispute_row(dispute, record: dict) -> str:
     """One Dispute in the picker, in the rider app's trip-choice style. The data attributes fill the trip panel."""
+    trip = record["trip"]
     pickup, dropoff = trip["pickup_location"]["name"], trip["dropoff_location"]["name"]
     is_route = dispute.category is DisputeCategory.ROUTE_DEVIATION
-    fee = f"{trip['currency']} {trip['paid_net'] if is_route else trip['cancellation_fee']}"
-    charge_label = "paid fare" if is_route else "fee"
+    is_damage = dispute.category is DisputeCategory.PROPERTY_DAMAGE
+    amount = trip["paid_net"] if is_route else record["damage_claim"]["cleaning_fee_claimed"] if is_damage else trip["cancellation_fee"]
+    fee = f"{trip['currency']} {amount}"
+    charge_label = "paid fare" if is_route else "cleaning fee claimed" if is_damage else "fee"
     when = trip["scheduled_time"][:16].replace("T", " ")
     return (
         f"<button type='button' class='trip-choice' aria-pressed='false' data-dispute='{escape(dispute.dispute_id)}' "
         f"data-category='{escape(dispute.category.value)}' data-pickup='{escape(pickup)}' data-destination='{escape(dropoff)}' "
-        f"data-fare='{escape(fee)}' data-when='{escape(when)}' data-filed-by='{escape(dispute.filed_by.value)}' "
+        f"data-fare='{escape(fee)}' data-when='{escape(when)}' data-filed-by='{escape(dispute.filed_by.value)}' {'data-photos=1 ' if dispute.photos else ''}"
         f"data-description='{escape(dispute.description)}'>"
         f"<span class='row'><strong>{escape(dispute.dispute_id)}</strong>"
         f"<span class='tag'>{escape(dispute.category.value.replace('_', ' '))}</span></span>"

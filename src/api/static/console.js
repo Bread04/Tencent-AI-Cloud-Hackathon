@@ -12,7 +12,7 @@
   // Every `input[data-switch]` is a demo switch (the table is in src/api/demo_switches.py). `?name=1` ticks it.
   const switchBoxes = [...document.querySelectorAll("input[data-switch]")];
   switchBoxes.forEach((box) => { box.checked = params.has(box.dataset.switch); });
-  const ticked = () => switchBoxes.filter((box) => box.checked).map((box) => box.dataset.switch);
+  const ticked = () => switchBoxes.filter((box) => box.checked && !box.disabled).map((box) => box.dataset.switch);
   const variantSuffix = () => ticked().map((name) => `.${name}`).join(""); // the recorded stream for this setting
   const switchQuery = () => ticked().map((name) => `${name}=true`).join("&"); // the live API
 
@@ -54,11 +54,14 @@
 
   // --- Running a dispute ----------------------------------------------------------------------------
 
-  document.querySelectorAll("button.trip-choice").forEach((button) => button.addEventListener("click", () => run(button)));
+  // Photo analysis only means something for a Dispute that has photos, so it is offered only then.
+  const syncPhotoSwitch = (button) => switchBoxes.filter((box) => box.dataset.needs === "photos").forEach((box) => { box.disabled = !button.dataset.photos; });
+  syncPhotoSwitch({ dataset: {} });
+  document.querySelectorAll("button.trip-choice").forEach((button) => button.addEventListener("click", () => { syncPhotoSwitch(button); run(button); }));
 
   // /?run=DISP-003 opens the console already running that dispute (a deep link for the demo).
   const autorun = params.get("run") && document.querySelector(`button.trip-choice[data-dispute="${params.get("run")}"]`);
-  if (autorun) setTimeout(() => run(autorun), 0);
+  if (autorun) setTimeout(() => { syncPhotoSwitch(autorun); run(autorun); }, 0);
 
   function reset(button) {
     const d = button.dataset;
@@ -307,6 +310,7 @@
     const parts = [
       el("p", { class: "eyebrow" }, `Sealed evidence · version ${kase.evidence_version || "none"}`),
       el("div", { class: "section-title" }, el("h3", {}, `${available} available · ${kase.evidence.length - available} missing`)),
+      ...(kase.dispute.photos.length ? [photosFiled(kase)] : []),
       ...kase.evidence.map(evidenceItem),
       el("div", { class: "section-title" }, el("h3", {}, `Policy clauses (${kase.policy_clauses.length})`)),
       ...kase.policy_clauses.map(clauseItem),
@@ -318,10 +322,21 @@
     $("evidence").replaceChildren(...parts);
   }
 
+  // Photos filed with the report, shown whether or not the photo analysis switch is on; findings come only with it.
+  const photoUrl = (path) => `/photos/${String(path).split("/").pop()}`;
+  function photosFiled(kase) {
+    const analysed = kase.evidence.some((e) => e.source === "photo_finding");
+    return el("div", { class: "photos-filed" },
+      el("div", { class: "section-title" }, el("h3", {}, `Photos filed (${kase.dispute.photos.length})`)),
+      el("p", { class: "muted small" }, analysed ? "Findings below are signals with stated uncertainty, never proof." : "Not analysed: photo analysis is off, so the Judge sees no findings and Confidence is lower."),
+      el("div", { class: "photo-row" }, ...kase.dispute.photos.map((p) => el("img", { class: "evidence-photo", src: photoUrl(p), alt: "Photo filed with the report (simulated placeholder)" }))));
+  }
+
   function evidenceItem(item) {
     const derived = Object.entries(item.derived || {});
     const body = el("div", { class: "evidence-body" });
     if (item.status === "missing") body.append(el("p", { class: "missing-note" }, "This item is missing. It can be cited only as missing, never as fact."));
+    if (item.derived && item.derived.uncertainty) body.append(el("p", { class: "uncertainty" }, `Uncertainty: ${item.derived.uncertainty}`));
     body.append(el("dl", {},
       el("dt", {}, "Source"), el("dd", {}, item.source),
       el("dt", {}, "Side"), el("dd", {}, item.side),

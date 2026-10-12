@@ -160,8 +160,9 @@ def _overridden(case: Case, reviewer: str, reason: str) -> Ruling:
     proposed = case.ruling
     outcome = RulingOutcome.REJECT if proposed.outcome is RulingOutcome.UPHOLD else RulingOutcome.UPHOLD
     remedy = ALLOWED_REMEDIES[case.dispute.category][outcome]
-    fare = next(item.evidence_id for item in case.evidence if item.source == "fare")
-    amount, calculation = amount_for(case, remedy, [fare])
+    basis = "damage_claim" if case.dispute.category is DisputeCategory.PROPERTY_DAMAGE else "fare"  # the item the amount comes from
+    fare = next(item.evidence_id for item in case.evidence if item.source == basis)
+    amount, calculation = amount_for(case, remedy, [fare], outcome)
     return proposed.model_copy(
         update={
             "status": RulingStatus.FINAL,

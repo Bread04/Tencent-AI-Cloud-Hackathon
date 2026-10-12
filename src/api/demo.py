@@ -18,7 +18,7 @@ from src.llm.adapter import ModelError
 from src.llm.factory import environment_with_dotenv, model_from_environment
 from src.store import CaseStore
 
-PREPARED_DISPUTES = tuple(f"DISP-{number:03}" for number in range(2, 11))
+PREPARED_DISPUTES = tuple(f"DISP-{number:03}" for number in range(2, 14))
 
 
 class ReplayModel(StubModel):

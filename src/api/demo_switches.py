@@ -17,6 +17,7 @@ class DemoSwitch:
     name: str  # in the query string, the checkbox and the recorded file name
     field: str  # the `Switches` field it turns on
     label: str  # the console checkbox
+    photos_only: bool = False  # means nothing for a Dispute with no photos, so the console and the recordings leave it out for those
 
 
 DEMO_SWITCHES = (
@@ -24,6 +25,7 @@ DEMO_SWITCHES = (
     DemoSwitch("stability", "stability_check", "Stability check"),
     DemoSwitch("routing", "sla_routing", "SLA routing"),
     DemoSwitch("evidence", "evidence_agents", "Evidence agents"),
+    DemoSwitch("photos", "image_analysis", "Photo analysis", photos_only=True),
 )
 TRUE = {"true", "1", "yes", "on"}
 
@@ -34,7 +36,13 @@ def switches_from_query(query: Mapping[str, str]) -> Switches | None:
     return CONFIG.switches.model_copy(update=chosen) if chosen else None
 
 
+def applicable_switches(dispute) -> tuple[DemoSwitch, ...]:
+    """The switches that can change a run of this Dispute: photo analysis only counts when it has photos."""
+    return tuple(s for s in DEMO_SWITCHES if not s.photos_only or dispute.photos)
+
+
 def checkboxes_html() -> str:
+    needs = lambda s: ' data-needs="photos"' if s.photos_only else ""  # the console enables it only for a Dispute with photos
     return "\n    ".join(
-        f'<label class="switch"><input type="checkbox" data-switch="{s.name}"> {s.label}</label>' for s in DEMO_SWITCHES
+        f'<label class="switch"><input type="checkbox" data-switch="{s.name}"{needs(s)}> {s.label}</label>' for s in DEMO_SWITCHES
     )

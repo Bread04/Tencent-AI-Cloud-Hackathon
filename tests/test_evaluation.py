@@ -11,7 +11,7 @@ from src.contracts import ArgumentVerdict, BalanceOfEvidence, Remedy, RulingOutc
 from src.evaluation import evaluate, load_labels, render_table
 from src.intake import load_catalog
 
-ROUTING = CONFIG.switches.model_copy(update={"sla_routing": True})  # Safety Incidents are only resolvable with routing on
+ROUTING = CONFIG.switches.model_copy(update={"sla_routing": True, "image_analysis": True})  # Safety Incidents need routing on; photo cases need photo analysis on
 
 
 def run(factory=None, switches=ROUTING, labels=None, label="scripted replies"):

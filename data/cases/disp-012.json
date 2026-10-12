@@ -1,0 +1,77 @@
+{
+  "_simulated": "Mock report and trip records for the hackathon. Not a real trip. The photo is a plain placeholder image: what it shows is scripted.",
+  "dispute": {
+    "dispute_id": "DISP-012",
+    "trip_id": "TRIP-2026-09971",
+    "filed_by": "driver",
+    "category": "property_damage",
+    "description": "There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.",
+    "requested_remedy": "Charge the rider the SGD 40.00 cleaning fee",
+    "filed_at": "2026-09-14T11:00:00+08:00",
+    "photos": [
+      "data/photos/seat-stain-old.png"
+    ],
+    "driver_statement": null
+  },
+  "trip": {
+    "trip_id": "TRIP-2026-09971",
+    "rider_id": "R-3102",
+    "driver_id": "D-4102",
+    "pickup_location": {
+      "name": "Raffles Place MRT",
+      "lat": 1.2839,
+      "lng": 103.8515
+    },
+    "dropoff_location": {
+      "name": "Changi Business Park",
+      "lat": 1.334,
+      "lng": 103.964
+    },
+    "scheduled_time": "2026-09-14T09:40:00+08:00",
+    "completion_time": "2026-09-14T10:05:00+08:00",
+    "currency": "SGD"
+  },
+  "damage_claim": {
+    "cleaning_fee_claimed": "40.00",
+    "currency": "SGD",
+    "claimed_by": "driver"
+  },
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T10:00:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "There is a stain on the rear seat. I will have to charge a cleaning fee."
+    },
+    {
+      "timestamp": "2026-09-14T10:00:55+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "That stain was already on the seat when I got in. I did not spill anything."
+    }
+  ],
+  "rider_history": {
+    "rider_id": "R-3102",
+    "account_age_days": 400,
+    "total_trips": 150,
+    "avg_rating": 4.8,
+    "fraud_flags": 0,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    }
+  },
+  "driver_history": {
+    "driver_id": "D-4102",
+    "account_age_days": 400,
+    "total_trips": 150,
+    "avg_rating": 4.8,
+    "fraud_flags": 0,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    }
+  }
+}

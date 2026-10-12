@@ -39,11 +39,21 @@ def _decision(ruling: Ruling, claimant: Party, reader: Party, category: DisputeC
     reason = f" Reason: {ruling.reasoning_summary}"
     if category is DisputeCategory.SAFETY_INCIDENT:
         return _safety_decision(ruling, whose, reason)
+    if category is DisputeCategory.PROPERTY_DAMAGE:
+        return _damage_decision(ruling, whose, reason)
     if ruling.outcome is RulingOutcome.REJECT:
         return f"{whose} was not upheld. The no-show fee stands.{reason}"
     amount = f"The {ruling.currency} {ruling.amount} no-show fee" if ruling.amount is not None else "The no-show fee"
     reversed_ = "will be reversed" if reader is claimant else "is reversed"
     return f"{whose} was upheld. {amount} {reversed_}.{reason}"
+
+
+def _damage_decision(ruling: Ruling, whose: str, reason: str) -> str:
+    """What a party is told about a cleaning-fee claim. Charging the fee is outside this system; it is recommended."""
+    if ruling.outcome is RulingOutcome.REJECT:
+        return f"{whose} for a cleaning fee was not upheld. No cleaning fee is recommended.{reason}"
+    label = "partly upheld" if ruling.outcome is RulingOutcome.PARTIALLY_UPHOLD else "upheld"
+    return f"{whose} was {label}. A cleaning fee of {ruling.currency} {ruling.amount} is recommended, not charged by this system.{reason}"
 
 
 def _safety_decision(ruling: Ruling, whose: str, reason: str) -> str:

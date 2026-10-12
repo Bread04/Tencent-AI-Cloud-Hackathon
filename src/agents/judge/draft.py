@@ -5,6 +5,7 @@ the model, so a send-back can name all of them at once.
 """
 
 from src.agents.judge.arguments import Argument, assessment_problems
+from src.agents.judge.numbers import failed_authenticity_ids
 from src.agents.policy import ALLOWED_REMEDIES
 from src.llm.repair import StageFailed
 from src.contracts import (
@@ -62,6 +63,7 @@ def draft_problems(case: Case, arguments: list[Argument], draft: JudgeDraft) -> 
         *assessment_problems(arguments, [assessment.ref for assessment in draft.argument_assessments]),
         *_burden_problems(case, draft),
         *_amount_problems(case, draft),
+        *_authenticity_problems(case, draft),
         *_policy_gap_problems(draft),
         *_precedent_problems(case, draft),
     ]
@@ -105,7 +107,23 @@ def _burden_problems(case: Case, draft: JudgeDraft) -> list[str]:
     return problems
 
 
+def _authenticity_problems(case: Case, draft: JudgeDraft) -> list[str]:
+    """A failed or unknown Authenticity Check is a signal: a Ruling cannot rest on it alone."""
+    failed = failed_authenticity_ids(case)
+    cited = set(draft.cited_evidence_ids)
+    if cited & failed and not cited - failed:
+        return [f"{', '.join(sorted(cited & failed))} is a failed or unknown Authenticity Check, which cannot be the sole reason for a Ruling. Cite the other evidence the outcome rests on."]
+    return []
+
+
 def _amount_problems(case: Case, draft: JudgeDraft) -> list[str]:
+    if case.dispute.category is DisputeCategory.PROPERTY_DAMAGE:
+        claim = next((item.evidence_id for item in case.evidence if item.source == "damage_claim"), None)
+        if draft.remedy is Remedy.COMPENSATION_TO_DRIVER and draft.amount_input_evidence_ids != [claim]:
+            return [f"A cleaning fee must name {claim} (the damage claim) as its only amount input; code computes the fee."]
+        if draft.remedy is Remedy.NO_ACTION and draft.amount_input_evidence_ids:
+            return ["A no_action remedy must not name monetary inputs."]
+        return []
     if case.dispute.category is DisputeCategory.ROUTE_DEVIATION and draft.remedy in (Remedy.FULL_REFUND, Remedy.PARTIAL_REFUND):
         by_source = {item.source: item for item in case.evidence}
         needed = [by_source.get("route"), by_source.get("fare")]

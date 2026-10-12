@@ -55,7 +55,7 @@ def test_all_six_replay_in_varied_order_without_labels_or_cross_case_context():
             # Provenance may name the input source; raw geometry must not be projected.
             assert '"vehicle_gps":' not in message["content"]
             assert '"road_baseline":' not in message["content"]
-    assert len(PREPARED_DISPUTES) == 9
+    assert {"DISP-008", "DISP-009", "DISP-010"} <= set(PREPARED_DISPUTES)
 
 
 def test_route_metrics_stop_and_fare_breakdown_are_citable_and_provenanced():

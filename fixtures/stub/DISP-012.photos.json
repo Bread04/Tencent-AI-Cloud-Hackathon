@@ -1,0 +1,64 @@
+{
+  "_simulated": "Scripted replies used when the photo analysis switch is on. They overlay the base script. Mock data, not model output.",
+  "judge": {
+    "outcome": "reject",
+    "balance_of_evidence": "respondent",
+    "remedy": "no_action",
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "accepted",
+        "reason": "No damage on this trip is shown.",
+        "evidence_ids": [
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "A report alone does not establish who caused the stain.",
+        "evidence_ids": [
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "unproven",
+        "reason": "The rider denies causing the stain and nothing here shows it happened on this trip.",
+        "evidence_ids": [
+          "EV-CHAT-1",
+          "EV-PHOTO-1-TIME"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "The driver's report alone does not establish who caused the stain.",
+        "evidence_ids": [
+          "EV-CHAT-1"
+        ]
+      }
+    ],
+    "policy_fit": "arguable",
+    "policy_fit_reason": "R-07 and D-07 say a report alone does not establish responsibility and that a charge needs review; they set no amount, so the cleaning fee uses the code rule in ADR 0005.",
+    "cited_evidence_ids": [
+      "EV-DAMAGE-1",
+      "EV-CHAT-1",
+      "EV-PHOTO-1-DESC",
+      "EV-PHOTO-1-TIME",
+      "EV-PHOTO-1-AI"
+    ],
+    "cited_policy_clause_ids": [
+      "R-07",
+      "D-07"
+    ],
+    "reasoning_summary": "The rider says the stain was already there, and a driver's report alone does not establish who caused it (R-07, D-07). The only photo was taken two weeks before the trip, so it does not show damage on this trip. The claim is not made out.",
+    "amount_input_evidence_ids": []
+  },
+  "image_analysis": {
+    "description": "A dark stain on a rear car seat.",
+    "ai_generation_signal": "none",
+    "confidence": 0.8,
+    "uncertainty": "Low light; the stain could be a shadow or damp fabric, and the photo does not show whose seat it is."
+  }
+}

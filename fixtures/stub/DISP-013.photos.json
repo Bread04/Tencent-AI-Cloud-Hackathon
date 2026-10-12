@@ -1,0 +1,65 @@
+{
+  "_simulated": "Scripted replies used when the photo analysis switch is on. They overlay the base script. Mock data, not model output.",
+  "judge": {
+    "outcome": "partially_uphold",
+    "balance_of_evidence": "claimant",
+    "remedy": "compensation_to_driver",
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "accepted",
+        "reason": "Only a small spill is admitted.",
+        "evidence_ids": [
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "The rider is right that the extent of the damage is not shown by the chat.",
+        "evidence_ids": [
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "accepted",
+        "reason": "The rider admits some spill.",
+        "evidence_ids": [
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "The extent claimed is not shown.",
+        "evidence_ids": [
+          "EV-CHAT-1"
+        ]
+      }
+    ],
+    "policy_fit": "arguable",
+    "policy_fit_reason": "R-07 and D-07 say a report alone does not establish responsibility and that a charge needs review; they set no amount, so the cleaning fee uses the code rule in ADR 0005.",
+    "cited_evidence_ids": [
+      "EV-DAMAGE-1",
+      "EV-CHAT-1",
+      "EV-PHOTO-1-DESC",
+      "EV-PHOTO-1-TIME",
+      "EV-PHOTO-1-AI"
+    ],
+    "cited_policy_clause_ids": [
+      "R-07",
+      "D-07"
+    ],
+    "reasoning_summary": "The rider admits a few drops of coffee, so some cleaning was needed. The photo shows signs of AI generation, so it was not relied on, and the rest of the claimed damage is not shown. Partly uphold at half the fee.",
+    "amount_input_evidence_ids": [
+      "EV-DAMAGE-1"
+    ]
+  },
+  "image_analysis": {
+    "description": "A dark stain on a rear car seat.",
+    "ai_generation_signal": "likely",
+    "confidence": 0.7,
+    "uncertainty": "Texture looks unnaturally smooth and edges repeat; this is a signal from a model, not proof."
+  }
+}
