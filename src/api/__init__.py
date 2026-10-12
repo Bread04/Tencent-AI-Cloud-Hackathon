@@ -6,6 +6,7 @@ Communication Log, the Ruling and both Outcomes fill in. It reads the JSON API (
 """
 
 import threading
+from collections.abc import Callable
 import time
 from html import escape
 from pathlib import Path
@@ -18,6 +19,7 @@ from pydantic import BaseModel
 from src.agents.policy import SIMULATED_LABEL as POLICY_SIMULATED
 from src.agents.intake import IntakeError, resolve_category
 from src.api.demo_switches import checkboxes_html, switches_from_query
+from src.api.evaluation import add_evaluation_routes
 from src.api.review import add_review_routes
 from src.config import CONFIG
 from src.contracts import Case, LogEvent, RulingStatus
@@ -37,7 +39,14 @@ class ClassifyRequest(BaseModel):
     category: str | None = None
 
 
-def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model_label: str = "Scripted replies") -> FastAPI:
+def create_app(
+    *,
+    store: CaseStore,
+    model: ModelAdapter,
+    catalog: Catalog,
+    model_label: str = "Scripted replies",
+    model_for: Callable[[CaseStore], ModelAdapter] | None = None,
+) -> FastAPI:
     app = FastAPI(title="Ryde Dispute Resolution (simulated)")
     run_errors: dict[str, str] = {}  # case id -> why its run stopped, for the console
     app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
@@ -91,6 +100,8 @@ def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model
         }
 
     add_review_routes(app, store=store, simulated=SIMULATED, model_label=model_label)
+    if model_for is not None:  # the evaluation runs every case on fresh stores, so it needs a way to make a model for each
+        add_evaluation_routes(app, catalog=catalog, model_for=model_for, simulated=SIMULATED, model_label=model_label)
 
     @app.post("/api/classify")
     def classify_description(request: ClassifyRequest):

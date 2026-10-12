@@ -63,9 +63,12 @@ class ReplayModel(StubModel):
 def create_demo_app() -> FastAPI:
     store = CaseStore()
     env = environment_with_dotenv()
-    model = model_from_environment(env, stub=ReplayModel(store))
+    def model_for(fresh_store: CaseStore):  # one model per store: the app's own, and each evaluation case's
+        return model_from_environment(env, stub=ReplayModel(fresh_store))
+
+    model = model_for(store)
     label = f"Live model: {env['MODEL_NAME']}" if env.get("MODEL_PROVIDER") == "openai_compatible" else "Scripted replies"
-    return create_app(store=store, model=model, catalog=load_catalog(), model_label=label)
+    return create_app(store=store, model=model, catalog=load_catalog(), model_label=label, model_for=model_for)
 
 
 app = create_demo_app()

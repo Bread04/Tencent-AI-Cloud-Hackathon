@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluation · Waypoint</title>
+<link rel="stylesheet" href="/prototypes/ryde-app/styles.css">
+<link rel="stylesheet" href="/prototypes/shared/waypoint.css">
+<link rel="stylesheet" href="/prototypes/shared/experience.css">
+<link rel="stylesheet" href="/static/console.css">
+<link rel="icon" type="image/svg+xml" href="/prototypes/shared/waypoint-mark.svg">
+</head>
+<body class="rider-app console">
+<header class="app-header">
+  <a class="brand" href="/"><img src="/prototypes/shared/waypoint-mark.svg" alt="" width="36" height="36">Waypoint</a>
+  <nav class="shared-nav" aria-label="Main navigation">
+    <a href="/">Dispute console</a>
+    <a href="/review">Review queue</a>
+    <a href="/evaluation" aria-current="page">Evaluation</a>
+    <a href="/prototypes/ryde-app/index.html">Rider app</a>
+    <a href="/prototypes/policies.html">Policies</a>
+  </nav>
+  <span class="prototype">{{MODEL_LABEL}}</span>
+</header>
+
+<main>
+  <div class="work-heading">
+    <div>
+      <p class="eyebrow">Mock cases against their expected outcomes · Simulated</p>
+      <h2>How the system does on every prepared case.</h2>
+    </div>
+    <a class="text-link" href="/">Back to the console</a>
+  </div>
+  <div class="notice" role="note">{{SIMULATED}} The expected outcomes are read only by this page, after each case is ruled. Agents never see them.</div>
+
+  <section class="trip-panel eval-panel" aria-labelledby="evalTitle">
+    <div class="journey-head">
+      <div>
+        <p id="evalModel" class="eyebrow">Not run yet</p>
+        <h2 id="evalTitle">Evaluation</h2>
+        <p id="evalWhen" class="small muted"></p>
+      </div>
+      <button id="runEval" type="button" class="primary-button">Run the evaluation</button>
+    </div>
+    <div class="tab-panel">
+      <p id="evalNote" class="notice" role="status">Press the button to run every prepared case on the model shown in the header.</p>
+      <div id="evalSummary" class="eval-summary" hidden></div>
+      <div id="evalTable" class="eval-table" role="table" aria-label="Evaluation results"></div>
+    </div>
+  </section>
+
+  <footer class="brand-footer">
+    <div><span class="footer-name">Waypoint</span><br>A clearer way forward.</div>
+    <div class="footer-copy">Independent dispute-resolution prototype · Simulated Ryde trip data.<br>No live Ryde connection. Nothing here moves money.</div>
+  </footer>
+</main>
+<script src="/static/evaluation.js"></script>
+</body>
+</html>

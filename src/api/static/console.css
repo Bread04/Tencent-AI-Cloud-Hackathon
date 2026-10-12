@@ -190,3 +190,19 @@ details.call .call-meta { margin-left: auto; margin-right: 12px; font: 11px var(
 .account { gap: 18px; }
 .account label.switch { display: flex; align-items: center; gap: 6px; color: #a9b2be; font: 11px/1.5 var(--mono); cursor: pointer; }
 .account label.switch input { accent-color: var(--blue); }
+
+/* Evaluation page */
+.eval-summary { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; padding: 14px 16px; border-radius: 2px; margin-bottom: 18px; background: #edf7f0; border: 1px solid #c4dfcf; }
+.eval-summary.some { background: #fff6df; border-color: #ecd297; }
+.eval-summary[hidden] { display: none; }
+.eval-rate { font-size: 34px; font-weight: 500; letter-spacing: -1px; }
+.eval-table { display: grid; font-size: 13px; }
+.eval-row { display: grid; grid-template-columns: 110px 1.2fr 1.6fr 90px 70px; gap: 14px; padding: 12px 6px; border-bottom: 1px solid var(--line); align-items: start; }
+.eval-head { font: 10px/1.5 var(--mono); letter-spacing: .8px; text-transform: uppercase; color: var(--muted); }
+.eval-row small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+.eval-row small.why { color: #9b3b2f; }
+.eval-row .num { font-variant-numeric: tabular-nums; }
+.result { font: 700 10px/1.5 var(--mono); letter-spacing: .6px; padding: 2px 8px; border-radius: 2px; border: 1px solid; }
+.result.pass { color: #276b41; background: #edf7f0; border-color: #c4dfcf; }
+.result.fail { color: #9b3b2f; background: #fdf0ee; border-color: #ebc8c2; }
+@media (max-width: 720px) { .eval-row { grid-template-columns: 1fr 1fr; } }
