@@ -6,8 +6,10 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.agents.escalation import decide_review
+from src.agents.routing import CATEGORY_POINTS
+from src.config import CONFIG
 from src.api.demo import ReplayModel, create_demo_app
-from src.contracts import CaseStatus, LogEventKind, ReviewDecision, ReviewTrigger, Switches
+from src.contracts import CaseStatus, DisputeCategory, LogEventKind, ReviewDecision, ReviewTrigger, Switches
 from src.intake import load_catalog
 from src.orchestrator import run_dispute
 from src.store import CaseStore
@@ -59,7 +61,7 @@ def test_a_safety_incident_is_always_held_for_a_person_even_when_the_judge_is_co
     _, case = run(dispute_id)
 
     assert case.ruling.outcome.value == outcome
-    assert case.ruling.confidence.value >= 0.7  # confident, and still held
+    assert case.ruling.confidence.value >= CONFIG.escalation.confidence_threshold  # confident, and still held
     assert case.status is CaseStatus.PENDING_REVIEW
     assert [t.trigger for t in case.ruling.review_triggers] == [ReviewTrigger.SAFETY_INCIDENT]
     assert {o.action_status.value for o in case.outcomes} == {"pending_review"}
@@ -121,4 +123,4 @@ def test_the_case_json_carries_the_priority_for_the_console(client):
 
     case = client.get(f"/api/cases/{case_id}").json()["case"]
 
-    assert case["priority"] >= 100 and case["priority_reason"]
+    assert case["priority"] >= CATEGORY_POINTS[DisputeCategory.SAFETY_INCIDENT] and case["priority_reason"]
