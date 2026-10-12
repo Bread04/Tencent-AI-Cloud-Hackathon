@@ -13,7 +13,7 @@ def outcomes_for(ruling: Ruling, case: Case) -> list[Outcome]:
     if ruling.status is RulingStatus.PROPOSAL:
         return pending_outcomes()
     return [
-        Outcome(party=party, ruling_summary=_route_decision(ruling, claimant, party) if case.dispute.category is DisputeCategory.ROUTE_DEVIATION else _decision(ruling, claimant, party), action_status=ActionStatus.RECOMMENDED)
+        Outcome(party=party, ruling_summary=_route_decision(ruling, claimant, party) if case.dispute.category is DisputeCategory.ROUTE_DEVIATION else _decision(ruling, claimant, party, case.dispute.category), action_status=ActionStatus.RECOMMENDED)
         for party in Party
     ]
 
@@ -44,6 +44,13 @@ def _decision(ruling: Ruling, claimant: Party, reader: Party, category: DisputeC
     amount = f"The {ruling.currency} {ruling.amount} no-show fee" if ruling.amount is not None else "The no-show fee"
     reversed_ = "will be reversed" if reader is claimant else "is reversed"
     return f"{whose} was upheld. {amount} {reversed_}.{reason}"
+
+
+def _safety_decision(ruling: Ruling, whose: str, reason: str) -> str:
+    """What a party is told about a Safety Incident. Conduct is reviewed separately; this is only the outcome of the claim."""
+    if ruling.outcome is RulingOutcome.REJECT:
+        return f"{whose} was not upheld on the evidence. The report is kept on record.{reason}"
+    return f"{whose} was upheld. A full refund of the fare is recommended, and the report goes on record for review.{reason}"
 
 
 def _route_decision(ruling: Ruling, claimant: Party, reader: Party) -> str:

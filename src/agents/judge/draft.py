@@ -106,18 +106,16 @@ def _burden_problems(case: Case, draft: JudgeDraft) -> list[str]:
 
 
 def _amount_problems(case: Case, draft: JudgeDraft) -> list[str]:
-    if draft.remedy in (Remedy.FULL_REFUND, Remedy.PARTIAL_REFUND):
-        if case.dispute.category is not DisputeCategory.ROUTE_DEVIATION:
-            return ["Refund arithmetic is available only for Route Deviation."]
+    if case.dispute.category is DisputeCategory.ROUTE_DEVIATION and draft.remedy in (Remedy.FULL_REFUND, Remedy.PARTIAL_REFUND):
         by_source = {item.source: item for item in case.evidence}
         needed = [by_source.get("route"), by_source.get("fare")]
         if any(item is None or item.status is not EvidenceStatus.AVAILABLE or not item.derived.get("available") for item in needed):
             return ["Route/fare calculation unavailable: no guessed refund; hold for review using no_action."]
         if set(draft.amount_input_evidence_ids) != {item.evidence_id for item in needed}:
             return ["A route refund must name both EV-ROUTE-1 and EV-FARE-1 as its amount inputs."]
-        from src.tools.evidence.route import analyze_fare
+        from src.tools.evidence.route import analyze_route, analyze_fare
         from decimal import Decimal
-        calculated = analyze_fare(needed[1].content, needed[0].derived)
+        calculated = analyze_fare(needed[1].content, analyze_route(needed[0].content))
         if not calculated["available"]:
             return ["Route refund inputs do not reconcile: " + calculated["unavailable_reason"]]
         refund, paid = Decimal(calculated["refund"]), Decimal(calculated["paid_net"])

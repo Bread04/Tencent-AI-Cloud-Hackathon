@@ -1,0 +1,199 @@
+{
+  "_simulated": "Public, case-specific scripted replies; no private evaluation labels.",
+  "rider_advocate": {
+    "author": "rider_advocate",
+    "claim_restated": "The trip was longer than the app baseline and cost more. Please refund the full fare.",
+    "facts_relied_on": [
+      "EV-ROUTE-1",
+      "EV-FARE-1",
+      "EV-CHAT-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
+    "counter_arguments": [
+      {
+        "argument": "The Driver may have a justified route change or a Rider request.",
+        "response": "MSG-009-1 says \"Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.\" and MSG-009-3 agrees. That exact request seriously weakens the Rider claim despite the longer route."
+      }
+    ],
+    "policy_clause_ids": [
+      "R-04",
+      "D-04",
+      "R-03",
+      "D-03"
+    ],
+    "requested_outcome": "Review the original full-fare request against consent and ADR 0004; grant only any supported excess-fare refund."
+  },
+  "driver_advocate": {
+    "author": "driver_advocate",
+    "claim_restated": "The Driver followed EV-CHAT-1 MSG-009-1: \"Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.\" and MSG-009-3 confirmation. The requested Lavender detour and stop match the vehicle route.",
+    "facts_relied_on": [
+      "EV-ROUTE-1",
+      "EV-FARE-1",
+      "EV-CHAT-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
+    "counter_arguments": [
+      {
+        "argument": "The Rider points to the excess distance, duration and charge.",
+        "response": "The exact Rider request and confirmation match this detour. Excess metrics alone do not invalidate a requested detour."
+      }
+    ],
+    "policy_clause_ids": [
+      "R-04",
+      "D-04",
+      "R-03",
+      "D-03"
+    ],
+    "requested_outcome": "Reject the refund claim for the specifically requested detour."
+  },
+  "judge": {
+    "outcome": "reject",
+    "balance_of_evidence": "respondent",
+    "remedy": "no_action",
+    "policy_fit": "clear",
+    "policy_fit_reason": "Route communication and fare review clauses apply; ADR 0004 supplies arithmetic without changing policy text.",
+    "cited_evidence_ids": [
+      "EV-ROUTE-1",
+      "EV-FARE-1",
+      "EV-CHAT-1"
+    ],
+    "cited_policy_clause_ids": [
+      "R-04",
+      "D-04",
+      "R-03",
+      "D-03"
+    ],
+    "reasoning_summary": "EV-CHAT-1 MSG-009-1 records the exact Rider request: \"Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.\" MSG-009-3 confirms it. The vehicle route and three-minute stop candidate match that specific detour; consent does not extend to any other route change. Excess alone does not establish an overcharge. Reject the refund claim.",
+    "amount_input_evidence_ids": [],
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "not_decisive",
+        "reason": "EV-CHAT-1 MSG-009-1 records the exact Rider request: \"Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.\" MSG-009-3 confirms it. The vehicle route and three-minute stop candidate match that specific detour; consent does not extend to any other route change. Excess alone does not establish an overcharge. Reject the refund claim.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "not_decisive",
+        "reason": "EV-CHAT-1 MSG-009-1 records the exact Rider request: \"Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.\" MSG-009-3 confirms it. The vehicle route and three-minute stop candidate match that specific detour; consent does not extend to any other route change. Excess alone does not establish an overcharge. Reject the refund claim.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "accepted",
+        "reason": "EV-CHAT-1 MSG-009-1 records the exact Rider request: \"Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.\" MSG-009-3 confirms it. The vehicle route and three-minute stop candidate match that specific detour; consent does not extend to any other route change. Excess alone does not establish an overcharge. Reject the refund claim.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "EV-CHAT-1 MSG-009-1 records the exact Rider request: \"Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.\" MSG-009-3 confirms it. The vehicle route and three-minute stop candidate match that specific detour; consent does not extend to any other route change. Excess alone does not establish an overcharge. Reject the refund claim.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      }
+    ]
+  },
+  "judge_self_check": {
+    "supported": true,
+    "problems": []
+  },
+  "judge_second_pass": {
+    "outcome": "reject",
+    "balance_of_evidence": "respondent",
+    "remedy": "no_action",
+    "policy_fit": "clear",
+    "policy_fit_reason": "Route communication and fare review clauses apply; ADR 0004 supplies arithmetic without changing policy text.",
+    "cited_evidence_ids": [
+      "EV-ROUTE-1",
+      "EV-FARE-1",
+      "EV-CHAT-1"
+    ],
+    "cited_policy_clause_ids": [
+      "R-04",
+      "D-04",
+      "R-03",
+      "D-03"
+    ],
+    "reasoning_summary": "EV-CHAT-1 MSG-009-1 records the exact Rider request: \"Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.\" MSG-009-3 confirms it. The vehicle route and three-minute stop candidate match that specific detour; consent does not extend to any other route change. Excess alone does not establish an overcharge. Reject the refund claim.",
+    "amount_input_evidence_ids": [],
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "not_decisive",
+        "reason": "EV-CHAT-1 MSG-009-1 records the exact Rider request: \"Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.\" MSG-009-3 confirms it. The vehicle route and three-minute stop candidate match that specific detour; consent does not extend to any other route change. Excess alone does not establish an overcharge. Reject the refund claim.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "not_decisive",
+        "reason": "EV-CHAT-1 MSG-009-1 records the exact Rider request: \"Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.\" MSG-009-3 confirms it. The vehicle route and three-minute stop candidate match that specific detour; consent does not extend to any other route change. Excess alone does not establish an overcharge. Reject the refund claim.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "accepted",
+        "reason": "EV-CHAT-1 MSG-009-1 records the exact Rider request: \"Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.\" MSG-009-3 confirms it. The vehicle route and three-minute stop candidate match that specific detour; consent does not extend to any other route change. Excess alone does not establish an overcharge. Reject the refund claim.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "EV-CHAT-1 MSG-009-1 records the exact Rider request: \"Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.\" MSG-009-3 confirms it. The vehicle route and three-minute stop candidate match that specific detour; consent does not extend to any other route change. Excess alone does not establish an overcharge. Reject the refund claim.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      }
+    ]
+  },
+  "rider_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#1",
+        "quote": "Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands.",
+        "fact": "The rider wrote: Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands."
+      }
+    ]
+  },
+  "driver_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#2",
+        "quote": "Yes, I can take that detour and stop for three minutes. The fare may increase.",
+        "fact": "The driver wrote: Yes, I can take that detour and stop for three minutes. The fare may increase."
+      }
+    ]
+  }
+}

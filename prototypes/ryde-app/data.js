@@ -266,7 +266,7 @@
   // Ticket 06 public projections (generated from simulated source cases).
   trips.push(...[
   {
-    "id": "TRIP-2026-ROUTE-005",
+    "id": "TRIP-2026-ROUTE-008",
     "riderId": "R-7823",
     "date": "2026-09-16",
     "time": "14:00",
@@ -275,9 +275,9 @@
     "status": "Completed",
     "service": "RydeX \u00b7 simulated",
     "category": "Route deviation",
-    "fixture": "DISP-005 \u00b7 curated public source projection",
+    "fixture": "DISP-008 \u00b7 curated public source projection",
     "sampleReport": {
-      "id": "DISP-005",
+      "id": "DISP-008",
       "category": "Route deviation",
       "summary": "Review the route and full paid fare",
       "statement": "The trip went via Lavender MRT and stopped for three minutes. I did not ask for that detour. Please refund the full fare.",
@@ -289,7 +289,7 @@
       }
     },
     "receipt": {
-      "id": "RECEIPT-005",
+      "id": "RECEIPT-008",
       "currency": "SGD",
       "total": 15.08,
       "method": "E-wallet",
@@ -323,13 +323,13 @@
     },
     "messages": [
       {
-        "id": "MSG-005-1",
+        "id": "MSG-008-1",
         "timestamp": "2026-09-16T14:09:00+08:00",
         "sender": "Rider",
         "text": "Why are we near Lavender MRT? I did not request this detour."
       },
       {
-        "id": "MSG-005-2",
+        "id": "MSG-008-2",
         "timestamp": "2026-09-16T14:10:00+08:00",
         "sender": "Driver",
         "text": "I missed the turn and stopped to check the route. Sorry about the extra distance."
@@ -337,7 +337,7 @@
     ],
     "events": [
       {
-        "id": "APP-005-1",
+        "id": "APP-008-1",
         "timestamp": "2026-09-16T14:20:00+08:00",
         "title": "Trip completed",
         "detail": "Simulated trip completed. Vehicle GPS is supplied separately; no Rider device GPS was recorded."
@@ -347,9 +347,9 @@
     "locationNote": "No Rider device GPS was recorded. Shared simulated vehicle GPS is labelled separately.",
     "routeRecord": {
       "trip": {
-        "trip_id": "TRIP-2026-ROUTE-005",
+        "trip_id": "TRIP-2026-ROUTE-008",
         "rider_id": "R-7823",
-        "driver_id": "D-ROUTE-5",
+        "driver_id": "D-ROUTE-8",
         "pickup_location": {
           "name": "Bugis Junction",
           "lat": 1.299,
@@ -474,7 +474,7 @@
         }
       ],
       "route_baseline": {
-        "source_id": "BASELINE-005",
+        "source_id": "BASELINE-008",
         "simulated": true,
         "expected_minutes": "12.00",
         "points": [
@@ -510,8 +510,8 @@
         "promo": "2.00"
       },
       "receipt": {
-        "receipt_id": "RECEIPT-005",
-        "trip_id": "TRIP-2026-ROUTE-005",
+        "receipt_id": "RECEIPT-008",
+        "trip_id": "TRIP-2026-ROUTE-008",
         "paid_net": "15.08",
         "currency": "SGD",
         "timestamp": "2026-09-16T14:20:00+08:00"
@@ -519,7 +519,7 @@
     }
   },
   {
-    "id": "TRIP-2026-ROUTE-006",
+    "id": "TRIP-2026-ROUTE-009",
     "riderId": "R-7823",
     "date": "2026-09-17",
     "time": "14:00",
@@ -528,9 +528,9 @@
     "status": "Completed",
     "service": "RydeX \u00b7 simulated",
     "category": "Route deviation",
-    "fixture": "DISP-006 \u00b7 curated public source projection",
+    "fixture": "DISP-009 \u00b7 curated public source projection",
     "sampleReport": {
-      "id": "DISP-006",
+      "id": "DISP-009",
       "category": "Route deviation",
       "summary": "Review the route and full paid fare",
       "statement": "The trip was longer than the app baseline and cost more. Please refund the full fare.",
@@ -542,7 +542,7 @@
       }
     },
     "receipt": {
-      "id": "RECEIPT-006",
+      "id": "RECEIPT-009",
       "currency": "SGD",
       "total": 15.08,
       "method": "E-wallet",
@@ -576,19 +576,19 @@
     },
     "messages": [
       {
-        "id": "MSG-006-1",
+        "id": "MSG-009-1",
         "timestamp": "2026-09-17T13:57:00+08:00",
         "sender": "Rider",
         "text": "Please detour via Lavender MRT and stop there for three minutes so I can collect my bag, then continue to Marina Bay Sands."
       },
       {
-        "id": "MSG-006-2",
+        "id": "MSG-009-2",
         "timestamp": "2026-09-17T13:58:00+08:00",
         "sender": "Driver",
         "text": "Yes, I can take that detour and stop for three minutes. The fare may increase."
       },
       {
-        "id": "MSG-006-3",
+        "id": "MSG-009-3",
         "timestamp": "2026-09-17T13:59:00+08:00",
         "sender": "Rider",
         "text": "Understood, please go ahead."
@@ -596,7 +596,7 @@
     ],
     "events": [
       {
-        "id": "APP-006-1",
+        "id": "APP-009-1",
         "timestamp": "2026-09-17T14:20:00+08:00",
         "title": "Trip completed",
         "detail": "Simulated trip completed. Vehicle GPS is supplied separately; no Rider device GPS was recorded."
@@ -606,9 +606,9 @@
     "locationNote": "No Rider device GPS was recorded. Shared simulated vehicle GPS is labelled separately.",
     "routeRecord": {
       "trip": {
-        "trip_id": "TRIP-2026-ROUTE-006",
+        "trip_id": "TRIP-2026-ROUTE-009",
         "rider_id": "R-7823",
-        "driver_id": "D-ROUTE-6",
+        "driver_id": "D-ROUTE-9",
         "pickup_location": {
           "name": "Bugis Junction",
           "lat": 1.299,
@@ -733,7 +733,7 @@
         }
       ],
       "route_baseline": {
-        "source_id": "BASELINE-006",
+        "source_id": "BASELINE-009",
         "simulated": true,
         "expected_minutes": "12.00",
         "points": [
@@ -769,8 +769,8 @@
         "promo": "2.00"
       },
       "receipt": {
-        "receipt_id": "RECEIPT-006",
-        "trip_id": "TRIP-2026-ROUTE-006",
+        "receipt_id": "RECEIPT-009",
+        "trip_id": "TRIP-2026-ROUTE-009",
         "paid_net": "15.08",
         "currency": "SGD",
         "timestamp": "2026-09-17T14:20:00+08:00"
@@ -778,7 +778,7 @@
     }
   },
   {
-    "id": "TRIP-2026-ROUTE-007",
+    "id": "TRIP-2026-ROUTE-010",
     "riderId": "R-7823",
     "date": "2026-09-18",
     "time": "14:00",
@@ -787,9 +787,9 @@
     "status": "Completed",
     "service": "RydeX \u00b7 simulated",
     "category": "Route deviation",
-    "fixture": "DISP-007 \u00b7 curated public source projection",
+    "fixture": "DISP-010 \u00b7 curated public source projection",
     "sampleReport": {
-      "id": "DISP-007",
+      "id": "DISP-010",
       "category": "Route deviation",
       "summary": "Review the route and full paid fare",
       "statement": "The Driver took a longer route via Lavender MRT and stopped. I remember discussing the route but I am not sure we agreed to that detour. Please review the full fare.",
@@ -801,7 +801,7 @@
       }
     },
     "receipt": {
-      "id": "RECEIPT-007",
+      "id": "RECEIPT-010",
       "currency": "SGD",
       "total": 15.08,
       "method": "E-wallet",
@@ -835,19 +835,19 @@
     },
     "messages": [
       {
-        "id": "MSG-007-1",
+        "id": "MSG-010-1",
         "timestamp": "2026-09-18T13:57:00+08:00",
         "sender": "Driver",
         "text": "There may be traffic ahead. We could go via Lavender MRT."
       },
       {
-        "id": "MSG-007-2",
+        "id": "MSG-010-2",
         "timestamp": "2026-09-18T13:58:00+08:00",
         "sender": "Rider",
         "text": "Would that work? I need to get there soon."
       },
       {
-        "id": "MSG-007-3",
+        "id": "MSG-010-3",
         "timestamp": "2026-09-18T13:59:00+08:00",
         "sender": "Driver",
         "text": "I will try that road."
@@ -855,7 +855,7 @@
     ],
     "events": [
       {
-        "id": "APP-007-1",
+        "id": "APP-010-1",
         "timestamp": "2026-09-18T14:20:00+08:00",
         "title": "Trip completed",
         "detail": "Simulated trip completed. Vehicle GPS is supplied separately; no Rider device GPS was recorded."
@@ -865,9 +865,9 @@
     "locationNote": "No Rider device GPS was recorded. Shared simulated vehicle GPS is labelled separately.",
     "routeRecord": {
       "trip": {
-        "trip_id": "TRIP-2026-ROUTE-007",
+        "trip_id": "TRIP-2026-ROUTE-010",
         "rider_id": "R-7823",
-        "driver_id": "D-ROUTE-7",
+        "driver_id": "D-ROUTE-10",
         "pickup_location": {
           "name": "Bugis Junction",
           "lat": 1.299,
@@ -992,7 +992,7 @@
         }
       ],
       "route_baseline": {
-        "source_id": "BASELINE-007",
+        "source_id": "BASELINE-010",
         "simulated": true,
         "expected_minutes": "12.00",
         "points": [
@@ -1028,8 +1028,8 @@
         "promo": "2.00"
       },
       "receipt": {
-        "receipt_id": "RECEIPT-007",
-        "trip_id": "TRIP-2026-ROUTE-007",
+        "receipt_id": "RECEIPT-010",
+        "trip_id": "TRIP-2026-ROUTE-010",
         "paid_net": "15.08",
         "currency": "SGD",
         "timestamp": "2026-09-18T14:20:00+08:00"

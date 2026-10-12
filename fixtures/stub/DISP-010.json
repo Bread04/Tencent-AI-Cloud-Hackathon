@@ -1,0 +1,199 @@
+{
+  "_simulated": "Public, case-specific scripted replies; no private evaluation labels.",
+  "rider_advocate": {
+    "author": "rider_advocate",
+    "claim_restated": "The Driver took a longer route via Lavender MRT and stopped. I remember discussing the route but I am not sure we agreed to that detour. Please review the full fare.",
+    "facts_relied_on": [
+      "EV-ROUTE-1",
+      "EV-FARE-1",
+      "EV-CHAT-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
+    "counter_arguments": [
+      {
+        "argument": "The Driver may have a justified route change or a Rider request.",
+        "response": "The Driver mentions traffic, but no traffic record was supplied. The Rider's question is ambiguous; ask for clarification instead of claiming proven fault."
+      }
+    ],
+    "policy_clause_ids": [
+      "R-04",
+      "D-04",
+      "R-03",
+      "D-03"
+    ],
+    "requested_outcome": "Review the original full-fare request against consent and ADR 0004; grant only any supported excess-fare refund."
+  },
+  "driver_advocate": {
+    "author": "driver_advocate",
+    "claim_restated": "The Driver understood the route conversation as agreement and cites traffic, but neither consent nor traffic is independently established.",
+    "facts_relied_on": [
+      "EV-ROUTE-1",
+      "EV-FARE-1",
+      "EV-CHAT-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
+    "counter_arguments": [
+      {
+        "argument": "The Rider points to the excess distance, duration and charge.",
+        "response": "The metrics support review but not an inference of consent or fault. The competing explanations need human clarification."
+      }
+    ],
+    "policy_clause_ids": [
+      "R-04",
+      "D-04",
+      "R-03",
+      "D-03"
+    ],
+    "requested_outcome": "Hold the competing accounts for human review."
+  },
+  "judge": {
+    "outcome": "reject",
+    "balance_of_evidence": "balanced",
+    "remedy": "no_action",
+    "policy_fit": "arguable",
+    "policy_fit_reason": "Route communication and fare review clauses apply; ADR 0004 supplies arithmetic without changing policy text.",
+    "cited_evidence_ids": [
+      "EV-ROUTE-1",
+      "EV-FARE-1",
+      "EV-CHAT-1"
+    ],
+    "cited_policy_clause_ids": [
+      "R-04",
+      "D-04",
+      "R-03",
+      "D-03"
+    ],
+    "reasoning_summary": "EV-CHAT-1 MSG-010-2 asks whether the route would work; it is not an explicit request or clear agreement to the observed detour and stop. The Driver's traffic explanation has no independent supporting record. Distance alone cannot resolve these competing accounts. The evidence is balanced: hold this proposal for review, with no authorised amount.",
+    "amount_input_evidence_ids": [],
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "unproven",
+        "reason": "EV-CHAT-1 MSG-010-2 asks whether the route would work; it is not an explicit request or clear agreement to the observed detour and stop. The Driver's traffic explanation has no independent supporting record. Distance alone cannot resolve these competing accounts. The evidence is balanced: hold this proposal for review, with no authorised amount.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "unproven",
+        "reason": "EV-CHAT-1 MSG-010-2 asks whether the route would work; it is not an explicit request or clear agreement to the observed detour and stop. The Driver's traffic explanation has no independent supporting record. Distance alone cannot resolve these competing accounts. The evidence is balanced: hold this proposal for review, with no authorised amount.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "unproven",
+        "reason": "EV-CHAT-1 MSG-010-2 asks whether the route would work; it is not an explicit request or clear agreement to the observed detour and stop. The Driver's traffic explanation has no independent supporting record. Distance alone cannot resolve these competing accounts. The evidence is balanced: hold this proposal for review, with no authorised amount.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "unproven",
+        "reason": "EV-CHAT-1 MSG-010-2 asks whether the route would work; it is not an explicit request or clear agreement to the observed detour and stop. The Driver's traffic explanation has no independent supporting record. Distance alone cannot resolve these competing accounts. The evidence is balanced: hold this proposal for review, with no authorised amount.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      }
+    ]
+  },
+  "judge_self_check": {
+    "supported": true,
+    "problems": []
+  },
+  "judge_second_pass": {
+    "outcome": "reject",
+    "balance_of_evidence": "balanced",
+    "remedy": "no_action",
+    "policy_fit": "arguable",
+    "policy_fit_reason": "Route communication and fare review clauses apply; ADR 0004 supplies arithmetic without changing policy text.",
+    "cited_evidence_ids": [
+      "EV-ROUTE-1",
+      "EV-FARE-1",
+      "EV-CHAT-1"
+    ],
+    "cited_policy_clause_ids": [
+      "R-04",
+      "D-04",
+      "R-03",
+      "D-03"
+    ],
+    "reasoning_summary": "EV-CHAT-1 MSG-010-2 asks whether the route would work; it is not an explicit request or clear agreement to the observed detour and stop. The Driver's traffic explanation has no independent supporting record. Distance alone cannot resolve these competing accounts. The evidence is balanced: hold this proposal for review, with no authorised amount.",
+    "amount_input_evidence_ids": [],
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "unproven",
+        "reason": "EV-CHAT-1 MSG-010-2 asks whether the route would work; it is not an explicit request or clear agreement to the observed detour and stop. The Driver's traffic explanation has no independent supporting record. Distance alone cannot resolve these competing accounts. The evidence is balanced: hold this proposal for review, with no authorised amount.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "unproven",
+        "reason": "EV-CHAT-1 MSG-010-2 asks whether the route would work; it is not an explicit request or clear agreement to the observed detour and stop. The Driver's traffic explanation has no independent supporting record. Distance alone cannot resolve these competing accounts. The evidence is balanced: hold this proposal for review, with no authorised amount.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "unproven",
+        "reason": "EV-CHAT-1 MSG-010-2 asks whether the route would work; it is not an explicit request or clear agreement to the observed detour and stop. The Driver's traffic explanation has no independent supporting record. Distance alone cannot resolve these competing accounts. The evidence is balanced: hold this proposal for review, with no authorised amount.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "unproven",
+        "reason": "EV-CHAT-1 MSG-010-2 asks whether the route would work; it is not an explicit request or clear agreement to the observed detour and stop. The Driver's traffic explanation has no independent supporting record. Distance alone cannot resolve these competing accounts. The evidence is balanced: hold this proposal for review, with no authorised amount.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      }
+    ]
+  },
+  "rider_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#2",
+        "quote": "Would that work? I need to get there soon.",
+        "fact": "The rider wrote: Would that work? I need to get there soon."
+      }
+    ]
+  },
+  "driver_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#1",
+        "quote": "There may be traffic ahead. We could go via Lavender MRT.",
+        "fact": "The driver wrote: There may be traffic ahead. We could go via Lavender MRT."
+      }
+    ]
+  }
+}

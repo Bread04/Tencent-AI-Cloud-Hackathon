@@ -4,15 +4,17 @@
 
 **Blocked by:** 04, 05
 
-**Status:** ready-for-agent
+**Status:** ready-for-human
 
 **Tier:** 0 · **Owner:** Kyven (policy clauses with Braedon)
 
-- [ ] Actual and optimal route distance, unexpected stops and duration difference are computed by code and stored as Evidence Items
-- [ ] The fare breakdown is available as evidence, including surge and promo
-- [ ] Route Deviation clauses are served for the category, and the refund calculation is a recorded code rule shown in the Ruling's calculation
-- [ ] Three Route Deviation mock cases exist with separate expected-outcome labels
-- [ ] A rider-requested detour in chat is found and cited by the Driver Advocate
-- [ ] The Ruling amount for a partial refund matches the calculation recomputed by code
-- [ ] All three mock cases resolve end to end with the expected outcome
-- [ ] The No-Show mock cases still pass
+- [x] Actual and optimal route distance, unexpected stops and duration difference are computed by code and stored as Evidence Items
+- [x] The fare breakdown is available as evidence, including surge and promo
+- [x] Route Deviation clauses are served for the category, and the refund calculation is a recorded code rule shown in the Ruling's calculation
+- [x] Three Route Deviation mock cases exist with separate expected-outcome labels
+- [x] A rider-requested detour in chat is found and cited by the Driver Advocate
+- [x] The Ruling amount for a partial refund matches the calculation recomputed by code
+- [x] All three mock cases resolve end to end with the expected outcome
+- [x] The No-Show mock cases still pass
+
+Implemented as DISP-008–010 to preserve main's DISP-005–007. ADR 0004 records the approved demo refund rule. All Rider agent logic runs in Python with the existing web interface; server-protected Communication Logs remain integrated. Verification: 645 Python tests and 44 interface tests passed.

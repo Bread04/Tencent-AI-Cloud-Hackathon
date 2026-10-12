@@ -103,7 +103,7 @@ Link relevance to code-computed actual/optimal distance, stop candidates and dur
 
 These clauses specify **no partial-refund formula** and no numeric excess-distance or stop threshold. [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md) now provides the approved separate code rule, including surge, promo, receipt reconciliation and rounding. [Backend policy retrieval](../policy/__init__.py) and [Rider policy retrieval](../rider/policy.py) serve all four baseline clauses unchanged. Identify the ADR separately from Policy Clause citations; missing inputs stay explicit and clause retrieval does not establish entitlement.
 
-Policy extraction remains step 4. The Advocate builds the position at step 5, and the Judge assesses the Ruling at step 6. Balanced evidence stays pending review with no authorised amount. DISP-005–007 now supply the three simulated scenarios; separate evaluation labels never enter retrieval. Rider prototypes prepare Submissions only. Existing No-Show policy and trip-data threshold handling remain unchanged.
+Policy extraction remains step 4. The Advocate builds the position at step 5, and the Judge assesses the Ruling at step 6. Balanced evidence stays pending review with no authorised amount. DISP-008–007 now supply the three simulated scenarios; separate evaluation labels never enter retrieval. Rider prototypes prepare Submissions only. Existing No-Show policy and trip-data threshold handling remain unchanged.
 
 ## 3. Extraction procedure
 

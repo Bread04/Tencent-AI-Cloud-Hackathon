@@ -1,0 +1,227 @@
+{
+  "_simulated": "Simulated road geometry, receipt, tariff and party messages; not a real Ryde trip.",
+  "dispute": {
+    "dispute_id": "DISP-010",
+    "trip_id": "TRIP-2026-ROUTE-010",
+    "filed_by": "rider",
+    "category": "route_deviation",
+    "description": "The Driver took a longer route via Lavender MRT and stopped. I remember discussing the route but I am not sure we agreed to that detour. Please review the full fare.",
+    "requested_remedy": "Refund the full paid trip fare",
+    "filed_at": "2026-09-18T14:35:00+08:00",
+    "photos": [],
+    "driver_statement": "I understood the conversation as agreement to the Lavender route, and there was traffic ahead. There is no independent traffic record in this simulated case."
+  },
+  "trip": {
+    "trip_id": "TRIP-2026-ROUTE-010",
+    "rider_id": "R-7823",
+    "driver_id": "D-ROUTE-10",
+    "pickup_location": {
+      "name": "Bugis Junction",
+      "lat": 1.299,
+      "lng": 103.855
+    },
+    "dropoff_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.283,
+      "lng": 103.86
+    },
+    "scheduled_time": "2026-09-18T14:00:00+08:00",
+    "started_at": "2026-09-18T14:00:00+08:00",
+    "completed_at": "2026-09-18T14:20:00+08:00",
+    "currency": "SGD",
+    "paid_net": "15.08"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-18T14:00:00+08:00",
+      "lat": 1.299,
+      "lng": 103.855
+    },
+    {
+      "timestamp": "2026-09-18T14:01:00+08:00",
+      "lat": 1.3006,
+      "lng": 103.8566
+    },
+    {
+      "timestamp": "2026-09-18T14:02:00+08:00",
+      "lat": 1.3022,
+      "lng": 103.8582
+    },
+    {
+      "timestamp": "2026-09-18T14:03:00+08:00",
+      "lat": 1.3038,
+      "lng": 103.8598
+    },
+    {
+      "timestamp": "2026-09-18T14:04:00+08:00",
+      "lat": 1.3054,
+      "lng": 103.8614
+    },
+    {
+      "timestamp": "2026-09-18T14:05:00+08:00",
+      "lat": 1.307,
+      "lng": 103.863
+    },
+    {
+      "timestamp": "2026-09-18T14:06:00+08:00",
+      "lat": 1.307,
+      "lng": 103.863
+    },
+    {
+      "timestamp": "2026-09-18T14:07:00+08:00",
+      "lat": 1.307,
+      "lng": 103.863
+    },
+    {
+      "timestamp": "2026-09-18T14:08:00+08:00",
+      "lat": 1.307,
+      "lng": 103.863
+    },
+    {
+      "timestamp": "2026-09-18T14:09:00+08:00",
+      "lat": 1.305,
+      "lng": 103.86275
+    },
+    {
+      "timestamp": "2026-09-18T14:10:00+08:00",
+      "lat": 1.303,
+      "lng": 103.8625
+    },
+    {
+      "timestamp": "2026-09-18T14:11:00+08:00",
+      "lat": 1.301,
+      "lng": 103.86225
+    },
+    {
+      "timestamp": "2026-09-18T14:12:00+08:00",
+      "lat": 1.299,
+      "lng": 103.862
+    },
+    {
+      "timestamp": "2026-09-18T14:13:00+08:00",
+      "lat": 1.297,
+      "lng": 103.86175
+    },
+    {
+      "timestamp": "2026-09-18T14:14:00+08:00",
+      "lat": 1.295,
+      "lng": 103.8615
+    },
+    {
+      "timestamp": "2026-09-18T14:15:00+08:00",
+      "lat": 1.293,
+      "lng": 103.86125
+    },
+    {
+      "timestamp": "2026-09-18T14:16:00+08:00",
+      "lat": 1.291,
+      "lng": 103.861
+    },
+    {
+      "timestamp": "2026-09-18T14:17:00+08:00",
+      "lat": 1.289,
+      "lng": 103.86075
+    },
+    {
+      "timestamp": "2026-09-18T14:18:00+08:00",
+      "lat": 1.287,
+      "lng": 103.8605
+    },
+    {
+      "timestamp": "2026-09-18T14:19:00+08:00",
+      "lat": 1.285,
+      "lng": 103.86025
+    },
+    {
+      "timestamp": "2026-09-18T14:20:00+08:00",
+      "lat": 1.283,
+      "lng": 103.86
+    }
+  ],
+  "route_baseline": {
+    "source_id": "BASELINE-010",
+    "simulated": true,
+    "expected_minutes": "12.00",
+    "points": [
+      {
+        "lat": 1.299,
+        "lng": 103.855
+      },
+      {
+        "lat": 1.291,
+        "lng": 103.858
+      },
+      {
+        "lat": 1.283,
+        "lng": 103.86
+      }
+    ]
+  },
+  "route_landmarks": [
+    {
+      "id": "LANDMARK-LAVENDER-MRT",
+      "name": "Lavender MRT",
+      "lat": 1.307,
+      "lng": 103.863
+    }
+  ],
+  "tariff": {
+    "base": "3.00",
+    "km_rate": "1.20",
+    "minute_rate": "0.25",
+    "surge": "1.20",
+    "booking": "0.80",
+    "tolls": "1.00",
+    "promo": "2.00"
+  },
+  "chat_logs": [
+    {
+      "id": "MSG-010-1",
+      "timestamp": "2026-09-18T13:57:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "There may be traffic ahead. We could go via Lavender MRT."
+    },
+    {
+      "id": "MSG-010-2",
+      "timestamp": "2026-09-18T13:58:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Would that work? I need to get there soon."
+    },
+    {
+      "id": "MSG-010-3",
+      "timestamp": "2026-09-18T13:59:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I will try that road."
+    }
+  ],
+  "app_events": [
+    {
+      "id": "APP-010-1",
+      "timestamp": "2026-09-18T14:20:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Simulated trip completed. Vehicle GPS is supplied separately; no Rider device GPS was recorded."
+    }
+  ],
+  "rider_history": {
+    "dispute_history": {
+      "total_disputes": 0,
+      "rejected": 0
+    }
+  },
+  "driver_history": {
+    "dispute_history": {
+      "total_disputes": 0,
+      "rejected": 0
+    }
+  },
+  "receipt": {
+    "receipt_id": "RECEIPT-010",
+    "trip_id": "TRIP-2026-ROUTE-010",
+    "paid_net": "15.08",
+    "currency": "SGD",
+    "timestamp": "2026-09-18T14:20:00+08:00"
+  }
+}

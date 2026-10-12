@@ -149,13 +149,13 @@ def _confidence(case: Case, draft: JudgeDraft) -> Confidence:
 def _ruling_from(case: Case, arguments: list[Argument], draft: JudgeDraft, stability: StabilityResult | None = None) -> Ruling:
     amount, calculation = amount_for(case, draft.remedy, draft.amount_input_evidence_ids)
     checklist = checklist_for(case)
-    confidence = confidence_for(case, draft.policy_fit, checklist, draft.own_findings)
-    triggers = _review_triggers(draft, confidence)
+    confidence = confidence_for(case, draft.policy_fit, checklist, draft.own_findings, stable=None if stability is None else stability.agrees)
+    triggers = _review_triggers(draft, confidence, stability)
     if case.dispute.category is DisputeCategory.ROUTE_DEVIATION:
         if any(item.status is EvidenceStatus.MISSING for item in case.evidence if item.source in {"route", "fare", "chat"}):
             triggers.append(ReviewTriggerRecord(trigger=ReviewTrigger.LOW_CONFIDENCE,
                                                reason="Material route, fare or conversation evidence is unavailable; no refund is authorised before review."))
-        if triggers:
+        if triggers and case.switches.escalation:
             amount, calculation = None, None
     ruling = Ruling(
         status=RulingStatus.PROPOSAL if triggers else RulingStatus.FINAL,

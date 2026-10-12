@@ -1,0 +1,12 @@
+{
+  "dispute_id": "DISP-010",
+  "scenario_classification": "ambiguous",
+  "expected_review_required": true,
+  "expected_summary": "Evaluation-only Route Deviation label DISP-010: unresolved consent, human review",
+  "expected_outcome": null,
+  "expected_remedy": null,
+  "expected_status": "proposal",
+  "acceptable_review_triggers": [
+    "balanced_evidence"
+  ]
+}

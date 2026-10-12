@@ -33,7 +33,7 @@ def test_no_show_policy_is_the_shared_waypoint_clauses_for_pickup_fare_and_repor
 
 
 def test_a_category_with_no_policy_mapped_yet_returns_no_clauses():
-    assert policy_for(DisputeCategory.ROUTE_DEVIATION) == []
+    assert policy_for(DisputeCategory.PROPERTY_DAMAGE) == []
 
 
 def test_the_policy_invents_no_wait_time_or_fee():

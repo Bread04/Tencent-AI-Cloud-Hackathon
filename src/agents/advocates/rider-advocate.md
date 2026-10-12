@@ -206,7 +206,7 @@ These are conditional positions, not Rulings or fixed answers. Future mock cases
 
 #### Refund calculation and readiness
 
-The four shared clauses state no refund formula. The approved rule is now recorded in [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md) and [contract decisions](../../../docs/contract-decisions.md). Backend [route tools](../../tools/evidence/route.py) compute the fare inputs and [Judge numbers](../judge/numbers.py) recomputes the refund. The Python Rider workflow reads curated DISP-005–007 catalog projections and reuses that calculator. Rider prototypes prepare Submissions only; the original two-endpoint sample remains insufficient.
+The four shared clauses state no refund formula. The approved rule is now recorded in [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md) and [contract decisions](../../../docs/contract-decisions.md). Backend [route tools](../../tools/evidence/route.py) compute the fare inputs and [Judge numbers](../judge/numbers.py) recomputes the refund. The Python Rider workflow reads curated DISP-008–007 catalog projections and reuses that calculator. Rider prototypes prepare Submissions only; the original two-endpoint sample remains insufficient.
 
 - Keep the original requested amount distinct from any computed refund. A qualified Submission may describe supported facts and missing calculation prerequisites; it cannot pretend that money has been validated.
 - Once defined, reference the actual code rule and its source Evidence Items, including how it handles surge, promo, non-route fees, currency, caps and rounding as decided in the ADR. Do not substitute a model-chosen percentage, total-fare difference, or invented rate.

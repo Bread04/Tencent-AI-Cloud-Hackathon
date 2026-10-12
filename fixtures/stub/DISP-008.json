@@ -1,0 +1,205 @@
+{
+  "_simulated": "Public, case-specific scripted replies; no private evaluation labels.",
+  "rider_advocate": {
+    "author": "rider_advocate",
+    "claim_restated": "The trip went via Lavender MRT and stopped for three minutes. I did not ask for that detour. Please refund the full fare.",
+    "facts_relied_on": [
+      "EV-ROUTE-1",
+      "EV-FARE-1",
+      "EV-CHAT-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
+    "counter_arguments": [
+      {
+        "argument": "The Driver may have a justified route change or a Rider request.",
+        "response": "The Driver's own MSG-008-2 attributes the detour to a missed turn, and MSG-008-1 disputes consent. Ask only for the supported excess-fare remedy, not an automatic full refund."
+      }
+    ],
+    "policy_clause_ids": [
+      "R-04",
+      "D-04",
+      "R-03",
+      "D-03"
+    ],
+    "requested_outcome": "Review the original full-fare request against consent and ADR 0004; grant only any supported excess-fare refund."
+  },
+  "driver_advocate": {
+    "author": "driver_advocate",
+    "claim_restated": "The Driver acknowledges a missed turn and route-check stop, while opposing a refund of the legitimate baseline fare.",
+    "facts_relied_on": [
+      "EV-ROUTE-1",
+      "EV-FARE-1",
+      "EV-CHAT-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
+    "counter_arguments": [
+      {
+        "argument": "The Rider points to the excess distance, duration and charge.",
+        "response": "The excess is supported, and the Driver acknowledges the missed turn. A partial refund can preserve the legitimate optimal fare under ADR 0004."
+      }
+    ],
+    "policy_clause_ids": [
+      "R-04",
+      "D-04",
+      "R-03",
+      "D-03"
+    ],
+    "requested_outcome": "Limit any refund to supported excess net fare."
+  },
+  "judge": {
+    "outcome": "partially_uphold",
+    "balance_of_evidence": "claimant",
+    "remedy": "partial_refund",
+    "policy_fit": "clear",
+    "policy_fit_reason": "Route communication and fare review clauses apply; ADR 0004 supplies arithmetic without changing policy text.",
+    "cited_evidence_ids": [
+      "EV-ROUTE-1",
+      "EV-FARE-1",
+      "EV-CHAT-1"
+    ],
+    "cited_policy_clause_ids": [
+      "R-04",
+      "D-04",
+      "R-03",
+      "D-03"
+    ],
+    "reasoning_summary": "Vehicle GPS establishes excess route distance and a bounded three-minute stop candidate. MSG-008-2 admits a missed turn and route-check stop, matching the reported excess; MSG-008-1 disputes consent. The full fare requested is not justified: ADR 0004 limits the refund to the code-computed excess net fare.",
+    "amount_input_evidence_ids": [
+      "EV-ROUTE-1",
+      "EV-FARE-1"
+    ],
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "accepted",
+        "reason": "Vehicle GPS establishes excess route distance and a bounded three-minute stop candidate. MSG-008-2 admits a missed turn and route-check stop, matching the reported excess; MSG-008-1 disputes consent. The full fare requested is not justified: ADR 0004 limits the refund to the code-computed excess net fare.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "Vehicle GPS establishes excess route distance and a bounded three-minute stop candidate. MSG-008-2 admits a missed turn and route-check stop, matching the reported excess; MSG-008-1 disputes consent. The full fare requested is not justified: ADR 0004 limits the refund to the code-computed excess net fare.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "accepted",
+        "reason": "Vehicle GPS establishes excess route distance and a bounded three-minute stop candidate. MSG-008-2 admits a missed turn and route-check stop, matching the reported excess; MSG-008-1 disputes consent. The full fare requested is not justified: ADR 0004 limits the refund to the code-computed excess net fare.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "Vehicle GPS establishes excess route distance and a bounded three-minute stop candidate. MSG-008-2 admits a missed turn and route-check stop, matching the reported excess; MSG-008-1 disputes consent. The full fare requested is not justified: ADR 0004 limits the refund to the code-computed excess net fare.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      }
+    ]
+  },
+  "judge_self_check": {
+    "supported": true,
+    "problems": []
+  },
+  "judge_second_pass": {
+    "outcome": "partially_uphold",
+    "balance_of_evidence": "claimant",
+    "remedy": "partial_refund",
+    "policy_fit": "clear",
+    "policy_fit_reason": "Route communication and fare review clauses apply; ADR 0004 supplies arithmetic without changing policy text.",
+    "cited_evidence_ids": [
+      "EV-ROUTE-1",
+      "EV-FARE-1",
+      "EV-CHAT-1"
+    ],
+    "cited_policy_clause_ids": [
+      "R-04",
+      "D-04",
+      "R-03",
+      "D-03"
+    ],
+    "reasoning_summary": "Vehicle GPS establishes excess route distance and a bounded three-minute stop candidate. MSG-008-2 admits a missed turn and route-check stop, matching the reported excess; MSG-008-1 disputes consent. The full fare requested is not justified: ADR 0004 limits the refund to the code-computed excess net fare.",
+    "amount_input_evidence_ids": [
+      "EV-ROUTE-1",
+      "EV-FARE-1"
+    ],
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "accepted",
+        "reason": "Vehicle GPS establishes excess route distance and a bounded three-minute stop candidate. MSG-008-2 admits a missed turn and route-check stop, matching the reported excess; MSG-008-1 disputes consent. The full fare requested is not justified: ADR 0004 limits the refund to the code-computed excess net fare.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "Vehicle GPS establishes excess route distance and a bounded three-minute stop candidate. MSG-008-2 admits a missed turn and route-check stop, matching the reported excess; MSG-008-1 disputes consent. The full fare requested is not justified: ADR 0004 limits the refund to the code-computed excess net fare.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "accepted",
+        "reason": "Vehicle GPS establishes excess route distance and a bounded three-minute stop candidate. MSG-008-2 admits a missed turn and route-check stop, matching the reported excess; MSG-008-1 disputes consent. The full fare requested is not justified: ADR 0004 limits the refund to the code-computed excess net fare.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "Vehicle GPS establishes excess route distance and a bounded three-minute stop candidate. MSG-008-2 admits a missed turn and route-check stop, matching the reported excess; MSG-008-1 disputes consent. The full fare requested is not justified: ADR 0004 limits the refund to the code-computed excess net fare.",
+        "evidence_ids": [
+          "EV-ROUTE-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
+      }
+    ]
+  },
+  "rider_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#1",
+        "quote": "Why are we near Lavender MRT? I did not request this detour.",
+        "fact": "The rider wrote: Why are we near Lavender MRT? I did not request this detour."
+      }
+    ]
+  },
+  "driver_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#2",
+        "quote": "I missed the turn and stopped to check the route. Sorry about the extra distance.",
+        "fact": "The driver wrote: I missed the turn and stopped to check the route. Sorry about the extra distance."
+      }
+    ]
+  }
+}

@@ -135,7 +135,7 @@ These scenarios are conditional, not fixed Rulings. Keep separate expected-outco
 
 #### Refund calculation and readiness
 
-The shared clauses do not supply a refund formula. [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md) now records the approved code rule. [Route tools](../../tools/evidence/route.py) compute shared findings and [Judge numbers](../judge/numbers.py) independently recomputes the excess net-fare refund. DISP-005–007 contain case-specific original messages and public scripts; separate evaluation labels are never runtime input. The Driver Advocate must quote the exact request and its message ID for the matching detour, including counter-evidence and uncertainty.
+The shared clauses do not supply a refund formula. [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md) now records the approved code rule. [Route tools](../../tools/evidence/route.py) compute shared findings and [Judge numbers](../judge/numbers.py) independently recomputes the excess net-fare refund. DISP-008–007 contain case-specific original messages and public scripts; separate evaluation labels are never runtime input. The Driver Advocate must quote the exact request and its message ID for the matching detour, including counter-evidence and uncertainty.
 
 Preserve the original Rider request and any actual Driver request separately from the rule-computed amount. A qualified Submission may identify a missing rule/input or dispute the cited inputs; it must not invent a refund percentage or calculate money in prose. Once the rule exists, retain its reference and sealed route/fare input IDs, including surge/promo treatment, currency, caps and rounding as actually decided. Rule references are not Policy Clause IDs.
 

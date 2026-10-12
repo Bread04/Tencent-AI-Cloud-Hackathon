@@ -33,7 +33,7 @@ for(const id of ['DISP-003','DISP-004']){
 
 test('sample templates are independent copies and retain the original DISP-002 example',()=>{
  const samples=data.sampleReports();
- assert.deepEqual(samples.map(sample=>sample.id),['DISP-002','DISP-003','DISP-004','DISP-005','DISP-006','DISP-007']);
+ assert.deepEqual(samples.map(sample=>sample.id),['DISP-002','DISP-003','DISP-004','DISP-008','DISP-009','DISP-010']);
  samples[1].statement='Changed';samples[1].categoryDetails.contact='Changed';
  const again=data.sampleReports().find(sample=>sample.id==='DISP-003');
  assert.notEqual(again.statement,'Changed');assert.equal(again.categoryDetails.contact,'In-app message');

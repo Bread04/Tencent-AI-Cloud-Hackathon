@@ -42,6 +42,7 @@ from src.store import CaseStore
 from src.tools.evidence import gather_evidence
 
 SUPPORTED_CATEGORIES = frozenset({DisputeCategory.NO_SHOW_CHARGE, DisputeCategory.ROUTE_DEVIATION})
+ROUTED_CATEGORIES = SUPPORTED_CATEGORIES | {DisputeCategory.SAFETY_INCIDENT}
 
 
 def run_dispute(
@@ -59,7 +60,9 @@ def run_dispute(
         return store.get_case(case_id)
 
     if case.switches.sla_routing:  # a Priority and its reason for every Case; without the switch all Cases share one
-        priority = score(dispute, Decimal(catalog.trip(dispute.trip_id)["trip"]["cancellation_fee"]))
+        record = catalog.trip(dispute.trip_id)
+        charged = record["receipt"]["paid_net"] if dispute.category is DisputeCategory.ROUTE_DEVIATION else record["trip"]["cancellation_fee"]
+        priority = score(dispute, Decimal(charged))
         store.set_priority(case_id, priority.value, priority.reason)
 
     store.log_event(
@@ -110,7 +113,7 @@ def run_dispute(
 
     # History is applied only now, after the outcome is fixed (ADR 0001).
     ruling = apply_history(ruling, store.get_case(case_id))
-    ruling = apply_escalation(ruling, enabled=case.switches.escalation, threshold=CONFIG.escalation.confidence_threshold)
+    ruling = apply_escalation(ruling, enabled=case.switches.escalation, threshold=CONFIG.escalation.confidence_threshold, safety_incident=dispute.category is DisputeCategory.SAFETY_INCIDENT)
     if dispute.category is DisputeCategory.ROUTE_DEVIATION and ruling.status is RulingStatus.PROPOSAL:
         ruling = ruling.model_copy(update={"amount": None, "currency": None, "calculation": None})
     store.set_ruling(case_id, ruling)

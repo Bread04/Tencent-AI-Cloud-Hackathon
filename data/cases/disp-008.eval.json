@@ -1,0 +1,10 @@
+{
+  "dispute_id": "DISP-008",
+  "scenario_classification": "rider_wins",
+  "expected_review_required": false,
+  "expected_summary": "Evaluation-only Route Deviation label DISP-008: supported excess fare, partial remedy",
+  "expected_outcome": "partially_uphold",
+  "expected_remedy": "partial_refund",
+  "expected_status": "final",
+  "expected_amount": "5.39"
+}

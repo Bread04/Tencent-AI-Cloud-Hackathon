@@ -11,7 +11,7 @@ From the repository root, run `uv run uvicorn src.api.demo:app`, then open `http
 
 ## Optional support and evidence flow
 
-1. Select Michael Wong's DISP-002 trip, or choose **Demo rider R-7824** for DISP-003 and **Demo rider R-7825** for DISP-004 in the Rider profile selector. Michael also has DISP-005, DISP-006 and DISP-007 plus the original sparse route example.
+1. Select Michael Wong's DISP-002 trip, or choose **Demo rider R-7824** for DISP-003 and **Demo rider R-7825** for DISP-004 in the Rider profile selector. Michael also has DISP-008, DISP-009 and DISP-010 plus the original sparse route example.
 2. Inspect Overview, Receipt, and Messages.
 3. Open Rider evidence and choose **Collect rider evidence**. Expand items or the Communication log, or download the evidence JSON.
 4. Choose **Report an issue** in Overview. The report form opens with the selected rider and trip. Choose **Load DISP-003 report example** or **Load DISP-004 report example** to populate that trip's report, or write your own statement. Add optional files/photos, review, and create a demo report. From the standalone report page, use **Choose an example** and **Load sample report** for any of the six reports.

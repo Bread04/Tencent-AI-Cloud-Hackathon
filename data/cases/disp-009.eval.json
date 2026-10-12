@@ -1,0 +1,9 @@
+{
+  "dispute_id": "DISP-009",
+  "scenario_classification": "driver_wins",
+  "expected_review_required": false,
+  "expected_summary": "Evaluation-only Route Deviation label DISP-009: specific agreed detour, no remedy",
+  "expected_outcome": "reject",
+  "expected_remedy": "no_action",
+  "expected_status": "final"
+}

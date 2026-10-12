@@ -20,10 +20,12 @@ from src.store import CaseStore
 OUT = Path(__file__).resolve().parents[1] / "src" / "api" / "static" / "recorded"
 
 
-def main() -> None:
+def main(dispute_ids: list[str] | None = None) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     catalog = load_catalog()
     for dispute_id, dispute in catalog.disputes.items():
+        if dispute_ids and dispute_id not in dispute_ids:
+            continue
         for flags in itertools.product([False, True], repeat=len(DEMO_SWITCHES)):  # every combination of the demo switches
             variants = tuple(s.name for s, on in zip(DEMO_SWITCHES, flags) if on)
             store = CaseStore()
@@ -42,4 +44,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--dispute", action="append", help="Record only this prepared dispute (repeatable).")
+    main(parser.parse_args().dispute)
