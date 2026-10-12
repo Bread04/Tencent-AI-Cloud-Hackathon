@@ -7,11 +7,13 @@ supporting agents and their switches, the review queue and reviewer (ticket 09).
 """
 
 from collections.abc import Sequence
+from datetime import datetime
 from decimal import Decimal
 from concurrent.futures import ThreadPoolExecutor
 
 from src.agents.advocates import build_submission
 from src.agents.escalation import apply_escalation
+from src.agents.image_analysis import analyse_photos
 from src.agents.evidence_agents import gather_evidence_safely, run_evidence_agent
 from src.agents.judge import judge
 from src.agents.judge.history import apply_history
@@ -25,6 +27,7 @@ from src.contracts import (
     Case,
     Dispute,
     DisputeCategory,
+    EvidenceStatus,
     LogEventKind,
     Party,
     Precedent,
@@ -78,6 +81,15 @@ def run_dispute(
             store.add_evidence(case_id, run_evidence_agent(party, store.get_case(case_id), model), agent=f"{party.value}_evidence")
     else:
         store.add_evidence(case_id, gather_evidence(dispute.trip_id, catalog), agent="evidence")
+    if case.switches.image_analysis and dispute.photos:  # findings join the evidence before it is sealed; with the switch off photos are only stored
+        trip = catalog.trip(dispute.trip_id)["trip"]
+        window = (datetime.fromisoformat(trip["scheduled_time"]), datetime.fromisoformat(trip["cancellation_time"]))
+        findings = analyse_photos(store.get_case(case_id), window, model)
+        store.add_evidence(case_id, findings, agent="image_analysis")
+        for number, photo in enumerate(dispute.photos, start=1):
+            mine = [i for i in findings if i.evidence_id.startswith(f"EV-PHOTO-{number}")]
+            outcome = "unanalysed" if any(i.status is EvidenceStatus.MISSING for i in mine) else "analysed"
+            store.log_event(case_id, "image_analysis", LogEventKind.PHOTO_ANALYSED, f"Photo {photo} {outcome}: {len(mine)} finding(s).", references=[i.evidence_id for i in mine])
     store.seal_evidence(case_id)
     store.add_policy_clauses(case_id, policy_for(dispute.category), agent="policy")
     if case.switches.policy_precedent:  # the same Precedents go to both advocates and the Judge; advisory only

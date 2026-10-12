@@ -144,5 +144,11 @@
         "fact": "In the driver statement: I arrived at 10:00 and sent a message. The rider said they were coming, but I had not seen them by 10:04, so I cancelled."
       }
     ]
+  },
+  "image_analysis": {
+    "description": "A dark stain on a rear seat of a car.",
+    "ai_generation_signal": "none",
+    "confidence": 0.8,
+    "uncertainty": "Low light; the stain could be a shadow or damp fabric, and the photo does not show whose seat it is."
   }
 }

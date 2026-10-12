@@ -41,6 +41,7 @@ def complete_with_repair(
     schema: type[T],
     check: Callable[[T], list[str]],
     attempts: int,
+    images: list[str] | None = None,
 ) -> T:
     """Ask for a `schema` reply and return the first one `check` accepts (no problems).
 
@@ -51,7 +52,7 @@ def complete_with_repair(
     problems: list[str] = []
     for _ in range(attempts + 1):
         try:
-            reply = model.complete(sent, case_id=case_id, agent=agent, schema=schema)
+            reply = model.complete(sent, case_id=case_id, agent=agent, schema=schema, images=images)
         except ValidationError as error:
             problems = [f"The reply did not match the required format: {error}"]
         else:

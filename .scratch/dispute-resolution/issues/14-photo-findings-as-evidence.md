@@ -4,15 +4,17 @@
 
 **Blocked by:** 08
 
-**Status:** ready-for-agent
+**Status:** done (Braedon, 13 Oct 2026)
 
 **Tier:** 3 · **Owner:** Kyven
 
-- [ ] A photo produces Evidence Items for its description, timestamp alignment and AI-generation signal
-- [ ] Every finding carries a stated uncertainty
-- [ ] Timestamp alignment is computed by code from metadata and is "unknown" when metadata is missing
-- [ ] Mock photos exist: one genuine and in the Trip window, one from a different date, one that should fail the AI-generation check
-- [ ] With the image model unavailable, the photo is recorded as unanalysed and the run continues
-- [ ] Photo findings appear in the Communication Log
-- [ ] Tests run on a scripted image stub with no network access
-- [ ] With the switch off, photos are stored but not analysed
+- [x] A photo produces Evidence Items for its description, timestamp alignment and AI-generation signal
+- [x] Every finding carries a stated uncertainty
+- [x] Timestamp alignment is computed by code from metadata and is "unknown" when metadata is missing
+- [x] Mock photos exist: one genuine and in the Trip window, one from a different date, one that should fail the AI-generation check
+- [x] With the image model unavailable, the photo is recorded as unanalysed and the run continues
+- [x] Photo findings appear in the Communication Log
+- [x] Tests run on a scripted image stub with no network access
+- [x] With the switch off, photos are stored but not analysed
+
+**Built:** `src/tools/photos.py` (capture time from a sidecar `<photo>.json`, the mock stand-in for EXIF; alignment is `aligned`, `outside_window` or `unknown`, with 30 minutes' slack), `src/agents/image_analysis.py` (per photo: `EV-PHOTO-n-DESC`, `-TIME`, `-AI`, each with `derived.uncertainty`; a failed model leaves one `missing` `EV-PHOTO-n` saying unanalysed), orchestrator step behind `switches.image_analysis` before sealing, one `photo_analysed` log row per photo. Mock photos in `data/photos/` are plain placeholder images; what they "show" and whether they look generated is scripted, not real vision. Not done: a console switch and recordings (no prepared Dispute has photos yet; ticket 15 brings the first), and the Judge does not yet lower Confidence on a failed check (ticket 15).
