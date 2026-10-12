@@ -25,6 +25,7 @@ SIMULATED_LABEL = "Draft policy: Waypoint prototype guidance for the demo, not R
 
 # Which source clauses serve each Dispute Category. Both parties' clauses are served to every agent.
 CATEGORY_CLAUSES: dict[DisputeCategory, tuple[str, ...]] = {
+    DisputeCategory.ROUTE_DEVIATION: ("R-04", "D-04", "R-03", "D-03"),
     DisputeCategory.NO_SHOW_CHARGE: ("R-01", "R-02", "R-03", "R-06", "D-02", "D-03", "D-06", "D-09"),
 }
 
@@ -32,6 +33,11 @@ CATEGORY_CLAUSES: dict[DisputeCategory, tuple[str, ...]] = {
 # enforced here and by the Judge. An outcome missing from a category's table is not allowed: No-Show has no
 # `partially_uphold` because no Policy Clause provides for a partial outcome, so it is all or nothing.
 ALLOWED_REMEDIES: dict[DisputeCategory, dict[RulingOutcome, Remedy]] = {
+    DisputeCategory.ROUTE_DEVIATION: {
+        RulingOutcome.UPHOLD: Remedy.FULL_REFUND,
+        RulingOutcome.PARTIALLY_UPHOLD: Remedy.PARTIAL_REFUND,
+        RulingOutcome.REJECT: Remedy.NO_ACTION,
+    },
     DisputeCategory.NO_SHOW_CHARGE: {
         RulingOutcome.UPHOLD: Remedy.FEE_REVERSAL,
         RulingOutcome.REJECT: Remedy.NO_ACTION,

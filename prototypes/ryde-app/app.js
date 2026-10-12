@@ -6,6 +6,7 @@
   const node = (tag, className, text) => { const n = document.createElement(tag); if (className) n.className = className; if (text !== undefined) n.textContent = text; return n; };
   const query = new URLSearchParams(location.search);
   let riderId = query.get('rider') || data.riders()[0].id, tripId, tab = ['evidence','case'].includes(query.get('tab')) ? query.get('tab') : 'overview', bundle = null;
+  let evidenceGeneration=0, evidenceChat=null;
   try { data.rider(riderId); } catch { riderId = data.riders()[0].id; }
   tripId = query.get('trip') || data.trips(riderId)[0].id;
   try { data.trip(riderId, tripId); } catch { tripId = data.trips(riderId)[0].id; showError('The requested trip is not available to this rider. Showing their own trip instead.'); }
@@ -20,7 +21,8 @@
     document.querySelectorAll('[data-tab]').forEach(b => { const selected = b.dataset.tab === next; b.setAttribute('aria-pressed', String(selected)); el(b.dataset.tab).hidden = !selected; });
     updateLocation();
   }
-  function invalidate() { bundle = null; el('evidenceResults').hidden = true; el('riderCaseMount').replaceChildren(); el('collectionNotice').textContent = 'No evidence collected yet. Run the agent to inspect the records.'; }
+  function invalidateEvidence() { evidenceGeneration++;evidenceChat?.dispose();evidenceChat=null;bundle = null;el('collectEvidence').disabled=false;el('downloadEvidence').disabled=true;el('evidenceResults').hidden = true;el('collectionNotice').textContent = 'No evidence collected yet. Run the agent to inspect the records.'; }
+  function invalidate() { invalidateEvidence();RiderCasePanel.dispose(el('riderCaseMount')); }
   function render() {
     const rider = data.rider(riderId), trips = data.trips(riderId), trip = data.trip(riderId, tripId);
     el('greeting').textContent = rider.name.split(' ')[0]; el('avatar').textContent = rider.initials;
@@ -60,10 +62,14 @@
   data.riders().forEach(r => el('riderSelect').append(new Option(`${r.name} · ${r.id}`, r.id)));
   el('riderSelect').onchange = () => { riderId = el('riderSelect').value; tripId = data.trips(riderId)[0].id; el('appError').hidden = true; invalidate(); render(); };
   document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => switchTab(b.dataset.tab));
-  el('collectEvidence').onclick = () => {
+  el('collectEvidence').onclick = async () => {
+    invalidateEvidence();const version=evidenceGeneration,selectedRider=riderId,selectedTrip=tripId;
+    el('collectEvidence').disabled=true;el('collectionNotice').textContent='Collecting Rider evidence from the local Python service…';
     try {
       const report = RiderReportStore.read(riderId, tripId);
-      bundle = RiderEvidenceAgent.collect({ riderId, tripId, report });
+      const result=await RiderApi.collectEvidence({riderId:selectedRider,tripId:selectedTrip,report});
+      if(version!==evidenceGeneration)return;
+      bundle=result;
       const available = bundle.items.filter(i => i.status === 'available').length;
       el('collectionNotice').textContent = `Collection complete for ${data.rider(riderId).name} · ${tripId}. No live Ryde data accessed.`;
       el('evidenceSummary').textContent = `${available} available · ${bundle.items.length - available} missing`;
@@ -74,16 +80,23 @@
         const body = node('div','evidence-body'); body.append(node('p','',`${item.id} · ${item.timestamp || 'Timestamp unavailable'} · rider side`),node('pre','',JSON.stringify(item.content,null,2)));
         details.append(summary,body); el('evidenceList').append(details);
       });
-      el('communicationLog').replaceChildren(); bundle.log.forEach(event => { const li = node('li'); li.append(node('code','',event.kind),node('span','',event.summary)); el('communicationLog').append(li); });
+      evidenceChat=AgentChat.mount(el('communicationLog'),bundle.transcript_handle,{context:bundle.context,caseLabel:tripId,
+        onRecover:()=>el('collectEvidence').onclick(),onAccessChange:unlocked=>{el('downloadEvidence').disabled=!unlocked;}});
       el('evidenceResults').hidden = false;
-    } catch (error) { invalidate(); showError(error.message); el('clearReport').hidden = false; }
+    } catch (error) { if(version===evidenceGeneration){invalidateEvidence();showError(error.message);el('clearReport').hidden = false;} }
+    finally {if(version===evidenceGeneration)el('collectEvidence').disabled=false;}
   };
-  el('downloadEvidence').onclick = () => {
+  el('downloadEvidence').onclick = async () => {
     if (!bundle || bundle.rider_id !== riderId || bundle.trip_id !== tripId) return;
-    const url = URL.createObjectURL(new Blob([JSON.stringify(bundle,null,2)], {type:'application/json'}));
+    const version=evidenceGeneration;
+    try{
+    const log=await evidenceChat.readForExport();if(version!==evidenceGeneration)return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify({...bundle,log},null,2)], {type:'application/json'}));
     const a = node('a'); a.href = url; a.download = `${tripId}-rider-evidence.json`; document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }catch(error){if(version===evidenceGeneration)showError(error.message);}
   };
   el('clearReport').onclick = () => { if (!confirm('Clear the saved demo report and Rider case for this trip from this browser session?')) return; try { RiderCaseStore.remove(riderId,tripId); RiderReportStore.remove(riderId,tripId); el('appError').hidden=true; invalidate(); render(); } catch(error){showError(error.message);} };
   window.addEventListener('pageshow', event => { if(event.persisted){ invalidate(); render(); } });
+  window.addEventListener('pagehide',invalidate);
   render();
 })();

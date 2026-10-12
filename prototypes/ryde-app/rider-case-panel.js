@@ -2,12 +2,15 @@
   'use strict';
   const node = (tag, cls, text) => { const element=document.createElement(tag); if(cls) element.className=cls; if(text!==undefined) element.textContent=text; return element; };
   const button = (text, action) => { const element=node('button','secondary-button',text); element.type='button'; element.onclick=action; return element; };
+  const states = new WeakMap();
+  function dispose(mount) { const previous=states.get(mount); if(previous){previous.active=false;previous.chat?.dispose();} mount.replaceChildren(); }
+  function begin(mount) { dispose(mount); const state={active:true}; states.set(mount,state); return state; }
   function download(result) {
     const url=URL.createObjectURL(new Blob([JSON.stringify(result,null,2)],{type:'application/json'}));
     const link=node('a'); link.href=url; link.download=`${result.context.report_id}-rider-case.json`; document.body.append(link); link.click(); link.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);
   }
-  function show(mount, result, {saved=false, saveError='', returnUrl=''}={}) {
-    mount.replaceChildren();
+  function show(mount, result, {saved=false, saveError='', chatError='', returnUrl='', saveReport=false, recovery}={}) {
+    const state=begin(mount);
     const panel=node('section','rider-case'); panel.setAttribute('aria-label','Your Rider case');
     const head=node('div','case-header');
     const title=node('div'); title.append(node('p','case-eyebrow','Rider case studio / Local prototype'),node('h3','',result.status==='draft'?'Your side, clearly presented.':'This report needs support review.'));
@@ -19,7 +22,7 @@
         const stage=node('li'); stage.append(node('span','case-stage-number',number),node('strong','',name),node('span','',detail)); stages.append(stage);
       }
       panel.append(stages);
-      if(result.review_required) panel.append(node('p','case-warning','Possible safety concern: human review is needed. This demo has not contacted support or emergency services.'));
+      if(result.review_required) panel.append(node('p','case-warning',result.review_reasons?.join(' ') || 'Possible safety concern: human review is needed. This demo has not contacted support or emergency services.'));
       panel.append(node('p','case-reference',`${result.context.trip_id} · ${result.context.report_id}`));
       const statement=node('details','case-details'); statement.append(node('summary','','Your original report'),node('p','case-quote',result.submission.rider_statement)); panel.append(statement);
       const request=result.submission.requested_outcome;
@@ -41,24 +44,68 @@
       const records=node('details','case-details'); records.append(node('summary','',`Source records · ${result.evidence.items.length}`));
       result.evidence.items.forEach(item=>{const source=node('details','case-source');source.append(node('summary','',`${item.source.replace('rider_app.','')} · ${item.status}`),node('p','case-citations',item.id),node('pre','',JSON.stringify(item.content,null,2)));records.append(source);});panel.append(records);
     }
-    const communication=node('details','case-details case-communication'); communication.open=true;
-    communication.append(node('summary','','How the agents worked together'));
-    const log=node('ol','case-log'); result.communication_log.forEach(entry=>{const item=node('li');item.append(node('strong','',entry.agent),node('span','',entry.summary),node('small','',entry.kind));if(entry.references?.length)item.append(node('small','case-citations',entry.references.join(' · ')));log.append(item);});communication.append(log);panel.append(communication);
+    const communication=node('section'); panel.append(communication);
     const foot=node('p','case-foot'); foot.textContent=saveError?`Prepared in this page, but session save failed: ${saveError} Download the case to keep a copy.`:saved?'Saved with this report in this browser tab’s session. Media bytes are not included.':'Prepared in page memory. Download to keep a copy; closing this page clears this copy.';foot.setAttribute('role','status');panel.append(foot);
     panel.append(node('p','case-foot','Predefined rules, simulated records and draft policies. No live AI, Driver Submission, Judge Ruling, or refund processing.'));
-    const actions=node('div','case-actions');actions.append(button('Download Rider case JSON',()=>download(result)));
-    if(returnUrl){const link=node('a','case-link','View in the Rider app →');link.href=returnUrl;actions.append(link);} panel.append(actions); mount.append(panel);
+    const actions=node('div','case-actions');
+    const exportError=node('p','case-foot');exportError.setAttribute('role','alert');
+    const exportCase=button('Download Rider case JSON',async()=>{
+      exportCase.disabled=true;exportError.textContent='';
+      try {const log=await state.chat.readForExport();if(state.active)download({...result,communication_log:log});}
+      catch(error){if(state.active)exportError.textContent=error.message;}
+      finally {if(state.active)exportCase.disabled=!state.unlocked;}
+    });
+    actions.append(exportCase);
+    if(returnUrl&&saved){const link=node('a','case-link','View in the Rider app →');link.href=returnUrl;actions.append(link);} panel.append(actions,exportError); mount.append(panel);
+    state.chat=root.AgentChat.mount(communication,result.transcript_handle,{context:result.context,caseLabel:`${result.context.trip_id} · ${result.context.report_id}`,
+      onRecover:recovery || (()=>prepare(mount,{riderId:result.context.rider_id,tripId:result.context.trip_id,report:result.original_report,returnUrl,saveReport})),
+      onAccessChange:unlocked=>{state.unlocked=unlocked;if(unlocked)exportError.textContent='';exportCase.disabled=!unlocked;exportCase.title=unlocked?'':'Unlock the Communication Log to download the case, which includes recorded activity.';}});
+    if(chatError)state.chat.clear(chatError);
   }
-  function load(mount, {riderId,tripId,report}) {
-    mount.replaceChildren();
-    if(!report){mount.append(node('p','notice','Create a Rider report for this trip to prepare your case. You can start from “Report an issue” in Overview.'));return;}
-    function prepare(){
-      try {const result=RiderCasePipeline.run({riderId,report});let saved=false,saveError='';try{RiderCaseStore.save(riderId,tripId,report,result);saved=true;}catch(error){saveError=error.message;}show(mount,result,{saved,saveError});}
-      catch(error){mount.replaceChildren(node('p','notice error',`Rider case unavailable: ${error.message}`));}
+  async function prepare(mount,{riderId,tripId,report,returnUrl='',saveReport=false}) {
+    const state=begin(mount);mount.append(node('p','notice','Preparing your Rider case and storing its Communication Log with the local backend…'));
+    let saved=false,saveError='',chatError='';
+    try {
+      if(saveReport){try{root.RiderReportStore.save(riderId,tripId,report);}catch(error){saveError=error.message;}}
+      const result=await root.RiderApi.prepareCase({riderId,report});
+      if(!state.active)return;
+      try{await root.AgentChat.prepare(result);}catch(error){chatError=error.message;}
+      if(!state.active)return;
+      try{root.RiderCaseStore.save(riderId,tripId,report,result);saved=!saveError;}catch(error){saveError=error.message;}
+      show(mount,result,{saved,saveError,chatError,returnUrl,saveReport});
+    }catch(error){if(state.active)mount.replaceChildren(node('p','notice error',`Rider case unavailable: ${error.message} Your original report is preserved.${saveError?` Report session save failed: ${saveError}. Use the report JSON download.`:saveReport?' Check the saved report or use the report JSON download.':''}`),button('Retry Rider case',()=>prepare(mount,{riderId,tripId,report,returnUrl,saveReport})));}
+  }
+  async function migrate(mount, {riderId,tripId,report}, original, expected=original) {
+    const state=begin(mount), result=JSON.parse(JSON.stringify(original));
+    mount.append(node('p','notice','Moving this older case’s recorded Communication Log to the local backend…'));
+    let saveError='',chatError='',registered=!!result.transcript_handle && !result.communication_log?.length && !result.evidence?.log?.length;
+    if(!registered)try { await root.AgentChat.prepare(result); registered=true; } catch(error) {chatError=error.message;}
+    if(registered) {
+      // A completed migration may persist after navigation, but never replace a different report/case.
+      try {
+        const current=root.RiderCaseStore.read(riderId,tripId,report);
+        if(JSON.stringify(current)===JSON.stringify(expected))root.RiderCaseStore.save(riderId,tripId,report,result);
+        else if(state.active)saveError='The saved case changed while its Communication Log was being registered. Reopen the current report.';
+      }catch(error){saveError=error.message;}
     }
-    try {const result=RiderCaseStore.read(riderId,tripId,report);if(result){show(mount,result,{saved:true});return;}}
-    catch(error){mount.append(node('p','notice',`The previous case cannot be used: ${error.message}`));}
-    mount.append(node('p','notice','A Rider report is saved for this trip. Prepare a local case using its evidence and policies.'),button('Prepare Rider case',prepare));
+    if(state.active)show(mount,result,{saved:registered&&!saveError,saveError,chatError,
+      recovery:()=>migrate(mount,{riderId,tripId,report},registered?result:original,expected)});
   }
-  root.RiderCasePanel=Object.freeze({show,load});
+  async function load(mount, {riderId,tripId,report}) {
+    const state=begin(mount);
+    if(!report){mount.append(node('p','notice','Create a Rider report for this trip to prepare your case. You can start from “Report an issue” in Overview.'));return;}
+    try {
+      const result=root.RiderCaseStore.read(riderId,tripId,report);
+      if(result){
+        // Migrate recorded activity once; never rerun agents while opening an older case.
+        if(result.communication_log?.length || result.evidence?.log?.length){
+          await migrate(mount,{riderId,tripId,report},result);return;
+        }
+        if(state.active)show(mount,result,{saved:true});return;
+      }
+    }
+    catch(error){mount.append(node('p','notice',`The previous case cannot be used: ${error.message}`));}
+    mount.append(node('p','notice','A Rider report is saved for this trip. Prepare a local case using its evidence and policies.'),button('Prepare Rider case',()=>prepare(mount,{riderId,tripId,report})));
+  }
+  root.RiderCasePanel=Object.freeze({show,load,prepare,dispose});
 })(window);

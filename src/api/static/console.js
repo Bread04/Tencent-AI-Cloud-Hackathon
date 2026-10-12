@@ -60,6 +60,7 @@
     $("pickup").textContent = d.pickup;
     $("destination").textContent = d.destination;
     $("fare").textContent = d.fare;
+    $("fareLabel").textContent = d.category === 'route_deviation' ? 'Paid fare in dispute' : 'Fee in dispute';
     $("disputeNote").textContent = `Dispute: ${d.description}`;
     $("log").replaceChildren();
     setProgress(-1);
@@ -188,13 +189,15 @@
         el("span", { class: `chip ${ruling.status}` }, ruling.status === "proposal" ? "Proposal, held for review" : "Final"),
         el("span", { class: "chip" }, `Remedy: ${words(ruling.remedy)}`)),
       ruling.amount != null ? el("p", {}, el("span", { class: "big-number" }, `${ruling.currency} ${ruling.amount}`)) : null,
-      gauge(ruling.confidence.value),
+      gauge(ruling.confidence.value, ruling.status === 'proposal' || ruling.review_triggers.length > 0),
       el("p", {}, ruling.reasoning_summary),
       seeRuling].filter(Boolean)); // replaceChildren would print a null as the text "null"
   }
 
   function headline(kase) {
     const claimant = cap(kase.dispute.filed_by);
+    if (kase.ruling.status === 'proposal') return 'Decision pending human review';
+    if (kase.ruling.outcome === 'partially_uphold') return `${claimant}'s claim partially upheld`;
     return kase.ruling.outcome === "reject" ? `${claimant}'s claim rejected` : `${claimant}'s claim upheld`;
   }
 
@@ -233,7 +236,7 @@
     const weakest = Math.min(...entries.map(([, v]) => v));
     const block = el("div", { class: "detail-section" },
       el("h3", {}, "Confidence"),
-      gauge(value),
+      gauge(value, ruling.status === 'proposal' || ruling.review_triggers.length > 0),
       el("p", { class: "who" }, "Confidence is the lowest of its parts."),
       el("ul", { class: "bars" }, ...entries.map(([name, v]) =>
         el("li", { class: `bar${v === weakest ? " weakest" : ""}` },
@@ -303,7 +306,7 @@
     body.append(el("dl", {},
       el("dt", {}, "Source"), el("dd", {}, item.source),
       el("dt", {}, "Side"), el("dd", {}, item.side),
-      ...derived.flatMap(([k, v]) => [el("dt", {}, words(k)), el("dd", {}, String(v))])));
+      ...derived.flatMap(([k, v]) => [el("dt", {}, words(k)), el("dd", {}, typeof v === 'object' ? JSON.stringify(v, null, 2) : String(v))])));
     const hasContent = item.content != null && !(typeof item.content === "object" && !Object.keys(item.content).length);
     if (hasContent) body.append(el("pre", {}, typeof item.content === "string" ? item.content : JSON.stringify(item.content, null, 2)));
     return el("details", { class: "evidence-item", id: `item-${item.evidence_id}` },
@@ -473,10 +476,11 @@
   };
   let gradientCount = 0;
 
-  function gauge(value) {
+  function gauge(value, heldForReview = false) {
     const R = 45, CX = 50, CY = 50.5, half = Math.PI * R;
     const strength = value >= 0.8 ? "strong" : value >= 0.4 ? "moderate" : "weak";
     const below = value < THRESHOLD;
+    const reviewText = heldForReview ? 'A review trigger requires a person to review this proposal, regardless of the confidence line.' : below ? `Below the ${THRESHOLD} line: a person reviews this.` : `At or above the ${THRESHOLD} line: no review needed.`;
     const gradientId = `gauge-gradient-${++gradientCount}`;
     const arc = `M${CX - R} ${CY} A${R} ${R} 0 0 1 ${CX + R} ${CY}`;
     const target = half * (1 - Math.min(value, 1));
@@ -493,7 +497,7 @@
       x1: CX - (R - 9) * Math.cos(angle), y1: CY - (R - 9) * Math.sin(angle),
       x2: CX - (R + 7) * Math.cos(angle), y2: CY - (R + 7) * Math.sin(angle), class: "gauge-tick" });
     const dial = svg("svg", { viewBox: "0 0 100 52", class: "gauge-dial", role: "img",
-      "aria-label": `Confidence ${value.toFixed(2)} out of 1, ${strength}. ${below ? "Below" : "At or above"} the ${THRESHOLD} line where a person reviews.` },
+      "aria-label": `Confidence ${value.toFixed(2)} out of 1, ${strength}. ${reviewText}` },
       svg("defs", {}, svg("linearGradient", { id: gradientId, x1: 0, y1: 0, x2: 1, y2: 0 },
         ...STRENGTH_COLORS[strength].map((color, i, all) => svg("stop", { offset: `${(100 / (all.length - 1)) * i}%`, "stop-color": color })))),
       svg("path", { d: arc, class: "gauge-track" }), fill, tick);
@@ -509,7 +513,7 @@
       el("div", { class: "gauge-body" }, dial,
         el("div", { class: "gauge-display" }, el("div", { class: "gauge-digits" }, ...digits), el("div", { class: "gauge-label" }, "out of 1"))),
       el("p", { class: `gauge-note${below ? " low" : ""}` },
-        below ? `Below the ${THRESHOLD} line: a person reviews this.` : `At or above the ${THRESHOLD} line: no review needed.`));
+        reviewText));
   }
 
   // --- Hover card: preview a cited item without leaving the tab -----------------------------------------

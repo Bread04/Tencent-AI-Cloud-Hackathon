@@ -36,7 +36,8 @@ def test_the_home_page_lists_the_prepared_disputes_and_says_they_are_simulated(c
 
 
 def test_running_a_prepared_dispute_shows_the_ruling_and_the_log_in_order(client, store):
-    page = client.post(f"/disputes/{DISPUTE_ID}/run", follow_redirects=True)
+    client.post(f"/disputes/{DISPUTE_ID}/run")
+    page = client.post("/cases/CASE-0001/chat/unlock", data={"code": "482731"}, follow_redirects=True)
 
     case = store.get_case("CASE-0001")
     assert page.status_code == 200
@@ -118,7 +119,8 @@ def test_fee_reversal_proposal_page_and_log_require_review_without_displaying_a_
     model = ReplayModel(store, {"DISP-003": replies})
     client = TestClient(create_app(store=store, model=model, catalog=load_catalog()))
 
-    page = client.post("/disputes/DISP-003/run", follow_redirects=True)
+    client.post("/disputes/DISP-003/run")
+    page = client.post("/cases/CASE-0001/chat/unlock", data={"code": "482731"}, follow_redirects=True)
 
     assert page.status_code == 200
     case = store.get_case("CASE-0001")

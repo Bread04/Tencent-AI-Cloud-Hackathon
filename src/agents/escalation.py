@@ -18,6 +18,9 @@ from src.contracts import (
     CaseStatus,
     Contract,
     Dispute,
+    DisputeCategory,
+    EvidenceStatus,
+    Remedy,
     EvidenceItem,
     LogEvent,
     LogEventKind,
@@ -130,7 +133,10 @@ def decide_review(store: CaseStore, case_id: str, *, reviewer: str, decision: Re
     if decision is ReviewDecision.OVERRIDE and not (reason or "").strip():
         raise ReviewInvalid("An override needs a reason.")
 
-    final = _confirmed(case.ruling) if decision is ReviewDecision.CONFIRM else _overridden(case, reviewer.strip(), reason.strip())
+    final = (_route_decision(case, decision, reviewer.strip(), (reason or "").strip())
+             if case.dispute.category is DisputeCategory.ROUTE_DEVIATION
+             else _confirmed(case.ruling) if decision is ReviewDecision.CONFIRM
+             else _overridden(case, reviewer.strip(), reason.strip()))
     record = ReviewRecord(reviewer=reviewer.strip(), decision=decision, reason=(reason or "").strip() or None, decided_at=datetime.now(timezone.utc))
     store.finish_review(case_id, record, final, outcomes_for(final, case))  # one write: the Case is never ruled with nobody told
     return store.get_case(case_id)
@@ -159,3 +165,43 @@ def _overridden(case: Case, reviewer: str, reason: str) -> Ruling:
             "reasoning_summary": f"Overridden by {reviewer}: {reason} The proposal was to {proposed.outcome.value}: {proposed.reasoning_summary}",
         }
     )
+
+
+def _route_decision(case: Case, decision: ReviewDecision, reviewer: str, reason: str) -> Ruling:
+    """Keep Route Deviation's three outcomes and recompute any approved refund."""
+    proposed = case.ruling
+    outcome, remedy = proposed.outcome, proposed.remedy
+    amount = calculation = None
+    if decision is ReviewDecision.OVERRIDE:
+        if outcome in (RulingOutcome.UPHOLD, RulingOutcome.PARTIALLY_UPHOLD):
+            outcome, remedy = RulingOutcome.REJECT, Remedy.NO_ACTION
+        else:
+            remedy = Remedy.PARTIAL_REFUND  # refined below from the code-computed amount
+    if remedy in (Remedy.FULL_REFUND, Remedy.PARTIAL_REFUND):
+        by_source = {item.source: item for item in case.evidence}
+        inputs = [by_source.get("route"), by_source.get("fare")]
+        if any(item is None or item.status is not EvidenceStatus.AVAILABLE or not item.derived.get("available") for item in inputs):
+            raise ReviewInvalid("A route refund requires available route and fare evidence; the case remains pending.")
+        try:
+            amount, calculation = amount_for(case, remedy, [item.evidence_id for item in inputs])
+            from src.tools.evidence.route import analyze_fare
+            from decimal import Decimal
+            paid = Decimal(analyze_fare(inputs[1].content, inputs[0].derived)["paid_net"])
+        except (ValueError, KeyError, StopIteration, ArithmeticError) as error:
+            raise ReviewInvalid("Route refund inputs cannot be reconciled; the case remains pending.") from error
+        if amount is None or amount <= 0:
+            raise ReviewInvalid("The code-computed route refund must be positive; the case remains pending.")
+        expected_remedy = Remedy.FULL_REFUND if amount == paid else Remedy.PARTIAL_REFUND
+        expected_outcome = RulingOutcome.UPHOLD if amount == paid else RulingOutcome.PARTIALLY_UPHOLD
+        if decision is ReviewDecision.CONFIRM and (remedy is not expected_remedy or outcome is not expected_outcome):
+            raise ReviewInvalid("The proposed remedy does not match the code-computed refund.")
+        outcome, remedy = expected_outcome, expected_remedy
+    return proposed.model_copy(update={
+        "status": RulingStatus.FINAL, "outcome": outcome, "remedy": remedy,
+        "amount": amount, "currency": CONFIG.currency if amount is not None else None,
+        "calculation": calculation,
+        "balance_of_evidence": (BalanceOfEvidence.CLAIMANT if outcome in (RulingOutcome.UPHOLD, RulingOutcome.PARTIALLY_UPHOLD)
+                                else proposed.balance_of_evidence if decision is ReviewDecision.CONFIRM else BalanceOfEvidence.RESPONDENT),
+        "reasoning_summary": proposed.reasoning_summary if decision is ReviewDecision.CONFIRM else
+            f"Overridden by {reviewer}: {reason} The proposal was to {proposed.outcome.value}: {proposed.reasoning_summary}",
+    })

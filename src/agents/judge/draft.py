@@ -13,6 +13,8 @@ from src.contracts import (
     BalanceOfEvidence,
     Case,
     Contract,
+    DisputeCategory,
+    EvidenceStatus,
     OwnFinding,
     Party,
     PolicyFit,
@@ -87,7 +89,7 @@ def _burden_problems(case: Case, draft: JudgeDraft) -> list[str]:
     problems = []
     claim_ref = f"{claimant_advocate(case).value}#claim"
     claim_verdict = next((a.verdict for a in draft.argument_assessments if a.ref == claim_ref), None)
-    if draft.outcome is RulingOutcome.UPHOLD:
+    if draft.outcome in (RulingOutcome.UPHOLD, RulingOutcome.PARTIALLY_UPHOLD):
         if draft.balance_of_evidence is not BalanceOfEvidence.CLAIMANT:
             problems.append(
                 "The draft upholds the claim, but says the evidence does not lean towards the claimant. "
@@ -101,7 +103,27 @@ def _burden_problems(case: Case, draft: JudgeDraft) -> list[str]:
 
 
 def _amount_problems(case: Case, draft: JudgeDraft) -> list[str]:
+    if draft.remedy in (Remedy.FULL_REFUND, Remedy.PARTIAL_REFUND):
+        if case.dispute.category is not DisputeCategory.ROUTE_DEVIATION:
+            return ["Refund arithmetic is available only for Route Deviation."]
+        by_source = {item.source: item for item in case.evidence}
+        needed = [by_source.get("route"), by_source.get("fare")]
+        if any(item is None or item.status is not EvidenceStatus.AVAILABLE or not item.derived.get("available") for item in needed):
+            return ["Route/fare calculation unavailable: no guessed refund; hold for review using no_action."]
+        if set(draft.amount_input_evidence_ids) != {item.evidence_id for item in needed}:
+            return ["A route refund must name both EV-ROUTE-1 and EV-FARE-1 as its amount inputs."]
+        from src.tools.evidence.route import analyze_fare
+        from decimal import Decimal
+        calculated = analyze_fare(needed[1].content, needed[0].derived)
+        if not calculated["available"]:
+            return ["Route refund inputs do not reconcile: " + calculated["unavailable_reason"]]
+        refund, paid = Decimal(calculated["refund"]), Decimal(calculated["paid_net"])
+        if refund <= 0 or (draft.remedy is Remedy.PARTIAL_REFUND and refund >= paid) or (draft.remedy is Remedy.FULL_REFUND and refund != paid):
+            return ["The remedy must match the code-computed positive refund: partial below paid net, full equal to paid net."]
+        return []
     if draft.remedy is not Remedy.FEE_REVERSAL:
+        if draft.amount_input_evidence_ids:
+            return ["A no_action remedy must not name monetary inputs."]
         return []
     if not draft.amount_input_evidence_ids:
         return ["The draft reverses the fee but names no Evidence Item the amount comes from. Name the fare item."]
