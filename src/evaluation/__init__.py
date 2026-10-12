@@ -40,6 +40,7 @@ class Row(BaseModel):
     expected: str
     actual: str
     confidence: float | None
+    judged: bool = True  # False when the model or a stage failed before any Ruling: the case was not judged, which is not a wrong answer
     passed: bool
     why: str  # empty when the row passes
 
@@ -58,11 +59,15 @@ class Report(BaseModel):
         return sum(row.passed for row in self.rows)
 
     @property
+    def unjudged(self) -> int:
+        return sum(not row.judged for row in self.rows)
+
+    @property
     def rate(self) -> float:
         return self.passed / self.total if self.total else 0.0
 
     def as_json(self) -> dict:
-        return {**self.model_dump(mode="json"), "passed": self.passed, "total": self.total, "rate": self.rate}
+        return {**self.model_dump(mode="json"), "passed": self.passed, "total": self.total, "unjudged": self.unjudged, "rate": self.rate}
 
 
 def load_labels(directory=DEFAULT_DATA_DIR) -> dict[str, Label]:
@@ -101,6 +106,12 @@ def _score(dispute_id: str, label: Label | None, case: Case, reasons) -> Row:
     confidence = ruling.confidence.value if ruling and ruling.confidence else None
     if label is None:
         return Row(dispute_id=dispute_id, scenario=None, expected="(none)", actual=actual, confidence=confidence, passed=False, why="There is no expected-outcome label for this case.")
+    failure = next((record.reason for record in reasons if record.trigger is ReviewTrigger.STAGE_FAILED), None)
+    if failure and ruling is None:
+        return Row(
+            dispute_id=dispute_id, scenario=label.scenario_classification, expected=_expected(label), actual=actual, confidence=None,
+            judged=False, passed=False, why=f"Not judged: a stage failed before any Ruling. {failure[:300]}",
+        )
     problems = _problems(label, case, held, triggers)
     return Row(
         dispute_id=dispute_id, scenario=label.scenario_classification, expected=_expected(label), actual=actual,
@@ -156,7 +167,10 @@ def _actual(case: Case, triggers: list[ReviewTrigger]) -> str:
 
 def render_table(report: Report) -> str:
     """The report as plain text for a terminal, with the model and the pass rate."""
-    lines = [f"Evaluation on {report.model}: {report.passed} of {report.total} passed ({report.rate:.0%})", ""]
+    lines = [f"Evaluation on {report.model}: {report.passed} of {report.total} passed ({report.rate:.0%})"]
+    if report.unjudged:
+        lines.append(f"{report.unjudged} could not be judged because the model failed, so the pass rate understates the model: run it again.")
+    lines.append("")
     width = max([len("case")] + [len(row.dispute_id) for row in report.rows])
     for row in report.rows:
         conf = f"{row.confidence:.2f}" if row.confidence is not None else "-"

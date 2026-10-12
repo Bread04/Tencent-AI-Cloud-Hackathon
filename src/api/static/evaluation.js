@@ -46,6 +46,7 @@
     summary.replaceChildren(
       el("span", { class: "eval-rate" }, `${Math.round(report.rate * 100)}%`),
       el("span", {}, `${report.passed} of ${report.total} cases match their expected outcome`),
+      report.unjudged ? el("span", { class: "unjudged" }, `${report.unjudged} could not be judged because the model failed. Run it again.`) : null,
       el("span", { class: "who" }, /scripted/i.test(report.model)
         ? "This is the scripted stub. It proves the pipeline is wired; it does not test a model's judgement."
         : "This is a real model: these results show how it judges the prepared cases."));
@@ -55,7 +56,7 @@
       el("span", { role: "cell" }, row.expected),
       el("span", { role: "cell" }, row.actual, row.why ? el("small", { class: "why" }, row.why) : null),
       el("span", { role: "cell", class: "num" }, row.confidence == null ? "–" : row.confidence.toFixed(2)),
-      el("span", { role: "cell" }, el("span", { class: `result ${row.passed ? "pass" : "fail"}` }, row.passed ? "Pass" : "Fail"))));
+      el("span", { role: "cell" }, el("span", { class: `result ${row.passed ? "pass" : row.judged ? "fail" : "unjudged"}` }, row.passed ? "Pass" : row.judged ? "Fail" : "Not judged"))));
     $("evalTable").replaceChildren(head, ...rows);
   }
 

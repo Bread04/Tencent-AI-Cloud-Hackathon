@@ -162,3 +162,43 @@ def test_the_evaluation_page_shows_the_table_the_pass_rate_and_which_model_made_
     assert body["report"]["model"] == "Scripted replies" and body["report"]["rate"] == 1.0
     page = client.get("/evaluation").text
     assert "evaluation.js" in page and "Evaluation" in page and "Scripted replies" in page
+
+
+# --- A model that fails is not a wrong answer ------------------------------------------------------------------------------------------
+
+
+class UnreachableModel:
+    def complete(self, messages, *, case_id, agent, schema=None, images=None):
+        from src.llm import ModelError
+
+        raise ModelError("The model could not be reached at https://models.example/v1/chat/completions (ConnectError).")
+
+
+def test_a_case_the_model_could_not_judge_is_reported_as_such_with_the_reason_not_as_a_wrong_outcome():
+    report, _ = run(lambda store: UnreachableModel())
+    row = next(r for r in report.rows if r.dispute_id == "DISP-003")
+
+    assert row.judged is False and row.passed is False
+    assert "could not be reached" in row.why and "wrong" not in row.why.lower()
+    assert report.unjudged == report.total and report.passed == 0
+
+
+def test_the_table_says_how_many_cases_could_not_be_judged_so_an_outage_is_not_read_as_bad_judgement():
+    report, _ = run(lambda store: UnreachableModel())
+
+    text = render_table(report)
+
+    assert f"{report.total} could not be judged because the model failed" in text
+
+
+def test_a_wrong_answer_is_still_judged():
+    report, _ = run(FlippedJudge)
+
+    assert next(r for r in report.rows if r.dispute_id == "DISP-002").judged is True
+    assert report.unjudged == 0
+
+
+def test_the_json_for_the_page_carries_the_unjudged_count():
+    report, _ = run(lambda store: UnreachableModel())
+
+    assert report.as_json()["unjudged"] == report.total

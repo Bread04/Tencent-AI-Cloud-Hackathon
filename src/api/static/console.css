@@ -206,3 +206,6 @@ details.call .call-meta { margin-left: auto; margin-right: 12px; font: 11px var(
 .result.pass { color: #276b41; background: #edf7f0; border-color: #c4dfcf; }
 .result.fail { color: #9b3b2f; background: #fdf0ee; border-color: #ebc8c2; }
 @media (max-width: 720px) { .eval-row { grid-template-columns: 1fr 1fr; } }
+
+.result.unjudged { color: #75521b; background: #fff6df; border-color: #ecd297; }
+.eval-summary .unjudged { color: #75521b; font-weight: 600; }
