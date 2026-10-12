@@ -55,6 +55,10 @@ class OpenAICompatibleModel:
         self._sleep = sleep
         self._transport = transport
 
+    @property
+    def name(self) -> str:
+        return self._model
+
     def __repr__(self) -> str:
         return f"OpenAICompatibleModel(url={self._where!r}, model={self._model!r})"
 

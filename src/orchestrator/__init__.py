@@ -29,6 +29,7 @@ from src.contracts import (
 )
 from src.intake import Catalog, UnknownTrip
 from src.llm.adapter import ModelAdapter, ModelError
+from src.llm.recording import RecordingModel
 from src.llm.repair import StageFailed
 from src.store import CaseStore
 from src.tools.evidence import gather_evidence
@@ -41,6 +42,8 @@ def run_dispute(
 ) -> Case:
     case = store.create_case(dispute, switches)
     case_id = case.case_id
+    if not isinstance(model, RecordingModel):
+        model = RecordingModel(model, store)  # every model call is recorded and shown in the log
 
     reason = _rejection_reason(dispute, catalog)
     if reason:
@@ -74,7 +77,7 @@ def run_dispute(
             submissions[Advocate.RIDER_ADVOCATE],
             submissions[Advocate.DRIVER_ADVOCATE],
             model,
-            record=lambda kind, summary: store.log_event(case_id, "judge", kind, summary),
+            record=lambda kind, summary, references=None: store.log_event(case_id, "judge", kind, summary, references),
         )
     except (StageFailed, ModelError) as failure:
         reason = ReviewTriggerRecord(trigger=ReviewTrigger.STAGE_FAILED, reason=_failure_reason("Judge", "Ruling", failure))

@@ -24,6 +24,10 @@ def no_network(monkeypatch):
     monkeypatch.setattr(socket.socket, "connect", refuse)
 
 
+# Rows that explain a step rather than mark one: one per model call, and the Judge's verdict on each argument.
+DETAIL = {LogEventKind.MODEL_CALL, LogEventKind.ARGUMENT_ASSESSED}
+
+
 def run_prepared_dispute():
     catalog = load_catalog()
     store, model = CaseStore(), a_stub_for("CASE-0001")
@@ -56,7 +60,8 @@ def test_the_case_holds_gps_chat_fare_and_history_evidence_with_ids_and_statuses
 def test_the_communication_log_tells_the_story_in_order():
     store, _, case = run_prepared_dispute()
 
-    assert [event.kind for event in store.log(case.case_id)] == [
+    story = [event.kind for event in store.log(case.case_id) if event.kind not in DETAIL]  # the model calls and verdicts are detail
+    assert story == [
         LogEventKind.CASE_FILED,
         LogEventKind.EVIDENCE_REQUESTED,
         LogEventKind.EVIDENCE_RETURNED,

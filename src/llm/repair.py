@@ -24,9 +24,12 @@ class StageFailed(Exception):
         self.problems = problems
 
 
+FEEDBACK_PREFIX = "Your previous reply was not accepted:\n"
+
+
 def feedback_message(problems: list[str]) -> Message:
     listed = "\n".join(f"- {problem}" for problem in problems)
-    return {"role": "user", "content": f"Your previous reply was not accepted:\n{listed}\nReply again with a corrected answer."}
+    return {"role": "user", "content": f"{FEEDBACK_PREFIX}{listed}\nReply again with a corrected answer."}
 
 
 def complete_with_repair(

@@ -43,8 +43,9 @@ def test_running_a_prepared_dispute_shows_the_ruling_and_the_log_in_order(client
     assert escape(case.ruling.reasoning_summary) in page.text
     assert case.ruling.outcome.value in page.text
     assert str(case.ruling.confidence.value) in page.text
-    positions = [page.text.index(escape(event.summary)) for event in store.log("CASE-0001")]
-    assert positions == sorted(positions)  # every log event is on the page, oldest first
+    start = 0
+    for event in store.log("CASE-0001"):  # every log event is on the page, oldest first (some rows repeat their wording)
+        start = page.text.index(escape(event.summary), start) + 1
 
 
 def test_a_dispute_that_does_not_exist_is_a_clear_404(client):

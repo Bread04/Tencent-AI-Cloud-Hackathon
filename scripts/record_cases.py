@@ -27,6 +27,7 @@ def main() -> None:
         body = {
             "case": case.model_dump(mode="json"),
             "log": [event.model_dump(mode="json") for event in store.log(case.case_id)],
+            "calls": [call.model_dump(mode="json") for call in store.calls(case.case_id)],
             "run_error": None,
         }
         (OUT / f"{dispute_id}.json").write_text(json.dumps(body, indent=2) + "\n", encoding="utf-8")

@@ -24,6 +24,8 @@ class StubModel:
     Every call is recorded in `calls` so tests can inspect what was sent.
     """
 
+    name = "scripted replies"
+
     def __init__(self, script: Script):
         self._script = {key: list(reply) if isinstance(reply, list) else reply for key, reply in script.items()}
         self.calls: list[dict] = []

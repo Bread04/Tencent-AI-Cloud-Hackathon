@@ -77,6 +77,7 @@ def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model
         return {
             "case": case.model_dump(mode="json"),
             "log": [event.model_dump(mode="json") for event in log],
+            "calls": [call.model_dump(mode="json") for call in store.calls(case_id)],
             "run_error": run_errors.get(case_id),
         }
 

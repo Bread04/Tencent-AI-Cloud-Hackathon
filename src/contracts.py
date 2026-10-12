@@ -164,6 +164,7 @@ class LogEventKind(StrEnum):
     SUBMISSION_FILED = "submission_filed"
     ARGUMENT_ASSESSED = "argument_assessed"
     RULING_DRAFTED = "ruling_drafted"
+    MODEL_CALL = "model_call"  # one request to the model: who, how long, retry or not (the detail is in the Case store)
     SELF_CHECK_PASSED = "self_check_passed"
     SELF_CHECK_FAILED = "self_check_failed"
     STABILITY_CHECK = "stability_check"

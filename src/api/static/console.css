@@ -161,3 +161,27 @@ body.plain a { color: var(--teal); }
 .review-form .choice { display: flex; gap: 8px; align-items: center; }
 .review-form .primary-button { justify-self: start; }
 .plain-list li { display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+
+/* Log rows that are detail rather than milestones */
+.timeline li.kind-model_call strong, .timeline li.kind-argument_assessed strong { font-weight: 500; color: var(--muted); font-size: 12px; }
+.timeline li.kind-model_call p { color: var(--muted); }
+.timeline li.kind-model_call:before { background: #c3cde0; }
+.timeline li.kind-argument_assessed:before { background: #7a92d6; }
+
+/* Model calls tab */
+.lanes { list-style: none; margin: 14px 0 6px; padding: 0; display: grid; gap: 6px; }
+.lane { display: grid; grid-template-columns: 190px 1fr 48px; gap: 12px; align-items: center; font-size: 12px; }
+.lane-name { color: var(--ink); }
+.lane-track { position: relative; height: 14px; background: #f1f4fa; border-radius: 2px; }
+.lane-bar { position: absolute; top: 2px; height: 10px; border-radius: 2px; background: var(--blue); }
+.lane-bar.invalid { background: #c9831a; }
+.lane-bar.failed { background: #b3382c; }
+.lane-bar.retry { box-shadow: 0 0 0 2px #fdf0d2; }
+.lane-time { text-align: right; font: 11px var(--mono); color: var(--muted); }
+details.call .call-meta { margin-left: auto; margin-right: 12px; font: 11px var(--mono); color: var(--muted); }
+.state.call-ok { background: #edf7f0; color: #276b41; }
+.state.call-invalid, .state.call-retry { background: #fff6df; color: #75521b; }
+.state.call-failed { background: #fdf0ee; color: #9b3b2f; }
+.call .msg { margin-bottom: 10px; }
+.call pre { max-height: 280px; overflow: auto; }
+@media (max-width: 720px) { .lane { grid-template-columns: 110px 1fr 40px; } }

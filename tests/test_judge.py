@@ -289,7 +289,7 @@ def calls_to(model, agent):
 def test_the_judge_asks_a_second_call_whether_each_cited_item_supports_the_claim_made_about_it():
     events = []
 
-    ruling, model = run_judge(a_judge_draft(), record=lambda kind, summary: events.append(kind))
+    ruling, model = run_judge(a_judge_draft(), record=lambda kind, summary, references=None: events.append(kind) if kind is not LogEventKind.ARGUMENT_ASSESSED else None)
 
     assert ruling.status is RulingStatus.FINAL
     assert len(calls_to(model, "judge_self_check")) == 1
@@ -306,7 +306,7 @@ def test_a_failed_self_check_sends_the_draft_back_once_with_the_problem_and_then
     ruling, model = run_judge(
         [a_judge_draft(reasoning_summary="First draft."), a_judge_draft(reasoning_summary="Second draft.")],
         self_check=[failed, SELF_CHECK_PASSES],
-        record=lambda kind, summary: events.append(kind),
+        record=lambda kind, summary, references=None: events.append(kind) if kind is not LogEventKind.ARGUMENT_ASSESSED else None,
     )
 
     assert ruling.reasoning_summary == "Second draft."
@@ -321,7 +321,7 @@ def test_a_draft_that_fails_the_self_check_twice_fails_the_stage_with_the_reason
     events = []
 
     with pytest.raises(StageFailed, match="EV-GPS-1 does not support"):
-        run_judge(a_judge_draft(), self_check=failed, record=lambda kind, summary: events.append(kind))
+        run_judge(a_judge_draft(), self_check=failed, record=lambda kind, summary, references=None: events.append(kind) if kind is not LogEventKind.ARGUMENT_ASSESSED else None)
 
     assert events == [LogEventKind.SELF_CHECK_FAILED, LogEventKind.SELF_CHECK_FAILED]
 

@@ -51,7 +51,7 @@ SYSTEM_PROMPT = (
 # A failed self-check sends the draft back this many times before the stage fails.
 SELF_CHECK_SEND_BACKS = 1
 
-Recorder = Callable[[LogEventKind, str], None]
+Recorder = Callable[..., None]  # (kind, summary, references=None)
 
 
 def judge(
@@ -79,7 +79,14 @@ def judge(
             ),
         },
     ]
-    draft = _draft_passing_every_check(case, arguments, messages, model, record or _ignore)
+    record = record or _ignore
+    draft = _draft_passing_every_check(case, arguments, messages, model, record)
+    for assessment in draft.argument_assessments:  # the verdict on each argument, one row each in the log
+        record(
+            LogEventKind.ARGUMENT_ASSESSED,
+            f"{assessment.ref}: {assessment.verdict.value.replace('_', ' ')}. {assessment.reason}",
+            assessment.evidence_ids,
+        )
 
     return _ruling_from(case, arguments, draft)
 
@@ -119,7 +126,7 @@ def _problems(case: Case, arguments: list[Argument], draft: JudgeDraft) -> list[
     )
 
 
-def _ignore(kind: LogEventKind, summary: str) -> None:
+def _ignore(kind: LogEventKind, summary: str, references: list[str] | None = None) -> None:
     pass
 
 

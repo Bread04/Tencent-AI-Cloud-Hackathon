@@ -10,6 +10,7 @@ Not here yet (added by the tickets that need them): escalation, review
 decisions, closing a Case, precedents.
 """
 
+import threading
 from collections.abc import Callable
 from datetime import datetime, timezone
 
@@ -34,6 +35,7 @@ from src.contracts import (
     Submission,
     Switches,
 )
+from src.llm.calls import ModelCall
 
 
 class StoreError(Exception):
@@ -53,6 +55,8 @@ class CaseStore:
         self._clock = clock
         self._cases: dict[str, Case] = {}
         self._logs: dict[str, list[LogEvent]] = {}
+        self._calls: dict[str, list[ModelCall]] = {}  # the model calls behind each Case, for the console
+        self._lock = threading.RLock()  # the two advocates write from separate threads
 
     # --- Reads ---------------------------------------------------------------
 
@@ -66,6 +70,11 @@ class CaseStore:
         """The Communication Log for one Case, oldest first."""
         self._case(case_id)
         return [event.model_copy(deep=True) for event in self._logs[case_id]]
+
+    def calls(self, case_id: str) -> list[ModelCall]:
+        """The model calls made for one Case, in order."""
+        self._case(case_id)
+        return list(self._calls.get(case_id, []))
 
     # --- Writes --------------------------------------------------------------
 
@@ -244,6 +253,18 @@ class CaseStore:
             outcomes=outcomes,
         )
 
+    def record_call(self, case_id: str, call: ModelCall) -> None:
+        """Keep one model call and log it as a single `model_call` row."""
+        with self._lock:
+            self._calls.setdefault(case_id, []).append(call)
+            retry = f"; sent back because: {call.sent_back_because[:160]}" if call.sent_back_because else ""
+            what = {
+                "ok": f"replied in {call.seconds:.1f}s",
+                "invalid": f"replied with the wrong shape after {call.seconds:.1f}s",
+                "failed": f"failed after {call.seconds:.1f}s: {(call.problem or '')[:120]}",
+            }[call.outcome]
+            self._write(case_id, call.agent, LogEventKind.MODEL_CALL, f"Call {call.attempt} on {call.model} {what}{retry}")
+
     def log_event(
         self, case_id: str, agent: str, kind: LogEventKind, summary: str, references: list[str] | None = None
     ) -> None:
@@ -266,6 +287,10 @@ class CaseStore:
         self, case_id: str, agent: str, kind: LogEventKind, summary: str, references: list[str] | None = None, **changes
     ) -> None:
         """Apply `changes` to the Case and append exactly one Log event. Validates before changing anything."""
+        with self._lock:
+            self._apply(case_id, agent, kind, summary, references, changes)
+
+    def _apply(self, case_id, agent, kind, summary, references, changes) -> None:
         current = self._case(case_id)
         if changes and current.status in (CaseStatus.REJECTED, CaseStatus.CLOSED):
             raise StoreError(f"{case_id} is {current.status.value}; it accepts no further writes.")

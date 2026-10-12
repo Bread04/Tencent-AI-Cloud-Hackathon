@@ -69,6 +69,7 @@
     $("ruling").replaceChildren(el("p", { class: "muted" }, "No ruling yet."));
     $("evidence").replaceChildren(el("p", { class: "muted" }, "The sealed evidence will appear once the run finishes."));
     $("submissions").replaceChildren(el("p", { class: "muted" }, "The submissions will appear once the run finishes."));
+    $("calls").replaceChildren(el("p", { class: "muted" }, "The model calls will appear once the run finishes."));
     $("appError").hidden = true;
     showTab("overview");
   }
@@ -137,7 +138,8 @@
     renderOutcomes(body.case);
     renderEvidence(body.case);
     renderSubmissions(body.case);
-    if (["ruling", "evidence", "submissions"].includes(params.get("tab"))) showTab(params.get("tab"));
+    renderCalls(body.calls);
+    if (["ruling", "evidence", "submissions", "calls"].includes(params.get("tab"))) showTab(params.get("tab"));
   }
 
   function setStatus(text) { $("status").textContent = text; }
@@ -150,7 +152,7 @@
   // --- Communication log (the rider app's .timeline) ------------------------------------------------
 
   function appendEvent(event) {
-    const item = el("li", {},
+    const item = el("li", { class: `kind-${event.kind}` },
       el("strong", {}, cap(words(event.kind))),
       el("p", {}, event.summary),
       el("span", { class: "agent" }, `${words(event.agent)} · `),
@@ -158,7 +160,7 @@
       event.references.length ? el("div", { class: "refs" }, ...event.references.map(citeButton)) : null);
     $("log").append(item);
     markNow(item);
-    advance(event.kind);
+    advance(event.kind === "model_call" ? event.agent : event.kind);
     item.scrollIntoView({ block: "nearest" });
   }
 
@@ -351,6 +353,45 @@
       el("p", {}, el("strong", {}, "Asks for: "), s.requested_outcome))));
   }
 
+
+  // --- Model calls tab: every request to the model, on a timeline, with its prompt and reply -----------------------
+
+  const AGENT_NAMES = { rider_advocate: "Rider advocate", driver_advocate: "Driver advocate", judge: "Judge", judge_self_check: "Judge self-check" };
+  const agentName = (agent) => AGENT_NAMES[agent] || cap(words(agent));
+
+  function renderCalls(calls) {
+    if (!calls || !calls.length) { $("calls").replaceChildren(el("p", { class: "muted" }, "No model calls were made.")); return; }
+    const starts = calls.map((c) => Date.parse(c.started_at));
+    const ends = calls.map((c, i) => starts[i] + c.seconds * 1000);
+    const origin = Math.min(...starts), span = Math.max(Math.max(...ends) - origin, 1);
+    const retries = calls.filter((c) => c.sent_back_because).length, failed = calls.filter((c) => c.outcome !== "ok").length;
+    const total = calls.reduce((sum, c) => sum + c.seconds, 0);
+
+    const lanes = calls.map((c, i) => el("li", { class: "lane" },
+      el("span", { class: "lane-name" }, `${agentName(c.agent)} · call ${c.attempt}`),
+      el("span", { class: "lane-track" }, el("span", { class: `lane-bar ${c.outcome}${c.sent_back_because ? " retry" : ""}`,
+        style: `left:${(((starts[i] - origin) / span) * 100).toFixed(2)}%;width:max(${((c.seconds * 1000 / span) * 100).toFixed(2)}%,6px)` })),
+      el("span", { class: "lane-time" }, `${c.seconds.toFixed(1)}s`)));
+
+    const cards = calls.map((c) => el("details", { class: `evidence-item call ${c.outcome}` },
+      el("summary", {},
+        el("span", {}, `#${c.index} · ${agentName(c.agent)} · call ${c.attempt}`),
+        el("span", { class: "call-meta" }, `${c.model} · ${c.seconds.toFixed(1)}s`),
+        el("span", { class: `state call-${c.outcome}` }, c.sent_back_because ? "retry" : c.outcome === "ok" ? "replied" : c.outcome)),
+      el("div", { class: "evidence-body" },
+        c.sent_back_because ? el("p", { class: "missing-note" }, `Sent back because: ${c.sent_back_because}`) : null,
+        c.problem ? el("p", { class: "missing-note" }, c.problem) : null,
+        ...c.messages.map((m) => el("div", { class: "msg" }, el("p", { class: "who" }, `${m.role} sent`), el("pre", {}, m.content))),
+        c.reply ? el("div", { class: "msg" }, el("p", { class: "who" }, "reply received"), el("pre", {}, c.reply)) : null)));
+
+    $("calls").replaceChildren(
+      el("p", { class: "eyebrow" }, "Every request to the model"),
+      el("div", { class: "section-title" }, el("h3", {}, `${calls.length} calls · ${retries} sent back · ${failed} not clean · ${total.toFixed(1)}s of model time`)),
+      el("ol", { class: "lanes", "aria-label": "Timeline of model calls" }, ...lanes),
+      el("p", { class: "who" }, "Calls that overlap ran at the same time. Open a call to read the exact prompt and reply."),
+      ...cards);
+  }
+
   // --- Pipeline stepper ---------------------------------------------------------------------------------
   // Ported from the 21st.dev "Animated Progress Stepper" (shadcnspace/stepper-03): a spring-style progress line, a
   // travelling dot, a pulsing ring on the active step and an icon-to-check morph. Drawn in Waypoint colours.
@@ -381,6 +422,7 @@
     argument_assessed: 4, ruling_drafted: 4, self_check_passed: 4, self_check_failed: 4, stability_check: 4,
     escalated: 5, review_decision: 5, outcome_sent: 5, precedent_added: 5,
   };
+  const STAGE_OF_AGENT = { rider_advocate: 3, driver_advocate: 3, judge: 4, judge_self_check: 4 }; // a model call counts toward its agent's stage
   let reached = -1;
 
   function setProgress(index, finished = false, review = false) {
@@ -412,7 +454,7 @@
   const check = () => svg("svg", { viewBox: "0 0 24 24", width: 18, height: 18, fill: "none", stroke: "currentColor", "stroke-width": 3,
     "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" }, svg("path", { d: "M20 6 9 17l-5-5" }));
   function advance(kind) {
-    const stage = STAGE_OF[kind];
+    const stage = STAGE_OF[kind] ?? STAGE_OF_AGENT[kind];
     if (stage !== undefined && stage > reached) setProgress(stage);
   }
   function completePipeline(kase) {
@@ -439,10 +481,12 @@
     const arc = `M${CX - R} ${CY} A${R} ${R} 0 0 1 ${CX + R} ${CY}`;
     const target = half * (1 - Math.min(value, 1));
     const fill = svg("path", { d: arc, class: "gauge-fill", stroke: `url(#${gradientId})`, "stroke-dasharray": half, "stroke-dashoffset": reducedMotion ? target : half });
-    if (!reducedMotion) {
+    if (!reducedMotion && fill.animate) {
       fill.animate(
         [{ strokeDashoffset: half, offset: 0 }, { strokeDashoffset: half, offset: 400 / 1400 }, { strokeDashoffset: target }],
         { duration: 1400, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "forwards" });
+    } else {
+      fill.setAttribute("stroke-dashoffset", target); // no animation support: show the value at once
     }
     const angle = Math.PI * THRESHOLD;
     const tick = svg("line", {
