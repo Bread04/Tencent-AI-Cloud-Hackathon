@@ -2,10 +2,36 @@
 
 A Ruling that should not be finalized automatically stays a proposal for a Human Reviewer, with the reason
 recorded as a Review Trigger. Escalation sits behind a switch: with it off every Ruling is finalized, as in
-Tier 0. The review package, the queue and the reviewer's decision are further down this module.
+Tier 0. Further down: the review package a reviewer sees, and the reviewer's decision (confirm, or override
+with a recorded reason), after which both parties get the final Outcome.
 """
 
-from src.contracts import ReviewTrigger, ReviewTriggerRecord, Ruling, RulingStatus
+from datetime import datetime, timezone
+
+from src.agents.judge.numbers import amount_for
+from src.agents.outcomes import outcomes_for
+from src.agents.policy import ALLOWED_REMEDIES
+from src.config import CONFIG
+from src.contracts import (
+    BalanceOfEvidence,
+    Case,
+    CaseStatus,
+    Contract,
+    Dispute,
+    EvidenceItem,
+    LogEvent,
+    LogEventKind,
+    PolicyClause,
+    ReviewDecision,
+    ReviewRecord,
+    ReviewTrigger,
+    ReviewTriggerRecord,
+    Ruling,
+    RulingOutcome,
+    RulingStatus,
+    Submission,
+)
+from src.store import CaseStore
 
 
 def apply_escalation(ruling: Ruling, *, enabled: bool, threshold: float) -> Ruling:
@@ -27,3 +53,94 @@ def apply_escalation(ruling: Ruling, *, enabled: bool, threshold: float) -> Ruli
             )
         )
     return ruling.model_copy(update={"status": RulingStatus.PROPOSAL if triggers else ruling.status, "review_triggers": triggers})
+
+
+# --- The review package -------------------------------------------------------------------------------------------
+
+
+class ReviewPackage(Contract):
+    """Everything a Human Reviewer needs to decide a held Case."""
+
+    case_id: str
+    dispute: Dispute
+    reasons: list[ReviewTriggerRecord]
+    proposed_ruling: Ruling | None  # None when a stage failed before any Ruling existed
+    submissions: list[Submission]
+    evidence: list[EvidenceItem]
+    policy_clauses: list[PolicyClause]
+
+
+def review_package(case: Case, log: list[LogEvent]) -> ReviewPackage:
+    return ReviewPackage(
+        case_id=case.case_id,
+        dispute=case.dispute,
+        reasons=_reasons(case, log),
+        proposed_ruling=case.ruling,
+        submissions=case.submissions,
+        evidence=case.evidence,
+        policy_clauses=case.policy_clauses,
+    )
+
+
+def _reasons(case: Case, log: list[LogEvent]) -> list[ReviewTriggerRecord]:
+    if case.ruling is not None and case.ruling.review_triggers:
+        return case.ruling.review_triggers
+    held = [event for event in log if event.kind is LogEventKind.ESCALATED]
+    if not held:
+        return []
+    event = held[-1]  # no Ruling: the reason is only in the log, written when the Case was held
+    reason = event.summary.removeprefix("Sent to a Human Reviewer: ")
+    trigger = next((ReviewTrigger(ref) for ref in event.references if ref in ReviewTrigger._value2member_map_), ReviewTrigger.STAGE_FAILED)
+    return [ReviewTriggerRecord(trigger=trigger, reason=reason)]
+
+
+# --- The reviewer's decision --------------------------------------------------------------------------------------
+
+
+class ReviewError(Exception):
+    """A decision that cannot be made, with the reason."""
+
+
+def decide_review(store: CaseStore, case_id: str, *, reviewer: str, decision: ReviewDecision, reason: str | None = None) -> Case:
+    """Confirm the proposed Ruling, or override it with a reason; then both parties get the final Outcome."""
+    case = store.get_case(case_id)
+    if case.status is not CaseStatus.PENDING_REVIEW:
+        raise ReviewError(f"{case_id} is not pending review (it is {case.status.value}).")
+    if case.ruling is None:
+        raise ReviewError(f"{case_id} has no proposed Ruling to confirm or override, because a stage failed before one was made.")
+    if not reviewer.strip():
+        raise ReviewError("A reviewer name is required.")
+    if decision is ReviewDecision.OVERRIDE and not (reason or "").strip():
+        raise ReviewError("An override needs a reason.")
+
+    final = _confirmed(case.ruling) if decision is ReviewDecision.CONFIRM else _overridden(case, reviewer.strip(), reason.strip())
+    record = ReviewRecord(reviewer=reviewer.strip(), decision=decision, reason=(reason or "").strip() or None, decided_at=datetime.now(timezone.utc))
+    store.finish_review(case_id, record, final)
+    for outcome in outcomes_for(final, store.get_case(case_id)):
+        store.add_outcome(case_id, outcome, agent="escalation")
+    return store.get_case(case_id)
+
+
+def _confirmed(ruling: Ruling) -> Ruling:
+    return ruling.model_copy(update={"status": RulingStatus.FINAL})
+
+
+def _overridden(case: Case, reviewer: str, reason: str) -> Ruling:
+    """The other outcome. The category is binary, so the Remedy is the one its policy allows and the amount is recomputed."""
+    proposed = case.ruling
+    outcome = RulingOutcome.REJECT if proposed.outcome is RulingOutcome.UPHOLD else RulingOutcome.UPHOLD
+    remedy = ALLOWED_REMEDIES[case.dispute.category][outcome]
+    fare = next(item.evidence_id for item in case.evidence if item.source == "fare")
+    amount, calculation = amount_for(case, remedy, [fare])
+    return proposed.model_copy(
+        update={
+            "status": RulingStatus.FINAL,
+            "outcome": outcome,
+            "remedy": remedy,
+            "balance_of_evidence": BalanceOfEvidence.CLAIMANT if outcome is RulingOutcome.UPHOLD else BalanceOfEvidence.RESPONDENT,
+            "amount": amount,
+            "currency": CONFIG.currency if amount is not None else None,
+            "calculation": calculation,
+            "reasoning_summary": f"Overridden by {reviewer}: {reason} The proposal was to {proposed.outcome.value}: {proposed.reasoning_summary}",
+        }
+    )

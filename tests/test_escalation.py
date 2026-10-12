@@ -94,3 +94,113 @@ def test_with_escalation_switched_off_every_ruling_finalizes():
 
 def test_escalation_is_on_by_default_for_the_demo():
     assert CONFIG.switches.escalation is True
+
+
+# --- The review package ----------------------------------------------------------------------------------------------
+
+from src.agents.escalation import ReviewError, decide_review, review_package  # noqa: E402
+from src.contracts import ActionStatus, ReviewDecision, RulingOutcome  # noqa: E402
+from src.llm import ModelError  # noqa: E402
+
+
+class DeadModel:
+    def complete(self, messages, *, case_id, agent, schema=None, images=None):
+        raise ModelError("The model timed out after 30 seconds (agent judge).")
+
+
+def a_held_case(dispute_id="DISP-004"):
+    store, case = run(dispute_id)
+    return store, case
+
+
+def test_the_review_package_holds_everything_a_reviewer_needs():
+    store, case = a_held_case()
+
+    package = review_package(case, store.log(case.case_id))
+
+    assert package.case_id == case.case_id and package.dispute.dispute_id == "DISP-004"
+    assert package.proposed_ruling.status is RulingStatus.PROPOSAL
+    assert len(package.submissions) == 2
+    assert {item.evidence_id for item in package.evidence} >= {"EV-GPS-1", "EV-CHAT-1", "EV-FARE-1"}
+    assert {c.clause_id for c in package.policy_clauses} >= set(package.proposed_ruling.cited_policy_clause_ids)
+    assert {r.trigger for r in package.reasons} >= {ReviewTrigger.LOW_CONFIDENCE, ReviewTrigger.BALANCED_EVIDENCE, ReviewTrigger.POLICY_GAP}
+
+
+def test_a_case_held_because_the_model_failed_has_a_package_with_no_ruling_and_the_reason():
+    catalog, store = load_catalog(), CaseStore()
+    case = run_dispute(catalog.dispute("DISP-003"), store=store, model=DeadModel(), catalog=catalog)
+
+    package = review_package(case, store.log(case.case_id))
+
+    assert package.proposed_ruling is None
+    assert package.reasons[0].trigger is ReviewTrigger.STAGE_FAILED
+    assert "timed out" in package.reasons[0].reason
+
+
+# --- The reviewer's decision ----------------------------------------------------------------------------------------
+
+
+def test_confirming_finalizes_the_ruling_and_tells_both_parties_the_final_outcome():
+    store, case = a_held_case()
+
+    decided = decide_review(store, case.case_id, reviewer="Dana", decision=ReviewDecision.CONFIRM)
+
+    assert decided.status is CaseStatus.NOTIFIED
+    assert decided.ruling.status is RulingStatus.FINAL
+    assert decided.ruling.outcome is case.ruling.outcome
+    assert decided.review_record.reviewer == "Dana" and decided.review_record.decision is ReviewDecision.CONFIRM
+    assert [o.action_status for o in decided.outcomes] == [ActionStatus.RECOMMENDED, ActionStatus.RECOMMENDED]
+    assert LogEventKind.REVIEW_DECISION in [e.kind for e in store.log(case.case_id)]
+
+
+def test_an_override_needs_a_reason():
+    store, case = a_held_case()
+
+    with pytest.raises(ReviewError, match="reason"):
+        decide_review(store, case.case_id, reviewer="Dana", decision=ReviewDecision.OVERRIDE, reason="  ")
+
+    assert store.get_case(case.case_id).status is CaseStatus.PENDING_REVIEW  # nothing changed
+
+
+def test_an_override_reverses_the_outcome_with_the_amount_recomputed_and_records_why():
+    store, case = a_held_case()
+    assert case.ruling.outcome is RulingOutcome.REJECT
+
+    decided = decide_review(store, case.case_id, reviewer="Dana", decision=ReviewDecision.OVERRIDE, reason="Telemetry gap favours the rider.")
+
+    assert decided.ruling.outcome is RulingOutcome.UPHOLD and decided.ruling.remedy.value == "fee_reversal"
+    assert str(decided.ruling.amount) == "5.00" and decided.ruling.calculation.result == decided.ruling.amount
+    assert decided.review_record.reason == "Telemetry gap favours the rider."
+    assert "Telemetry gap favours the rider." in decided.ruling.reasoning_summary
+    assert decided.status is CaseStatus.NOTIFIED
+    assert "reversed" in next(o for o in decided.outcomes if o.party.value == "rider").ruling_summary
+
+
+def test_a_case_that_is_not_pending_review_cannot_be_decided():
+    store, case = run("DISP-003")
+
+    with pytest.raises(ReviewError, match="not pending review"):
+        decide_review(store, case.case_id, reviewer="Dana", decision=ReviewDecision.CONFIRM)
+
+
+def test_a_case_with_no_proposed_ruling_cannot_be_confirmed_or_overridden():
+    catalog, store = load_catalog(), CaseStore()
+    case = run_dispute(catalog.dispute("DISP-003"), store=store, model=DeadModel(), catalog=catalog)
+
+    with pytest.raises(ReviewError, match="no proposed Ruling"):
+        decide_review(store, case.case_id, reviewer="Dana", decision=ReviewDecision.CONFIRM)
+
+
+def test_a_decision_needs_a_reviewer_name():
+    store, case = a_held_case()
+
+    with pytest.raises(ReviewError, match="reviewer"):
+        decide_review(store, case.case_id, reviewer=" ", decision=ReviewDecision.CONFIRM)
+
+
+def test_a_decision_cannot_be_made_twice():
+    store, case = a_held_case()
+    decide_review(store, case.case_id, reviewer="Dana", decision=ReviewDecision.CONFIRM)
+
+    with pytest.raises(ReviewError, match="not pending review"):
+        decide_review(store, case.case_id, reviewer="Sam", decision=ReviewDecision.OVERRIDE, reason="Changed my mind.")

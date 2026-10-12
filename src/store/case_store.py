@@ -25,6 +25,8 @@ from src.contracts import (
     LogEventKind,
     Outcome,
     Party,
+    ReviewDecision,
+    ReviewRecord,
     PolicyClause,
     ReviewTriggerRecord,
     Ruling,
@@ -208,6 +210,22 @@ class CaseStore:
             f"Sent to a Human Reviewer: {reasons}",
             references=[record.trigger.value for record in triggers],
             status=CaseStatus.PENDING_REVIEW,
+        )
+
+    def finish_review(self, case_id: str, record: ReviewRecord, ruling: Ruling, agent: str = "escalation") -> None:
+        """Record a Human Reviewer's decision: the final Ruling replaces the proposal, and the parties' pending Outcomes are cleared."""
+        self._require_status(case_id, CaseStatus.PENDING_REVIEW, "reviewed")
+        verb = "confirmed" if record.decision is ReviewDecision.CONFIRM else "overrode"
+        why = f" Reason: {record.reason}" if record.reason else ""
+        self._write(
+            case_id,
+            agent,
+            LogEventKind.REVIEW_DECISION,
+            f"{record.reviewer} {verb} the proposed Ruling ({ruling.outcome.value}, {ruling.remedy.value}).{why}",
+            status=CaseStatus.RULED,
+            ruling=ruling,
+            review_record=record,
+            outcomes=[],
         )
 
     def add_outcome(self, case_id: str, outcome: Outcome, agent: str = "orchestrator") -> None:
