@@ -14,7 +14,7 @@ from tests.test_rider_agents import report, sample_report
 BASE = "/api/rider/"
 
 
-@pytest.mark.parametrize("case_id", [f"DISP-{number:03}" for number in (2, 3, 4, 8, 9, 10)])
+@pytest.mark.parametrize("case_id", [f"DISP-{number:03}" for number in (2, 3, 4, 7, 8, 9, 10)])
 def test_case_api_prepares_redacted_scoped_python_result_and_real_locked_log(setup, case_id):
     app, client, _, model = setup
     trip, source = sample_report(case_id)
@@ -107,3 +107,26 @@ def test_unsupported_categories_are_redacted_and_capacity_fails_visibly(setup):
     app.state.rider_transcripts.max_records = 0
     response = client.post(BASE + "cases", json={"riderId": "R-7823", "report": report()})
     assert response.status_code == 503 and "communication_log" not in response.text
+
+
+@pytest.mark.parametrize("case_id", ["DISP-005", "DISP-006", "DISP-007"])
+def test_new_sample_api_ownership_safety_support_and_missing_receipt(setup, case_id):
+    _, client, _, model = setup
+    trip, source = sample_report(case_id)
+    for endpoint, payload in [("cases", {"riderId": "R-DEMO-02", "report": source}),
+                              ("evidence", {"riderId": "R-DEMO-02", "tripId": trip["id"]})]:
+        response = client.post(BASE + endpoint, json=payload)
+        assert response.status_code == 400 and "transcript_handle" not in response.text
+    result = client.post(BASE + "cases", json={"riderId": trip["riderId"], "report": source}).json()
+    assert result["original_report"] == source
+    if case_id != "DISP-007":
+        assert result["status"] == "support_required" and "submission" not in result
+        assert "Nothing has been sent to a reviewer" in result["message"]
+        snapshot = client.post(BASE + "evidence", json={"riderId": trip["riderId"], "tripId": trip["id"]}).json()
+        receipt = next(item for item in snapshot["items"] if item["source"] == "rider_app.receipt")
+        assert receipt["status"] == "missing" and receipt["timestamp"] is None and set(receipt["content"]) == {"reason"}
+        path = "/api/rider-chat/transcripts/" + result["transcript_handle"]
+        assert client.post(path + "/unlock", json={"code": "482731"}).status_code == 204
+        log = client.get(path).json()["communication_log"]
+        assert not any(entry["kind"] == "agent_dispatched" for entry in log)
+    assert model.calls == []

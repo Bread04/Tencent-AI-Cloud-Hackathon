@@ -6,7 +6,7 @@ test('all public UI records equal the trusted Python catalog and exclude private
  const catalog=JSON.parse(fs.readFileSync(path.join(root,'data/prototype/rider-catalog.json'),'utf8'));
  assert.deepEqual(catalog.riders,data.riders());
  assert.deepEqual(catalog.trips,data.riders().flatMap(rider=>data.trips(rider.id)));
- assert.equal(catalog.trips.length,8);
+ assert.equal(catalog.trips.length,11);assert.equal(catalog.riders.length,6);
  for(const field of ['rider_history','driver_history','driver_statement','expected_outcome','expected_remedy','scenario_classification'])assert(!JSON.stringify(catalog).includes(field));
  for(const id of ['DISP-008','DISP-009','DISP-010']){
   const raw=JSON.parse(fs.readFileSync(path.join(root,'data/cases',id.toLowerCase()+'.json'),'utf8'));
@@ -22,7 +22,8 @@ test('both pages import only async API adapters and refresh changed cached asset
  for(const page of ['prototypes/ryde-app/index.html','prototypes/ryde-report/index.html']){
   const html=fs.readFileSync(path.join(root,page),'utf8');
   assert(html.includes('rider-api.js?feature=python-rider-v1'));
-  assert(html.includes('data.js?feature=python-rider-v1'));
+  assert(html.includes('data.js?feature=remaining-samples-v1'));
+  if(page.includes('ryde-app/'))assert(html.includes('app.js?feature=remaining-samples-v1'));
   assert(html.includes('agent-chat.js?feature=python-rider-v1'));
   assert(html.indexOf('agent-chat.js?')<html.indexOf('rider-api.js?'));
   for(const name of ['rider-evidence-agent.js','rider-policy-agent.js','rider-advocate-agent.js','rider-case-pipeline.js','route-analysis.js'])assert(!html.includes(name));

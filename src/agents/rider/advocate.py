@@ -14,7 +14,7 @@ def prepare(*, report, evidence, policy):
     def policies(*ids):
         return [clause for clause in clauses if clause in ids]
     report_refs = refs("report")
-    receipt = next(iter(find("receipt")), None)
+    receipt = next((item for item in find("receipt") if item["status"] == "available"), None)
     location = find("device_location")
     is_no_show = report["category"] == "No-show / cancellation"
     route = next(iter(find("route_analysis")), None)
@@ -89,7 +89,8 @@ def prepare(*, report, evidence, policy):
               "requested_outcome": deepcopy(report.get("requestedResolution", {})),
               "facts_relied_on": [item["id"] for item in items if item["status"] == "available"], "arguments": arguments,
               "counter_arguments": counter, "gaps": gaps, "policy_references": clauses, "requires_review": needs_route_review,
-              "conclusion": "Present the Rider’s request for review of the disputed cancellation charge. The account and receipt justify a focused review request; the available records do not establish who was at fault or guarantee a reversal." if is_no_show else conclusion}
+              "conclusion": ("Present the Rider’s request for review of the disputed cancellation charge. The account and receipt justify a focused review request; the available records do not establish who was at fault or guarantee a reversal."
+                             if receipt else "Present the Rider’s request for review. No receipt was supplied, so the available records do not establish the charged amount or responsibility.") if is_no_show else conclusion}
     ids = {item["id"] for item in items}
     for point in arguments + counter + gaps:
         if any(ref not in ids for ref in point.get("evidence_ids", [])) or any(ref not in clauses for ref in point.get("policy_ids", [])):

@@ -32,26 +32,28 @@
       const b = node('button', 'trip-choice'); b.type = 'button'; b.setAttribute('aria-pressed', String(t.id === tripId)); b.dataset.trip = t.id;
       const row = node('span', 'row'); row.append(node('strong', '', new Intl.DateTimeFormat('en-SG', {day:'numeric',month:'short',timeZone:'Asia/Singapore'}).format(new Date(`${t.date}T12:00:00+08:00`))), node('span', `tag ${t.status === 'Cancelled' ? 'cancelled' : ''}`, t.status));
       const journey = node('span', 'journey', t.pickup); journey.append(node('small', '', `→ ${t.destination}`));
-      b.append(row, journey, node('span', 'small muted', `${t.time} SGT · ${money(t.receipt.total)}`));
+      b.append(row, journey, node('span', 'small muted', `${t.time} SGT · ${t.sampleReport ? t.sampleReport.id + ' · ' : ''}${t.category} · ${t.receipt ? money(t.receipt.total) : 'Fare unavailable'}`));
       b.onclick = () => { tripId = t.id; el('appError').hidden = true; invalidate(); render(); };
       el('tripList').append(b);
     });
-    el('tripMeta').textContent = `${trip.date} · ${trip.time} SGT`; el('tripTitle').textContent = trip.service.split(' · ')[0];
+    el('tripMeta').textContent = `${trip.date} · ${trip.time} SGT · ${trip.category}`; el('tripTitle').textContent = trip.service.split(' · ')[0];
     el('tripId').textContent = trip.id; el('tripStatus').textContent = trip.status; el('tripStatus').className = `status ${trip.status === 'Cancelled' ? 'cancelled' : ''}`;
-    el('pickup').textContent = trip.pickup; el('destination').textContent = trip.destination; el('fare').textContent = money(trip.receipt.total);
+    el('pickup').textContent = trip.pickup; el('destination').textContent = trip.destination; el('fare').textContent = trip.receipt ? money(trip.receipt.total) : 'Fare unavailable';
     el('fixture').textContent = `Source: ${trip.fixture}. All times shown in Singapore time.`;
     el('timeline').replaceChildren();
     trip.events.forEach(event => { const li = node('li'); li.append(node('strong', '', event.title), node('p', '', event.detail), node('time', '', `${time(event.timestamp)} SGT`)); el('timeline').append(li); });
     el('reportLink').href = `../ryde-report/index.html?from=rider-app&rider=${encodeURIComponent(riderId)}&trip=${encodeURIComponent(tripId)}`;
-    el('receiptId').textContent = trip.receipt.id; el('receiptLines').replaceChildren();
-    [...trip.receipt.lines, {label:'Total charged',amount:trip.receipt.total}].forEach((line, i) => {
-      const row = node('div', `receipt-row ${i === trip.receipt.lines.length ? 'total' : ''}`); row.append(node('dt','',line.label),node('dd','',money(line.amount))); el('receiptLines').append(row);
-    });
-    el('paymentMethod').textContent = `${trip.receipt.method} · ${time(trip.receipt.timestamp)} SGT · Simulated receipt`;
+    el('receiptId').textContent = trip.receipt?.id || 'Receipt unavailable'; el('receiptLines').replaceChildren();
+    if (trip.receipt) {
+      [...trip.receipt.lines, {label:'Total charged',amount:trip.receipt.total}].forEach((line, i) => {
+        const row = node('div', `receipt-row ${i === trip.receipt.lines.length ? 'total' : ''}`); row.append(node('dt','',line.label),node('dd','',money(line.amount))); el('receiptLines').append(row);
+      });
+    }
+    el('paymentMethod').textContent = trip.receipt ? `${trip.receipt.method} · ${time(trip.receipt.timestamp)} SGT · Simulated receipt` : 'No rider receipt is supplied for this trip. Fare and payment details are unavailable.';
     el('messageList').replaceChildren();
     if (!trip.messages.length) el('messageList').append(node('p','notice','No conversation records are supplied for this trip.'));
     trip.messages.forEach(message => {
-      const b = node('article', `message ${message.sender === 'Rider' ? 'mine' : ''}`); b.append(node('div','meta',`${message.sender === 'Rider' ? 'You' : 'Driver → you'} · ${time(message.timestamp)} SGT`),node('p','',message.text)); el('messageList').append(b);
+      const b = node('article', `message ${message.sender === 'Rider' ? 'mine' : ''}`); b.append(node('div','meta',`${message.sender === 'Rider' ? 'You' : message.sender === 'Driver' ? 'Driver → you' : message.sender}${message.type === 'call' ? ' · Call log' : ''} · ${time(message.timestamp)} SGT`),node('p','',message.text)); el('messageList').append(b);
     });
     const report = readReport(); el('savedHint').textContent = report ? 'A rider report is saved in this app session.' : 'Photos and files can be added in the report form.';
     RiderCasePanel.load(el('riderCaseMount'),{riderId,tripId,report});

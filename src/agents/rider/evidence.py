@@ -42,10 +42,11 @@ def collect(*, rider_id, trip_id, report=None, catalog=None):
     source("rider booking", lambda: item("booking", "rider_app.booking", scheduled, "available", {
         "rider": {"id": rider["id"], "name": rider["name"]}, "pickup": trip["pickup"], "destination": trip["destination"],
         "scheduled_time": scheduled, "status": trip["status"], "fixture": trip["fixture"]}))
-    receipt = trip["receipt"]
+    receipt = trip.get("receipt")
     source("rider receipt", lambda: item("receipt", "rider_app.receipt", receipt["timestamp"], "available", {
         "receipt_id": receipt["id"], "total": receipt["total"], "currency": receipt["currency"], "payment_method": receipt["method"],
-        "lines": [{"label": line["label"], "amount": line["amount"]} for line in receipt["lines"]]}))
+        "lines": [{"label": line["label"], "amount": line["amount"]} for line in receipt["lines"]]}) if receipt else
+        item("receipt", "rider_app.receipt", None, "missing", {"reason": "No rider receipt is supplied. Fare and payment details are unavailable."}))
 
     def messages():
         if not trip["messages"]:
@@ -75,7 +76,7 @@ def collect(*, rider_id, trip_id, report=None, catalog=None):
             bound = isinstance(embedded, dict) and embedded.get("trip_id") == trip_id
             route = analyze_route(record if bound else {})
             internal_receipt = record.get("receipt") or {}
-            receipt_matches = (internal_receipt.get("receipt_id") == receipt["id"]
+            receipt_matches = (receipt is not None and internal_receipt.get("receipt_id") == receipt["id"]
                                and internal_receipt.get("currency") == receipt["currency"]
                                and str(internal_receipt.get("paid_net")) == format(receipt["total"], ".2f"))
             if not receipt_matches:
@@ -87,7 +88,7 @@ def collect(*, rider_id, trip_id, report=None, catalog=None):
                 **route, "reason": route.get("unavailable_reason"),
                 "source_record": deepcopy({key: record.get(key) for key in ("trip", "gps_telemetry", "route_baseline", "route_landmarks")}),
                 "interpretation": "Shared simulated vehicle GPS, not Rider device GPS. Stops are bounded candidates with unknown purpose."})
-            item("fare-analysis", "rider_app.fare_analysis", receipt["timestamp"], "available" if fare["available"] else "missing", {
+            item("fare-analysis", "rider_app.fare_analysis", receipt["timestamp"] if receipt else None, "available" if fare["available"] else "missing", {
                 **fare, "reason": fare.get("unavailable_reason"), "source_record": deepcopy({key: record.get(key) for key in ("tariff", "receipt")}), "interpretation": "ADR 0004 comparison only; no refund entitlement or Judge decision."})
         source("shared simulated vehicle route and fare comparison", route_comparison)
 

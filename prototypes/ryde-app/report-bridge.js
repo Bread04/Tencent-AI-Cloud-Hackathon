@@ -18,7 +18,7 @@
     get('tripDate').value = trip.date; get('tripDate').readOnly = true;
     get('tripDetails').value = `${trip.pickup} → ${trip.destination}`; get('tripDetails').readOnly = true;
     get('category').value = trip.category; renderCategory();
-    get('location').value = trip.pickup;
+    get('location').value = sample?.incidentLocation ?? (trip.category === 'Safety / conduct' ? '' : trip.pickup);
     get('tripSample').hidden = false; get('tripSample').textContent = `Simulated rider app trip · ${rider.name} · ${trip.time} SGT. Your statement is left blank for you to complete.`;
     get('sampleSelect').disabled = true;
     get('samplePicker').hidden = true;
