@@ -1,0 +1,164 @@
+{
+  "_simulated": "Mock report and trip records for the hackathon. Not a real trip.",
+  "dispute": {
+    "dispute_id": "DISP-005",
+    "trip_id": "TRIP-2026-09960",
+    "filed_by": "rider",
+    "category": "safety_incident",
+    "description": "The driver was speeding and braked hard at a red light. I asked him to slow down and he refused. I felt unsafe and ended the trip early.",
+    "requested_remedy": "Refund the fare and review the driver's conduct",
+    "filed_at": "2026-09-16T19:00:00+08:00",
+    "photos": [],
+    "driver_statement": "I was running late and the roads were clear. The rider asked me to slow down and I said it was fine."
+  },
+  "trip": {
+    "trip_id": "TRIP-2026-09960",
+    "rider_id": "R-7830",
+    "driver_id": "D-2405",
+    "pickup_location": {
+      "name": "Novena Square pickup bay",
+      "lat": 1.3,
+      "lng": 103.845
+    },
+    "dropoff_location": {
+      "name": "Orchard Road",
+      "lat": 1.304,
+      "lng": 103.832
+    },
+    "scheduled_time": "2026-09-16T18:00:00+08:00",
+    "driver_arrival_time": "2026-09-16T18:00:00+08:00",
+    "driver_wait_start": "2026-09-16T18:00:00+08:00",
+    "cancellation_time": "2026-09-16T18:09:00+08:00",
+    "cancellation_fee": "0.00",
+    "currency": "SGD",
+    "cancellation_reason": "rider_ended_trip_early"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-16T18:00:00+08:00",
+      "lat": 1.3,
+      "lng": 103.845,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-09-16T18:03:00+08:00",
+      "lat": 1.305,
+      "lng": 103.85,
+      "speed_kmh": 62,
+      "status": "driving"
+    },
+    {
+      "timestamp": "2026-09-16T18:05:00+08:00",
+      "lat": 1.311,
+      "lng": 103.856,
+      "speed_kmh": 84,
+      "status": "driving"
+    },
+    {
+      "timestamp": "2026-09-16T18:06:00+08:00",
+      "lat": 1.315,
+      "lng": 103.86,
+      "speed_kmh": 91,
+      "status": "driving"
+    },
+    {
+      "timestamp": "2026-09-16T18:07:00+08:00",
+      "lat": 1.3165,
+      "lng": 103.8612,
+      "speed_kmh": 12,
+      "status": "driving"
+    },
+    {
+      "timestamp": "2026-09-16T18:09:00+08:00",
+      "lat": 1.317,
+      "lng": 103.8615,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-16T18:00:20+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I have arrived."
+    },
+    {
+      "timestamp": "2026-09-16T18:05:40+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Please slow down. You are going far too fast."
+    },
+    {
+      "timestamp": "2026-09-16T18:06:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am in a hurry, it is fine."
+    },
+    {
+      "timestamp": "2026-09-16T18:07:10+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I am getting out at the next light. That was dangerous."
+    },
+    {
+      "timestamp": "2026-09-16T18:09:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip ended early by the rider. No cancellation fee applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-16T17:50:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider booked a trip from Novena Square to Orchard Road."
+    },
+    {
+      "timestamp": "2026-09-16T18:00:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "GPS recorded the driver at the booked pickup coordinates."
+    },
+    {
+      "timestamp": "2026-09-16T18:06:00+08:00",
+      "event_type": "speed_alert",
+      "details": "Vehicle speed above the road limit for 3 minutes."
+    },
+    {
+      "timestamp": "2026-09-16T18:09:00+08:00",
+      "event_type": "trip_ended_early",
+      "details": "Rider ended the trip. No fee applied."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": "5.00",
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation"
+  },
+  "rider_history": {
+    "rider_id": "R-7830",
+    "account_age_days": 300,
+    "total_trips": 64,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0
+  },
+  "driver_history": {
+    "driver_id": "D-2405",
+    "account_age_days": 800,
+    "total_trips": 2600,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0
+  }
+}

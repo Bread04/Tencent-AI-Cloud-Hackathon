@@ -21,6 +21,8 @@ CHECKLIST_SOURCES = {
     "wait_timers": "fare",
     "contact_attempts": "chat",
     "rider_position": "rider_location",
+    "trip_route": "gps",
+    "conversation": "chat",
 }
 
 

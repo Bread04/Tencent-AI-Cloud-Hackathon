@@ -455,13 +455,13 @@
       }
     ],
     "review_record": null,
-    "created_at": "2026-10-12T06:48:16.565560Z",
-    "updated_at": "2026-10-12T06:48:16.574656Z"
+    "created_at": "2026-10-12T07:09:33.948092Z",
+    "updated_at": "2026-10-12T07:09:33.959257Z"
   },
   "log": [
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.565560Z",
+      "timestamp": "2026-10-12T07:09:33.948092Z",
       "agent": "intake",
       "kind": "case_filed",
       "summary": "Rider filed a no_show_charge Dispute on trip TRIP-2026-09946.",
@@ -472,7 +472,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.565711Z",
+      "timestamp": "2026-10-12T07:09:33.948331Z",
       "agent": "orchestrator",
       "kind": "evidence_requested",
       "summary": "Requested GPS, chat, fare and History evidence for trip TRIP-2026-09946.",
@@ -482,7 +482,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.565875Z",
+      "timestamp": "2026-10-12T07:09:33.948555Z",
       "agent": "evidence",
       "kind": "evidence_returned",
       "summary": "5 Evidence Item(s) returned, 1 marked missing.",
@@ -496,7 +496,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.566029Z",
+      "timestamp": "2026-10-12T07:09:33.948790Z",
       "agent": "orchestrator",
       "kind": "evidence_sealed",
       "summary": "Evidence set sealed as CASE-0001-evidence-v1 with 5 item(s).",
@@ -506,7 +506,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.566399Z",
+      "timestamp": "2026-10-12T07:09:33.949717Z",
       "agent": "policy",
       "kind": "policy_retrieved",
       "summary": "8 applicable Policy Clause(s) retrieved.",
@@ -523,7 +523,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.567141Z",
+      "timestamp": "2026-10-12T07:09:33.951289Z",
       "agent": "rider_advocate",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -531,7 +531,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.567550Z",
+      "timestamp": "2026-10-12T07:09:33.952021Z",
       "agent": "driver_advocate",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -539,7 +539,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.568030Z",
+      "timestamp": "2026-10-12T07:09:33.952600Z",
       "agent": "rider_advocate",
       "kind": "submission_filed",
       "summary": "Submission filed: Reverse the no-show cancellation fee recorded in the fare evidence.",
@@ -553,7 +553,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.568562Z",
+      "timestamp": "2026-10-12T07:09:33.952943Z",
       "agent": "driver_advocate",
       "kind": "submission_filed",
       "summary": "Submission filed: Recognise the recorded arrival and contact attempt, while accepting reversal of the prematurely applied no-show fee.",
@@ -567,7 +567,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.569750Z",
+      "timestamp": "2026-10-12T07:09:33.953823Z",
       "agent": "judge",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -575,7 +575,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.570213Z",
+      "timestamp": "2026-10-12T07:09:33.954444Z",
       "agent": "judge_self_check",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -583,7 +583,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.570415Z",
+      "timestamp": "2026-10-12T07:09:33.954747Z",
       "agent": "judge",
       "kind": "self_check_passed",
       "summary": "Self-check passed: each cited item supports the claim made about it.",
@@ -591,7 +591,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.570596Z",
+      "timestamp": "2026-10-12T07:09:33.955013Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "rider_advocate#claim: accepted. GPS records arrival at 10:00 and cancellation at 10:04. Fare evidence computes four elapsed minutes, with neither the five-minute free wait nor the eight-minute no-show threshold reached.",
@@ -602,7 +602,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.570770Z",
+      "timestamp": "2026-10-12T07:09:33.955383Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "rider_advocate#counter-1: not decisive. GPS supports arrival and four minutes at the bay, but the driver's inability to see the rider does not establish the required wait.",
@@ -613,7 +613,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.570943Z",
+      "timestamp": "2026-10-12T07:09:33.955738Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "driver_advocate#claim: not decisive. GPS supports presence during the four-minute wait and chat records both the driver's messages and the rider's reply. Those facts do not establish that the trip's no-show threshold was reached.",
@@ -625,7 +625,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.571572Z",
+      "timestamp": "2026-10-12T07:09:33.956075Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "driver_advocate#counter-1: accepted. The rider correctly identifies a cancellation before either trip waiting threshold, which the driver acknowledges.",
@@ -637,7 +637,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.572021Z",
+      "timestamp": "2026-10-12T07:09:33.956673Z",
       "agent": "judge_second_pass",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -645,7 +645,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.572332Z",
+      "timestamp": "2026-10-12T07:09:33.957148Z",
       "agent": "judge",
       "kind": "stability_check",
       "summary": "Stability check: The passes disagree on the outcome: uphold (0.80), then reject (0.80) with the Submissions in the other order.",
@@ -653,7 +653,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.572761Z",
+      "timestamp": "2026-10-12T07:09:33.957823Z",
       "agent": "judge",
       "kind": "ruling_drafted",
       "summary": "Proposal recorded: no final decision or payment authorization. Pending review: stability_disagreement: The passes disagree on the outcome: uphold (0.80), then reject (0.80) with the Submissions in the other order.; low_confidence: Calculated confidence 0.5 is below the configured threshold 0.7.",
@@ -669,7 +669,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.573501Z",
+      "timestamp": "2026-10-12T07:09:33.958181Z",
       "agent": "escalation",
       "kind": "escalated",
       "summary": "Sent to a Human Reviewer: The passes disagree on the outcome: uphold (0.80), then reject (0.80) with the Submissions in the other order.; Calculated confidence 0.5 is below the configured threshold 0.7.",
@@ -680,7 +680,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.574148Z",
+      "timestamp": "2026-10-12T07:09:33.958874Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
       "summary": "Outcome sent to the rider (pending_review).",
@@ -688,7 +688,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T06:48:16.574656Z",
+      "timestamp": "2026-10-12T07:09:33.959257Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
       "summary": "Outcome sent to the driver (pending_review).",
@@ -701,7 +701,7 @@
       "agent": "rider_advocate",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T06:48:16.567089Z",
+      "started_at": "2026-10-12T07:09:33.951181Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -723,7 +723,7 @@
       "agent": "driver_advocate",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T06:48:16.567515Z",
+      "started_at": "2026-10-12T07:09:33.951967Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -745,7 +745,7 @@
       "agent": "judge",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T06:48:16.569567Z",
+      "started_at": "2026-10-12T07:09:33.953727Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -767,7 +767,7 @@
       "agent": "judge_self_check",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T06:48:16.570188Z",
+      "started_at": "2026-10-12T07:09:33.954407Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -789,7 +789,7 @@
       "agent": "judge_second_pass",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T06:48:16.571961Z",
+      "started_at": "2026-10-12T07:09:33.956580Z",
       "seconds": 0.0,
       "messages": [
         {

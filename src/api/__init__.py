@@ -13,8 +13,10 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 from src.agents.policy import SIMULATED_LABEL as POLICY_SIMULATED
+from src.agents.intake import IntakeError, resolve_category
 from src.api.review import add_review_routes
 from src.config import CONFIG
 from src.contracts import Case, LogEvent, RulingStatus
@@ -27,6 +29,11 @@ SIMULATED = "Simulated: all trips, evidence, policy and payments on this page ar
 HERE = Path(__file__).resolve().parent
 PROTOTYPES = HERE.parents[1] / "prototypes"
 START_TIMEOUT_SECONDS = 5  # how long a run may take to create its Case before the start request gives up
+
+
+class ClassifyRequest(BaseModel):
+    description: str
+    category: str | None = None
 
 
 def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model_label: str = "Scripted replies") -> FastAPI:
@@ -43,14 +50,14 @@ def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model
         return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
 
     @app.post("/api/disputes/{dispute_id}/run", status_code=202)
-    def start_run(dispute_id: str, precedent: bool = False, stability: bool = False):
+    def start_run(dispute_id: str, precedent: bool = False, stability: bool = False, routing: bool = False):
         """Start a run in the background and return its Case ID as soon as the Case exists, so the console can watch it."""
         try:
             dispute = catalog.dispute(dispute_id)
         except UnknownDispute as error:
             return JSONResponse({"error": str(error)}, status_code=404)
         known = {case.case_id for case in store.list_cases()}
-        chosen = {name: True for name, on in [("policy_precedent", precedent), ("stability_check", stability)] if on}
+        chosen = {name: True for name, on in [("policy_precedent", precedent), ("stability_check", stability), ("sla_routing", routing)] if on}
         switches = CONFIG.switches.model_copy(update=chosen) if chosen else None  # None: the configured defaults
 
         def work():
@@ -84,6 +91,15 @@ def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model
         }
 
     add_review_routes(app, store=store, simulated=SIMULATED, model_label=model_label)
+
+    @app.post("/api/classify")
+    def classify_description(request: ClassifyRequest):
+        """Which category a description belongs to, when none was chosen; a clear error when it fits none."""
+        try:
+            category = resolve_category(request.category, request.description)
+        except IntakeError as error:
+            return JSONResponse({"error": str(error)}, status_code=422)
+        return {"category": category.value, "chosen": bool(request.category)}
 
     @app.post("/disputes/{dispute_id}/run")
     def run(dispute_id: str):

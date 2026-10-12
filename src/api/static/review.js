@@ -27,9 +27,10 @@
     $("queueEmpty").hidden = cases.length > 0;
     $("queue").replaceChildren(...cases.map((item) => {
       const button = el("button", { type: "button", class: "trip-choice", "aria-pressed": String(item.case_id === selected) },
-        el("span", { class: "row" }, el("strong", {}, item.dispute_id), el("span", { class: "tag cancelled" }, item.confidence == null ? "no ruling" : `confidence ${item.confidence.toFixed(2)}`)),
+        el("span", { class: "row" }, el("strong", {}, item.dispute_id), el("span", { class: "tag cancelled" }, item.priority ? `priority ${item.priority}` : (item.confidence == null ? "no ruling" : `confidence ${item.confidence.toFixed(2)}`))),
         el("span", { class: "journey" }, `${item.case_id}`, el("small", {}, item.reasons.map((r) => words(r.trigger)).join(" · ") || "held for review")),
-        el("span", { class: "small muted" }, item.proposed_outcome ? `Proposed: ${words(item.proposed_outcome)}` : "Nothing proposed: a stage failed"));
+        el("span", { class: "small muted" }, item.proposed_outcome ? `Proposed: ${words(item.proposed_outcome)}` : "Nothing proposed: a stage failed"),
+        item.priority_reason ? el("span", { class: "small muted" }, item.priority_reason) : null);
       button.addEventListener("click", () => open(item.case_id));
       return button;
     }));

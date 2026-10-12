@@ -96,6 +96,10 @@ class Config(_Settings):
             "contact_attempts": "Driver contact attempts",
             "rider_position": "Rider position",
         },
+        DisputeCategory.SAFETY_INCIDENT: {
+            "trip_route": "Route, speed and stops recorded for the trip",
+            "conversation": "Messages between rider and driver",
+        },
     }
 
     # PLACEHOLDER table, taken from the Judge prototype.

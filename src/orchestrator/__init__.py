@@ -7,6 +7,7 @@ supporting agents and their switches, the review queue and reviewer (ticket 09).
 """
 
 from collections.abc import Sequence
+from decimal import Decimal
 from concurrent.futures import ThreadPoolExecutor
 
 from src.agents.advocates import build_submission
@@ -15,6 +16,7 @@ from src.agents.judge import judge
 from src.agents.judge.history import apply_history
 from src.agents.outcomes import outcomes_for, pending_outcomes
 from src.agents.policy import policy_for
+from src.agents.routing import score
 from src.agents.policy.precedents import describe, load_embedder, retrieve_precedents, seeded_precedents
 from src.config import CONFIG
 from src.contracts import (
@@ -38,6 +40,7 @@ from src.store import CaseStore
 from src.tools.evidence import gather_evidence
 
 SUPPORTED_CATEGORIES = frozenset({DisputeCategory.NO_SHOW_CHARGE})
+ROUTED_CATEGORIES = SUPPORTED_CATEGORIES | {DisputeCategory.SAFETY_INCIDENT}  # Safety Incidents arrive with SLA routing
 
 
 def run_dispute(
@@ -49,10 +52,14 @@ def run_dispute(
     if not isinstance(model, RecordingModel):
         model = RecordingModel(model, store)  # every model call is recorded and shown in the log
 
-    reason = _rejection_reason(dispute, catalog)
+    reason = _rejection_reason(dispute, catalog, case.switches.sla_routing)
     if reason:
         store.reject_case(case_id, reason)
         return store.get_case(case_id)
+
+    if case.switches.sla_routing:  # a Priority and its reason for every Case; without the switch all Cases share one
+        priority = score(dispute, Decimal(catalog.trip(dispute.trip_id)["trip"]["cancellation_fee"]))
+        store.set_priority(case_id, priority.value, priority.reason)
 
     store.log_event(
         case_id,
@@ -97,7 +104,8 @@ def run_dispute(
 
     # History is applied only now, after the outcome is fixed (ADR 0001).
     ruling = apply_history(ruling, store.get_case(case_id))
-    ruling = apply_escalation(ruling, enabled=case.switches.escalation, threshold=CONFIG.escalation.confidence_threshold)
+    safety = dispute.category is DisputeCategory.SAFETY_INCIDENT and case.switches.sla_routing
+    ruling = apply_escalation(ruling, enabled=case.switches.escalation, threshold=CONFIG.escalation.confidence_threshold, safety_incident=safety)
     store.set_ruling(case_id, ruling)
     if ruling.status is RulingStatus.PROPOSAL:
         store.mark_pending_review(case_id, ruling.review_triggers)
@@ -133,13 +141,14 @@ def _failure_reason(subject: str, noun: str, failure: Exception) -> str:
     return f"The {subject} could not produce a valid {noun}: {failure}"
 
 
-def _rejection_reason(dispute: Dispute, catalog: Catalog) -> str | None:
+def _rejection_reason(dispute: Dispute, catalog: Catalog, routing: bool = False) -> str | None:
     try:
         catalog.trip(dispute.trip_id)
     except UnknownTrip:
         return f"Trip {dispute.trip_id} does not exist."
-    if dispute.category not in SUPPORTED_CATEGORIES:
-        supported = ", ".join(sorted(category.value for category in SUPPORTED_CATEGORIES))
+    supported_now = ROUTED_CATEGORIES if routing else SUPPORTED_CATEGORIES
+    if dispute.category not in supported_now:
+        supported = ", ".join(sorted(category.value for category in supported_now))
         return f"{dispute.category.value} Disputes cannot be resolved yet; supported: {supported}."
     return None
 

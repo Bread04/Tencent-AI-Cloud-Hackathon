@@ -22,10 +22,10 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     catalog = load_catalog()
     for dispute_id, dispute in catalog.disputes.items():
-        for variants in ((), ("precedent",), ("stability",), ("precedent", "stability")):  # every setting of the two switches
+        for variants in ((), ("precedent",), ("stability",), ("precedent", "stability"), ("routing",)):  # the settings the console can replay
             store = CaseStore()
             model = StubModel({("CASE-0001", agent): reply for agent, reply in load_replies(dispute_id, *variants).items()})
-            on = {"policy_precedent": "precedent" in variants, "stability_check": "stability" in variants}
+            on = {"policy_precedent": "precedent" in variants, "stability_check": "stability" in variants, "sla_routing": "routing" in variants}
             case = run_dispute(dispute, store=store, model=model, catalog=catalog, switches=CONFIG.switches.model_copy(update=on) if variants else None)
             body = {
                 "case": case.model_dump(mode="json"),

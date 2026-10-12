@@ -1,0 +1,61 @@
+{
+  "case": {
+    "case_id": "CASE-0001",
+    "dispute": {
+      "dispute_id": "DISP-006",
+      "trip_id": "TRIP-2026-09961",
+      "filed_by": "rider",
+      "category": "safety_incident",
+      "description": "I felt the driver was driving recklessly and changed lanes too often. I want to report him.",
+      "requested_remedy": "Review the driver's conduct",
+      "filed_at": "2026-09-17T09:00:00+08:00",
+      "photos": [],
+      "driver_statement": "I drove at the normal speed and changed lanes only when needed. Nothing unusual happened."
+    },
+    "status": "rejected",
+    "priority": 0,
+    "priority_reason": null,
+    "switches": {
+      "evidence_agents": false,
+      "policy_precedent": true,
+      "image_analysis": false,
+      "escalation": true,
+      "stability_check": true,
+      "sla_routing": false,
+      "learning_loop": false
+    },
+    "evidence": [],
+    "evidence_version": null,
+    "policy_clauses": [],
+    "precedents": [],
+    "submissions": [],
+    "ruling": null,
+    "outcomes": [],
+    "review_record": null,
+    "created_at": "2026-10-12T07:09:34.177441Z",
+    "updated_at": "2026-10-12T07:09:34.177763Z"
+  },
+  "log": [
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T07:09:34.177441Z",
+      "agent": "intake",
+      "kind": "case_filed",
+      "summary": "Rider filed a safety_incident Dispute on trip TRIP-2026-09961.",
+      "references": [
+        "DISP-006",
+        "TRIP-2026-09961"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T07:09:34.177763Z",
+      "agent": "intake",
+      "kind": "case_rejected",
+      "summary": "Dispute rejected: safety_incident Disputes cannot be resolved yet; supported: no_show_charge.",
+      "references": []
+    }
+  ],
+  "calls": [],
+  "run_error": null
+}

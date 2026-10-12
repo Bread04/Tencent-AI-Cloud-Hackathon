@@ -12,8 +12,10 @@
   const stabilityBox = document.getElementById("useStability");
   stabilityBox.checked = params.has("stability");
   // The setting as a file suffix (recorded streams) and as a query string (the live API).
-  const variantSuffix = () => (usePrecedent() ? ".precedent" : "") + (stabilityBox.checked ? ".stability" : "");
-  const switchQuery = () => [usePrecedent() && "precedent=true", stabilityBox.checked && "stability=true"].filter(Boolean).join("&");
+  const routingBox = document.getElementById("useRouting");
+  routingBox.checked = params.has("routing");
+  const variantSuffix = () => (usePrecedent() ? ".precedent" : "") + (stabilityBox.checked ? ".stability" : "") + (routingBox.checked ? ".routing" : "");
+  const switchQuery = () => [usePrecedent() && "precedent=true", stabilityBox.checked && "stability=true", routingBox.checked && "routing=true"].filter(Boolean).join("&");
 
   const $ = (id) => document.getElementById(id);
   const paceEl = $("pace");
@@ -98,7 +100,7 @@
 
   async function loadRecorded(disputeId) {
     const response = await fetch(`/static/recorded/${disputeId}${variantSuffix()}.json`);
-    if (!response.ok) throw new Error(`no recorded stream for ${disputeId}`);
+    if (!response.ok) throw new Error(`no recorded stream for ${disputeId} with these settings; untick one, or run it live`);
     const body = await response.json();
     return async () => body;
   }
@@ -129,7 +131,7 @@
         if (!recorded && Date.now() - lastPoll > POLL_MS) { body = await fetchBody(); lastPoll = Date.now(); }
         continue;
       }
-      if (body.case.outcomes.length > 0 || body.run_error) break;
+      if (body.case.outcomes.length > 0 || body.run_error || body.case.status === "rejected") break;
       await sleep(POLL_MS);
       body = await fetchBody();
       lastPoll = Date.now();
@@ -139,6 +141,7 @@
     markNow(null);
     completePipeline(body.case);
     $("caseStatus").textContent = words(body.case.status);
+    showPriority(body.case);
     if (body.run_error) fail(`The run stopped: ${body.run_error}`);
     else setStatus(`${disputeId} finished: ${body.log.length} events. Case ${body.case.case_id} is ${words(body.case.status)}.`);
     renderSummary(body.case, body.log);
@@ -148,6 +151,11 @@
     renderSubmissions(body.case);
     renderCalls(body.calls);
     if (["ruling", "evidence", "submissions", "calls"].includes(params.get("tab"))) showTab(params.get("tab"));
+  }
+
+  function showPriority(kase) {
+    const base = `${kase.dispute.dispute_id} · filed by the ${kase.dispute.filed_by}`;
+    $("caseId").textContent = kase.priority_reason ? `${base} · Priority ${kase.priority}: ${kase.priority_reason}` : base;
   }
 
   function setStatus(text) { $("status").textContent = text; }
@@ -183,7 +191,7 @@
     const ruling = kase.ruling;
     const card = $("summaryCard");
     if (!ruling) {
-      const why = log.filter((e) => e.kind === "escalated").map((e) => e.summary).pop();
+      const why = log.filter((e) => e.kind === "escalated" || e.kind === "case_rejected").map((e) => e.summary).pop();
       card.replaceChildren(el("span", { class: "support-symbol", "aria-hidden": "true" }, "!"), el("h3", {}, "No ruling"), el("p", {}, why || `Case status: ${words(kase.status)}.`));
       return;
     }
@@ -196,7 +204,7 @@
         el("span", { class: `chip ${ruling.status}` }, ruling.status === "proposal" ? "Proposal, held for review" : "Final"),
         el("span", { class: "chip" }, `Remedy: ${words(ruling.remedy)}`)),
       ruling.amount != null ? el("p", {}, el("span", { class: "big-number" }, `${ruling.currency} ${ruling.amount}`)) : null,
-      gauge(ruling.confidence.value),
+      gauge(ruling.confidence.value, ruling.review_triggers.length > 0),
       el("p", {}, ruling.reasoning_summary),
       seeRuling].filter(Boolean)); // replaceChildren would print a null as the text "null"
   }
@@ -240,7 +248,7 @@
     const entries = Object.entries(components);
     const weakest = Math.min(...entries.map(([, v]) => v));
     const block = el("div", { class: "detail-section" },
-      gauge(value),
+      gauge(value, ruling.review_triggers.length > 0),
       el("p", { class: "who" }, "Confidence is the lowest of its parts."),
       el("ul", { class: "bars" }, ...entries.map(([name, v]) =>
         el("li", { class: `bar${v === weakest ? " weakest" : ""}` },
@@ -495,7 +503,7 @@
   };
   let gradientCount = 0;
 
-  function gauge(value) {
+  function gauge(value, held = false) {
     const R = 45, CX = 50, CY = 50.5, half = Math.PI * R;
     const strength = value >= 0.8 ? "strong" : value >= 0.4 ? "moderate" : "weak";
     const below = value < THRESHOLD;
@@ -531,7 +539,9 @@
       el("div", { class: "gauge-body" }, dial,
         el("div", { class: "gauge-display" }, el("div", { class: "gauge-digits" }, ...digits), el("div", { class: "gauge-label" }, "out of 1"))),
       el("p", { class: `gauge-note${below ? " low" : ""}` },
-        below ? `Below the ${THRESHOLD} line: a person reviews this.` : `At or above the ${THRESHOLD} line: no review needed.`));
+        below ? `Below the ${THRESHOLD} line: a person reviews this.`
+          : held ? `Above the ${THRESHOLD} line, but held for review for another reason.`
+          : `At or above the ${THRESHOLD} line: no review needed.`));
   }
 
   // --- Hover card: preview a cited item without leaving the tab -----------------------------------------
