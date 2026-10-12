@@ -1,17 +1,19 @@
 """The orchestrator: ordinary code that runs one Dispute through its stages in order.
 
 No model chooses the next step (architecture.md section 3.2). Tracer-bullet
-version: intake, evidence, policy, both advocates, the Judge, the History step and
+version: intake, evidence, policy, both advocates (in parallel), the Judge, the History step and
 Outcomes. A proposal or a failed Judge holds the Case for review. Not here yet: priority,
 supporting agents and their switches, the review queue and reviewer (ticket 09).
 """
+
+from concurrent.futures import ThreadPoolExecutor
 
 from src.agents.advocates import build_submission
 from src.agents.judge import judge
 from src.agents.judge.history import apply_history
 from src.agents.outcomes import outcomes_for, pending_outcomes
 from src.agents.policy import policy_for
-from src.contracts import Advocate, Case, Dispute, DisputeCategory, LogEventKind, ReviewTrigger, ReviewTriggerRecord
+from src.contracts import Advocate, Case, Dispute, DisputeCategory, LogEventKind, ReviewTrigger, ReviewTriggerRecord, Submission
 from src.intake import Catalog, UnknownTrip
 from src.llm.adapter import ModelAdapter
 from src.llm.repair import StageFailed
@@ -43,9 +45,13 @@ def run_dispute(dispute: Dispute, *, store: CaseStore, model: ModelAdapter, cata
 
     # Both advocates work from this snapshot (sealed evidence and policy), taken before either has filed.
     sealed = store.get_case(case_id)
-    submissions = {advocate: build_submission(advocate, sealed, model) for advocate in Advocate}
+    submissions, failures = _build_submissions(sealed, model)
     for submission in submissions.values():
         store.add_submission(case_id, submission)
+    if failures:
+        reason = ReviewTriggerRecord(trigger=ReviewTrigger.STAGE_FAILED, reason=" ".join(failures))
+        _hold_for_review(store, case_id, [reason], pending_outcomes())
+        return store.get_case(case_id)
 
     try:
         ruling = judge(
@@ -68,6 +74,26 @@ def run_dispute(dispute: Dispute, *, store: CaseStore, model: ModelAdapter, cata
     for outcome in outcomes_for(ruling, store.get_case(case_id)):
         store.add_outcome(case_id, outcome)
     return store.get_case(case_id)
+
+
+def _build_submissions(sealed: Case, model: ModelAdapter) -> tuple[dict[Advocate, Submission], list[str]]:
+    """Run both advocates at once; neither can see the other, since each reads only the sealed snapshot."""
+
+    def attempt(advocate: Advocate) -> Submission | StageFailed:
+        try:
+            return build_submission(advocate, sealed, model)
+        except StageFailed as failure:
+            return failure
+
+    with ThreadPoolExecutor(max_workers=len(Advocate)) as pool:
+        results = dict(zip(Advocate, pool.map(attempt, Advocate)))
+    submissions = {advocate: result for advocate, result in results.items() if isinstance(result, Submission)}
+    failures = [
+        f"The {advocate.value.replace('_', ' ')} could not produce a valid Submission: {result}"
+        for advocate, result in results.items()
+        if isinstance(result, StageFailed)
+    ]
+    return submissions, failures
 
 
 def _rejection_reason(dispute: Dispute, catalog: Catalog) -> str | None:

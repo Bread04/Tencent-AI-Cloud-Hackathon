@@ -5,7 +5,6 @@ import socket
 
 import pytest
 
-from src.agents.citations import CitationError
 from src.agents.policy import policy_for
 from src.contracts import ActionStatus, CaseStatus, DisputeCategory, EvidenceStatus, LogEventKind, RulingOutcome, RulingStatus
 from src.intake import DEFAULT_DATA_DIR, load_catalog
@@ -137,18 +136,24 @@ def run_with_scripted_changes(agent: str, **changes):
     replies = stub_replies()
     replies[agent] = replies[agent] | changes
     model = StubModel({("CASE-0001", name): reply for name, reply in replies.items()})
-    return run_dispute(catalog.dispute(DISPUTE_ID), store=store, model=model, catalog=catalog)
+    case = run_dispute(catalog.dispute(DISPUTE_ID), store=store, model=model, catalog=catalog)
+    return store, case
 
 
-def test_an_advocate_citing_a_policy_clause_that_does_not_exist_is_refused_with_a_clear_error():
-    with pytest.raises(CitationError, match="NS-99"):
-        run_with_scripted_changes("driver_advocate", policy_clause_ids=["NS-1", "NS-99"])
+def test_an_advocate_citing_a_policy_clause_that_does_not_exist_sends_the_case_to_review_with_the_reason():
+    store, case = run_with_scripted_changes("driver_advocate", policy_clause_ids=["NS-1", "NS-99"])
+
+    assert case.status is CaseStatus.PENDING_REVIEW
+    assert case.ruling is None
+    assert "NS-99" in next(e.summary for e in store.log(case.case_id) if e.kind is LogEventKind.ESCALATED)
 
 
 def test_an_advocate_cannot_quote_a_missing_evidence_item_as_fact():
-    with pytest.raises(CitationError, match="EV-RIDERLOC-1.*missing"):
-        run_with_scripted_changes("rider_advocate", facts_relied_on=["EV-FARE-1", "EV-RIDERLOC-1"])
+    store, case = run_with_scripted_changes("rider_advocate", facts_relied_on=["EV-FARE-1", "EV-RIDERLOC-1"])
 
+    reason = next(e.summary for e in store.log(case.case_id) if e.kind is LogEventKind.ESCALATED)
+    assert case.status is CaseStatus.PENDING_REVIEW
+    assert "EV-RIDERLOC-1" in reason and "missing" in reason
 
 
 # --- The finished run: History, Outcomes and the review state --------------------------------------------
