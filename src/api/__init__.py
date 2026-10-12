@@ -15,6 +15,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from src.agents.policy import SIMULATED_LABEL as POLICY_SIMULATED
+from src.api.review import add_review_routes
 from src.config import CONFIG
 from src.contracts import Case, LogEvent, RulingStatus
 from src.intake import Catalog, UnknownDispute
@@ -78,6 +79,8 @@ def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model
             "log": [event.model_dump(mode="json") for event in log],
             "run_error": run_errors.get(case_id),
         }
+
+    add_review_routes(app, store=store, simulated=SIMULATED, model_label=model_label)
 
     @app.post("/disputes/{dispute_id}/run")
     def run(dispute_id: str):

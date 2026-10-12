@@ -101,17 +101,25 @@ class ReviewError(Exception):
     """A decision that cannot be made, with the reason."""
 
 
+class ReviewNotPossible(ReviewError):
+    """The Case is not in a state to be decided (not pending review, or no proposed Ruling)."""
+
+
+class ReviewInvalid(ReviewError):
+    """The decision itself is incomplete: a missing reviewer name or a missing override reason."""
+
+
 def decide_review(store: CaseStore, case_id: str, *, reviewer: str, decision: ReviewDecision, reason: str | None = None) -> Case:
     """Confirm the proposed Ruling, or override it with a reason; then both parties get the final Outcome."""
     case = store.get_case(case_id)
     if case.status is not CaseStatus.PENDING_REVIEW:
-        raise ReviewError(f"{case_id} is not pending review (it is {case.status.value}).")
+        raise ReviewNotPossible(f"{case_id} is not pending review (it is {case.status.value}).")
     if case.ruling is None:
-        raise ReviewError(f"{case_id} has no proposed Ruling to confirm or override, because a stage failed before one was made.")
+        raise ReviewNotPossible(f"{case_id} has no proposed Ruling to confirm or override, because a stage failed before one was made.")
     if not reviewer.strip():
-        raise ReviewError("A reviewer name is required.")
+        raise ReviewInvalid("A reviewer name is required.")
     if decision is ReviewDecision.OVERRIDE and not (reason or "").strip():
-        raise ReviewError("An override needs a reason.")
+        raise ReviewInvalid("An override needs a reason.")
 
     final = _confirmed(case.ruling) if decision is ReviewDecision.CONFIRM else _overridden(case, reviewer.strip(), reason.strip())
     record = ReviewRecord(reviewer=reviewer.strip(), decision=decision, reason=(reason or "").strip() or None, decided_at=datetime.now(timezone.utc))
