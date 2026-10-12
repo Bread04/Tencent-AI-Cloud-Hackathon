@@ -19,6 +19,7 @@ from src.store import CaseStore
 
 
 def main(dispute_id: str) -> None:
+    sys.stdout.reconfigure(encoding="utf-8")  # model text can hold characters the Windows console codepage cannot print
     catalog, store = load_catalog(), CaseStore()
     model = model_from_environment(os.environ, stub=ReplayModel(store))
     case = run_dispute(catalog.dispute(dispute_id), store=store, model=model, catalog=catalog)

@@ -52,7 +52,7 @@ class EscalationSettings(_Settings):
 class ModelSettings(_Settings):
     """How agents talk to the model (architecture.md sections 6.4 and 8)."""
 
-    structured_output: Literal["json_schema"] = "json_schema"  # schema-constrained JSON, validated in code
+    structured_output: Literal["json_schema", "json_object"] = "json_schema"  # JSON the reply must match, validated in code; json_object puts the schema in the prompt for providers without schema support
     repair_attempts: int = Field(default=2, ge=0)  # retries with the validation error fed back
     timeout_seconds: float = Field(default=30.0, gt=0)  # every model call; a timeout is a failure, not a hang
 

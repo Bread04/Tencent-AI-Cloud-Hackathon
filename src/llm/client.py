@@ -32,25 +32,31 @@ class OpenAICompatibleModel:
         api_key: str,
         model: str,
         timeout_seconds: float,
+        structured_output: str = "json_schema",
         transport: httpx.BaseTransport | None = None,
     ):
         self._url = base_url.rstrip("/") + "/chat/completions"
         self._where = _without_secrets(self._url)  # what messages and the repr may show
+        self._api_key = api_key
         self._headers = {"Authorization": f"Bearer {api_key}"}
         self._model = model
         self._timeout = timeout_seconds
+        self._structured_output = structured_output  # json_schema, or json_object for providers without schema support
         self._transport = transport
 
     def __repr__(self) -> str:
         return f"OpenAICompatibleModel(url={self._where!r}, model={self._model!r})"
 
     def complete(self, messages: list[Message], *, case_id: str, agent: str, schema: type[T] | None = None, images: list[str] | None = None):
+        if schema is not None and self._structured_output == "json_object":
+            messages = _with_schema_in_prompt(messages, schema)
         body: dict = {"model": self._model, "messages": _with_images(messages, images, agent)}
         if schema is not None:
-            body["response_format"] = {
-                "type": "json_schema",
-                "json_schema": {"name": schema.__name__, "schema": schema.model_json_schema()},
-            }
+            body["response_format"] = (
+                {"type": "json_object"}
+                if self._structured_output == "json_object"
+                else {"type": "json_schema", "json_schema": {"name": schema.__name__, "schema": schema.model_json_schema()}}
+            )
         content = self._post(body, agent)
         if schema is None:
             return content
@@ -65,7 +71,7 @@ class OpenAICompatibleModel:
         except httpx.HTTPError as error:
             raise ModelError(f"The model could not be reached at {self._where} ({type(error).__name__}).") from error
         if response.status_code >= 400:
-            raise ModelError(f"The model returned HTTP {response.status_code} (agent {agent}).")
+            raise ModelError(f"The model returned HTTP {response.status_code} (agent {agent}).{self._provider_message(response)}")
         try:
             content = response.json()["choices"][0]["message"]["content"]
         except (ValueError, KeyError, IndexError, TypeError):
@@ -74,11 +80,40 @@ class OpenAICompatibleModel:
             raise ModelError(f"The model returned no content (agent {agent}).")
         return content
 
+    def _provider_message(self, response: httpx.Response) -> str:
+        """The provider's own explanation, when it sends one, with the key scrubbed.
+
+        Gateways such as OpenRouter wrap the real reason: {"error": {"message": "Provider returned error",
+        "metadata": {"raw": "<the upstream error>"}}}, so the upstream text is preferred.
+        """
+        try:
+            error = response.json()["error"]
+            message = error["message"]
+        except (ValueError, KeyError, TypeError):
+            return ""
+        raw = (error.get("metadata") or {}).get("raw") if isinstance(error, dict) else None
+        if isinstance(raw, str) and raw:
+            try:
+                raw = json.loads(raw).get("message", raw)
+            except (ValueError, AttributeError):
+                pass
+            message = raw
+        if not isinstance(message, str):
+            return ""
+        return " " + message.replace(self._api_key, "[key]")[:240]
+
 
 def _unfenced(content: str) -> str:
     """Some providers wrap JSON in a code fence even when asked for plain JSON."""
     match = FENCE.match(content.strip())
     return match.group(1) if match else content
+
+
+def _with_schema_in_prompt(messages: list[Message], schema: type[BaseModel]) -> list[Message]:
+    """For providers that accept only plain JSON mode: state the schema in the last message instead."""
+    *rest, last = messages
+    ask = "\n\nReply with one JSON object that matches this JSON Schema, and nothing else:\n" + json.dumps(schema.model_json_schema())
+    return [*rest, {**last, "content": last["content"] + ask}]
 
 
 def _without_secrets(url: str) -> str:

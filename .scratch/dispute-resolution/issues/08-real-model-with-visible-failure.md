@@ -15,9 +15,20 @@
 - [x] A timed-out call is treated as a failure, not a hang (`MODEL_TIMEOUT_SECONDS`, default 30)
 - [x] Invalid output is retried with the validation error, up to two times, using the shared repair helper from ticket 04 (the advocates and the Judge already use `complete_with_repair`; the client raises `ValidationError` for it)
 - [x] With the model unreachable, the user sees a clear error and the Case is marked for review (checked on a real HTTP timeout with `scripts/try_model.py`)
-- [ ] One mock case resolves end to end on the real model
+- [x] One mock case resolves end to end on the real model (DISP-003 on OpenRouter free models: `apodex/apodex-1.1-mini:free` gave uphold, fee_reversal, SGD 5.00, Confidence 0.80; `nvidia/nemotron-3-super-120b-a12b:free` gave the same at 0.75)
 
-**Still open:** confirm the provider and model (and whether it accepts images), then run one mock case on it:
+**Dev provider (not the final choice):** OpenRouter's free models, an OpenAI-compatible gateway. Use
+`MODEL_BASE_URL=https://openrouter.ai/api/v1`, `MODEL_STRUCTURED_OUTPUT=json_object` (the Apodex provider rejects a JSON schema) and a longer
+`MODEL_TIMEOUT_SECONDS` (free models are slow). Free models are rate-limited (HTTP 429), which the system reports as a held Case.
+Models seen: Apodex 1.1 mini and Nemotron 3 Super (text only); Gemma 4, Dots 3 note and Inkling accept images but were not tried.
+
+**Real-model results so far** (Apodex 1.1 mini, plain JSON mode):
+- DISP-003: resolved and matches its label.
+- DISP-002: held for review. The Judge cited the missing rider-location item as fact, and code refused it after the repair attempts.
+- DISP-004: held for review. The Judge's reply did not match the required format.
+Those two show the safety path working, not a made-up Ruling. A stronger model is needed for the other cases.
+
+**Still open:** confirm the production provider and model (and whether it accepts images). Run:
 `MODEL_PROVIDER=openai_compatible MODEL_BASE_URL=... MODEL_API_KEY=... MODEL_NAME=... uv run python -m scripts.try_model DISP-003`.
-Until a real key has been used, the client has only been tested against a fake HTTP server.
+
 Known gap: the timeout is per phase (connect, read, write), not a wall-clock cap, and one dispute can make about seven calls with no overall budget.

@@ -185,3 +185,38 @@ def test_invalid_output_is_sent_back_with_the_error_and_the_second_reply_is_acce
     assert verdict.confidence == 0.8
     assert len(bodies) == 2
     assert "not accepted" in bodies[1]["messages"][-1]["content"]  # the validation problem was fed back
+
+
+def test_an_http_error_includes_the_providers_own_message_with_the_key_scrubbed():
+    body = {"error": {"message": f"response_format json_schema is not supported (key {SECRET})"}}
+    model = a_model(lambda request: httpx.Response(400, json=body))
+
+    with pytest.raises(ModelError) as error:
+        ask(model)
+
+    assert "json_schema is not supported" in str(error.value)
+    assert SECRET not in str(error.value)
+
+
+def test_json_object_mode_asks_for_plain_json_and_puts_the_schema_in_the_prompt():
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["body"] = json.loads(request.content)
+        return httpx.Response(200, json=a_reply('{"outcome": "reject", "confidence": 0.8}'))
+
+    model = a_model(handler, structured_output="json_object")
+
+    assert ask(model, schema=Verdict) == Verdict(outcome="reject", confidence=0.8)
+    assert seen["body"]["response_format"] == {"type": "json_object"}
+    assert "JSON Schema" in seen["body"]["messages"][-1]["content"]
+    assert '"confidence"' in seen["body"]["messages"][-1]["content"]
+    assert seen["body"]["messages"][-1]["content"].startswith("Rule on this.")
+
+
+def test_a_wrapped_provider_error_shows_the_real_reason_from_the_metadata():
+    body = {"error": {"message": "Provider returned error", "metadata": {"raw": json.dumps({"message": "Model does not support 'json_schema'. Supported: json_object."})}}}
+    model = a_model(lambda request: httpx.Response(400, json=body))
+
+    with pytest.raises(ModelError, match="Supported: json_object"):
+        ask(model)

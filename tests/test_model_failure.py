@@ -104,3 +104,11 @@ def test_a_timeout_that_is_not_a_number_says_which_setting_is_wrong():
 def test_a_timeout_that_is_not_positive_is_refused(value):
     with pytest.raises(ModelNotConfigured, match="MODEL_TIMEOUT_SECONDS"):
         model_from_environment({**REAL, "MODEL_TIMEOUT_SECONDS": value}, stub=a_stub_for("CASE-0001"))
+
+
+def test_the_structured_output_mode_can_be_chosen_and_a_wrong_one_is_refused():
+    chosen = model_from_environment({**REAL, "MODEL_STRUCTURED_OUTPUT": "json_object"}, stub=a_stub_for("CASE-0001"))
+
+    assert chosen._structured_output == "json_object"
+    with pytest.raises(ModelNotConfigured, match="MODEL_STRUCTURED_OUTPUT"):
+        model_from_environment({**REAL, "MODEL_STRUCTURED_OUTPUT": "xml"}, stub=a_stub_for("CASE-0001"))
