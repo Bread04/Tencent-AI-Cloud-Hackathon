@@ -47,8 +47,15 @@
     "remedy": "no_action",
     "argument_assessments": [
       {
-        "author": "rider_advocate",
-        "argument": "The driver was not at the pickup point.",
+        "ref": "rider_advocate#claim",
+        "verdict": "unproven",
+        "reason": "No record places the rider at the pickup point, and the rider's location is missing.",
+        "evidence_ids": [
+          "EV-RIDERLOC-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
         "verdict": "rejected",
         "reason": "GPS places the driver at the pickup point from arrival to cancellation.",
         "evidence_ids": [
@@ -56,13 +63,20 @@
         ]
       },
       {
-        "author": "driver_advocate",
-        "argument": "The driver waited the full window and tried to make contact.",
+        "ref": "driver_advocate#claim",
         "verdict": "accepted",
         "reason": "GPS shows eight minutes at the pickup point and chat shows four messages and a call with no reply.",
         "evidence_ids": [
           "EV-GPS-1",
           "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "GPS shows the driver stationary at the pickup point from arrival to cancellation.",
+        "evidence_ids": [
+          "EV-GPS-1"
         ]
       }
     ],
@@ -78,5 +92,9 @@
       "R-02",
       "D-02"
     ]
+  },
+  "judge_self_check": {
+    "supported": true,
+    "problems": []
   }
 }

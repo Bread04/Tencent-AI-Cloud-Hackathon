@@ -1,0 +1,108 @@
+{
+  "_simulated": "Scripted replies for the offline model stub. Mock data, not model output.",
+  "rider_advocate": {
+    "author": "rider_advocate",
+    "claim_restated": "The driver cancelled four minutes after arriving, before the five-minute free wait ended and well before the eight-minute no-show threshold, so the $5.00 fee was charged too early and should be reversed.",
+    "facts_relied_on": [
+      "EV-GPS-1",
+      "EV-CHAT-1",
+      "EV-FARE-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
+    "counter_arguments": [
+      {
+        "argument": "The driver was at the pickup bay and messaged the rider.",
+        "response": "Being there is not enough: the fare evidence shows only four minutes elapsed from arrival, so neither the free wait nor the no-show threshold had passed when the driver cancelled."
+      }
+    ],
+    "policy_clause_ids": [
+      "R-02",
+      "R-03"
+    ],
+    "requested_outcome": "Reverse the $5.00 no-show fee."
+  },
+  "driver_advocate": {
+    "author": "driver_advocate",
+    "claim_restated": "The driver arrived on time, stayed at the pickup bay and messaged the rider, who gave no position, so the driver was entitled to cancel for a rider no-show.",
+    "facts_relied_on": [
+      "EV-GPS-1",
+      "EV-CHAT-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
+    "counter_arguments": [
+      {
+        "argument": "Only four minutes passed after arrival, which is less than the five-minute free wait.",
+        "response": "The rider's one message gave no location or arrival time, so the driver could not tell when the rider would reach the bay."
+      }
+    ],
+    "policy_clause_ids": [
+      "D-02",
+      "D-03"
+    ],
+    "requested_outcome": "Uphold the $5.00 no-show fee."
+  },
+  "judge": {
+    "outcome": "uphold",
+    "balance_of_evidence": "claimant",
+    "remedy": "fee_reversal",
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "accepted",
+        "reason": "The fare evidence shows four minutes from arrival to cancellation, under the five-minute free wait and the eight-minute threshold.",
+        "evidence_ids": [
+          "EV-FARE-1",
+          "EV-GPS-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "The driver's presence is not disputed, but it does not make up the missing wait time.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-FARE-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "rejected",
+        "reason": "The driver cancelled before the free wait ended, so the conditions for a no-show charge were not met.",
+        "evidence_ids": [
+          "EV-FARE-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "rejected",
+        "reason": "The rider gave no position, but that does not shorten the wait the driver must give.",
+        "evidence_ids": [
+          "EV-CHAT-1"
+        ]
+      }
+    ],
+    "policy_fit": "clear",
+    "policy_fit_reason": "The thresholds in the fare evidence were not reached, so the fee does not apply.",
+    "cited_evidence_ids": [
+      "EV-GPS-1",
+      "EV-CHAT-1",
+      "EV-FARE-1"
+    ],
+    "amount_input_evidence_ids": [
+      "EV-FARE-1"
+    ],
+    "reasoning_summary": "The driver cancelled after four minutes, before the five-minute free wait or the eight-minute no-show threshold. The fee was charged too early and is reversed in full.",
+    "cited_policy_clause_ids": [
+      "R-02",
+      "D-02"
+    ]
+  },
+  "judge_self_check": {
+    "supported": true,
+    "problems": []
+  }
+}

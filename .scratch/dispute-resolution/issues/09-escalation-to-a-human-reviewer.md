@@ -10,7 +10,7 @@
 
 - [ ] A Ruling below the Confidence threshold is not finalized and the Case becomes pending review
 - [ ] A failed stage (exhausted repair budget, unreachable model) also sends the Case to review with its reason
-- [ ] Both parties see a "review pending" Outcome
+- [x] Both parties see a "review pending" Outcome
 - [ ] The review package contains both Submissions, evidence, policy cited, the proposed Ruling and the trigger
 - [ ] A reviewer screen lists pending Cases and shows the package
 - [ ] The reviewer can confirm, or override with a required reason

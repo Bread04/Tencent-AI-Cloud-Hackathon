@@ -1,45 +1,40 @@
-"""The Judge (architecture.md section 5.6), tracer-bullet version.
+"""The Judge (architecture.md section 5.6).
 
-One structured model call produces the judgement; code does everything numeric:
-the amount comes from the fare evidence and Confidence is the lowest of its
-components. Not here yet (ticket 05): Argument Assessment checks, the self-check
-call, the History step, Own Findings and Policy Gaps. Of the Remedies, only a
-fee reversal has its amount computed so far; the others are left without an amount.
+One structured model call produces the judgement and code does everything else:
+numbers the arguments to be assessed, checks the draft against the rules
+(`draft.py`), computes the amount and Confidence (`numbers.py`), and has a second
+model call check that each cited item supports its claim (`selfcheck.py`).
+A draft that breaks a rule or fails the self-check is sent back; if it still
+fails the stage fails (`StageFailed`) and the orchestrator holds the Case for review.
+
+History is applied afterwards by `history.py`, and each party's Outcome is
+written from the finished Ruling by `src/agents/outcomes.py`.
 """
 
-from decimal import Decimal
+from collections.abc import Callable
 
-from src.agents.citations import require_valid_citations
-from src.agents.policy import ALLOWED_REMEDIES
+from src.agents.judge.arguments import Argument, arguments_in
+from src.agents.judge.draft import DraftAssessment, DraftRejected, JudgeDraft, draft_problems
+from src.agents.judge.numbers import amount_for, checklist_for, confidence_for
+from src.agents.judge.selfcheck import self_check
 from src.agents.prompting import evidence_for_prompt, policy_for_prompt
 from src.config import CONFIG
 from src.contracts import (
     ArgumentAssessment,
+    citation_errors,
     BalanceOfEvidence,
-    Calculation,
     Case,
-    Confidence,
-    Contract,
-    EvidenceStatus,
-    MaterialEvidenceEntry,
-    PolicyFit,
-    Remedy,
+    LogEventKind,
+    ReviewTrigger,
+    ReviewTriggerRecord,
     Ruling,
-    RulingOutcome,
     RulingStatus,
     Submission,
-    Text,
 )
 from src.llm.adapter import ModelAdapter
+from src.llm.repair import StageFailed, complete_with_repair, feedback_message
 
-# Which evidence source answers each line of the material-evidence checklist.
-CHECKLIST_SOURCES = {
-    "driver_at_pickup": "gps",
-    "arrival_vs_scheduled": "gps",
-    "wait_timers": "fare",
-    "contact_attempts": "chat",
-    "rider_position": "rider_location",
-}
+__all__ = ["DraftAssessment", "DraftRejected", "JudgeDraft", "judge"]
 
 SYSTEM_PROMPT = (
     "You are the Judge in a ride-hailing dispute. Weigh both Submissions against the evidence. "
@@ -50,25 +45,21 @@ SYSTEM_PROMPT = (
 )
 
 
-class DraftRejected(Exception):
-    """The model's draft breaks a rule enforced in code. Ticket 05 sends it back once, then to review."""
+# A failed self-check sends the draft back this many times before the stage fails.
+SELF_CHECK_SEND_BACKS = 1
+
+Recorder = Callable[[LogEventKind, str], None]
 
 
-class JudgeDraft(Contract):
-    """What the model returns. Everything else in the Ruling is filled in by code."""
-
-    outcome: RulingOutcome
-    balance_of_evidence: BalanceOfEvidence
-    remedy: Remedy
-    argument_assessments: list[ArgumentAssessment]
-    policy_fit: PolicyFit
-    policy_fit_reason: Text
-    cited_evidence_ids: list[str] = []
-    cited_policy_clause_ids: list[str] = []
-    reasoning_summary: Text
-
-
-def judge(case: Case, rider_submission: Submission, driver_submission: Submission, model: ModelAdapter) -> Ruling:
+def judge(
+    case: Case,
+    rider_submission: Submission,
+    driver_submission: Submission,
+    model: ModelAdapter,
+    *,
+    record: Recorder | None = None,
+) -> Ruling:
+    arguments = arguments_in(rider_submission, driver_submission)
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {
@@ -78,83 +69,113 @@ def judge(case: Case, rider_submission: Submission, driver_submission: Submissio
                     f"Dispute:\n{case.dispute.model_dump_json(indent=2)}",
                     f"Evidence (sealed, version {case.evidence_version}):\n{evidence_for_prompt(case)}",
                     f"Policy clauses (cite by clause_id):\n{policy_for_prompt(case)}",
+                    f"Arguments to assess, each exactly once, by ref:\n{_argument_list(arguments)}",
                     f"Rider Advocate Submission:\n{rider_submission.model_dump_json(indent=2)}",
                     f"Driver Advocate Submission:\n{driver_submission.model_dump_json(indent=2)}",
                 ]
             ),
         },
     ]
-    draft = model.complete(messages, case_id=case.case_id, agent="judge", schema=JudgeDraft)
+    draft = _draft_passing_every_check(case, arguments, messages, model, record or _ignore)
 
-    _require_allowed_remedy(case, draft)
-    amount, calculation = _amount(case, draft.remedy)
-    checklist = _checklist(case)
+    return _ruling_from(case, arguments, draft)
+
+
+def _ruling_from(case: Case, arguments: list[Argument], draft: JudgeDraft) -> Ruling:
+    amount, calculation = amount_for(case, draft.remedy, draft.amount_input_evidence_ids)
+    checklist = checklist_for(case)
+    triggers = _review_triggers(draft)
     ruling = Ruling(
-        status=RulingStatus.FINAL,
+        status=RulingStatus.PROPOSAL if triggers else RulingStatus.FINAL,
         outcome=draft.outcome,
         balance_of_evidence=draft.balance_of_evidence,
         remedy=draft.remedy,
         amount=amount,
         currency=CONFIG.currency if amount is not None else None,
         calculation=calculation,
-        argument_assessments=draft.argument_assessments,
+        argument_assessments=_assessments(arguments, draft),
         policy_fit=draft.policy_fit,
         policy_fit_reason=draft.policy_fit_reason,
         cited_evidence_ids=draft.cited_evidence_ids,
         cited_policy_clause_ids=draft.cited_policy_clause_ids,
+        own_findings=draft.own_findings,
+        policy_gap=draft.policy_gap,
         reasoning_summary=draft.reasoning_summary,
-        confidence=_confidence(case, draft.policy_fit, checklist),
+        confidence=confidence_for(case, draft.policy_fit, checklist, draft.own_findings),
         material_evidence=checklist,
+        review_triggers=triggers,
     )
-    require_valid_citations(ruling, case)
     return ruling
 
 
-def _require_allowed_remedy(case: Case, draft: JudgeDraft) -> None:
-    category = case.dispute.category
-    allowed = ALLOWED_REMEDIES[category]
-    if draft.outcome not in allowed:
-        raise DraftRejected(
-            f"A {draft.outcome.value} outcome on a {category.value} needs a Policy Clause that provides for it. "
-            "None does: a partial outcome is not available, so the claim is upheld or rejected in full."
-        )
-    if draft.remedy is not allowed[draft.outcome]:
-        raise DraftRejected(
-            f"An {draft.outcome.value} outcome on a {category.value} must use the remedy "
-            f"{allowed[draft.outcome].value}, not {draft.remedy.value}."
-        )
+def _problems(case: Case, arguments: list[Argument], draft: JudgeDraft) -> list[str]:
+    """Code rules first; only a draft that passes them can be built into a Ruling and have its citations checked."""
+    return draft_problems(case, arguments, draft) or citation_errors(
+        _ruling_from(case, arguments, draft), case.evidence, case.policy_clauses, case.precedents
+    )
 
 
-def _amount(case: Case, remedy: Remedy) -> tuple[Decimal | None, Calculation | None]:
-    if remedy is not Remedy.FEE_REVERSAL:
-        return None, None
-    fare = next(item for item in case.evidence if item.source == "fare")
-    fee = Decimal(fare.derived["cancellation_fee"])
-    return fee, Calculation(formula="no-show fee charged, reversed in full", input_evidence_ids=[fare.evidence_id], result=fee)
+def _ignore(kind: LogEventKind, summary: str) -> None:
+    pass
 
 
-def _checklist(case: Case) -> list[MaterialEvidenceEntry]:
-    labels = CONFIG.material_evidence[case.dispute.category]
+def _draft_passing_every_check(case, arguments, messages, model, record) -> JudgeDraft:
+    """Code rules first (repaired up to the budget), then the model self-check (sent back once)."""
+    for send_back in range(SELF_CHECK_SEND_BACKS + 1):
+        try:
+            draft = complete_with_repair(
+                model,
+                messages,
+                case_id=case.case_id,
+                agent="judge",
+                schema=JudgeDraft,
+                check=lambda candidate: _problems(case, arguments, candidate),
+                attempts=CONFIG.model.repair_attempts,
+            )
+        except StageFailed as failure:
+            raise DraftRejected(failure.problems) from failure
+        result = self_check(case, draft, model)
+        if result.supported:
+            record(LogEventKind.SELF_CHECK_PASSED, "Self-check passed: each cited item supports the claim made about it.")
+            return draft
+        problems = result.problems or ["The self-check found a cited item that does not support its claim."]
+        record(LogEventKind.SELF_CHECK_FAILED, "Self-check failed: " + " ".join(problems))
+        messages = [*messages, feedback_message(problems)]
+    raise DraftRejected(problems)
+
+
+def _argument_list(arguments: list[Argument]) -> str:
+    return "\n".join(f"- {argument.ref} ({argument.author.value}): {argument.text}" for argument in arguments)
+
+
+def _assessments(arguments: list[Argument], draft: JudgeDraft) -> list[ArgumentAssessment]:
+    by_ref = {assessment.ref: assessment for assessment in draft.argument_assessments}
     return [
-        MaterialEvidenceEntry(
-            key=key,
-            label=label,
-            evidence_ids=[
-                item.evidence_id
-                for item in case.evidence
-                if item.source == CHECKLIST_SOURCES[key] and item.status is not EvidenceStatus.MISSING
-            ],
+        ArgumentAssessment(
+            author=argument.author,
+            argument=argument.text,
+            verdict=by_ref[argument.ref].verdict,
+            reason=by_ref[argument.ref].reason,
+            evidence_ids=by_ref[argument.ref].evidence_ids,
         )
-        for key, label in labels.items()
+        for argument in arguments
     ]
 
 
-def _confidence(case: Case, policy_fit: PolicyFit, checklist: list[MaterialEvidenceEntry]) -> Confidence:
-    settings = CONFIG.confidence
-    conflicting = any(item.status is EvidenceStatus.CONFLICTING for item in case.evidence)
-    components = {
-        "policy_fit": settings.policy_fit[policy_fit],
-        "evidence_completeness": sum(entry.available for entry in checklist) / len(checklist),
-        "consistency": settings.consistency_conflict if conflicting else settings.consistency_no_conflict,
-    }
-    return Confidence(value=min(components.values()), components=components)
+def _review_triggers(draft: JudgeDraft) -> list[ReviewTriggerRecord]:
+    triggers = []
+    if draft.balance_of_evidence is BalanceOfEvidence.BALANCED:
+        triggers.append(
+            ReviewTriggerRecord(
+                trigger=ReviewTrigger.BALANCED_EVIDENCE,
+                reason="The Judge found the evidence evenly balanced, so the Ruling is a proposal for a Human Reviewer.",
+            )
+        )
+    if draft.policy_gap:
+        triggers.append(
+            ReviewTriggerRecord(
+                trigger=ReviewTrigger.POLICY_GAP,
+                reason=f"Policy Gap: {draft.policy_gap}",
+            )
+        )
+    return triggers
