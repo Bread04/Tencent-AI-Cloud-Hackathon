@@ -11,8 +11,8 @@
 - [ ] The architecture diagram exists and marks simulated components
 - [ ] The demo script names the Ryde case study at the start
 - [ ] The script shows one case ruled for the Claimant and one for the Respondent
-- [ ] Supporting Agents can be switched on and off from the UI
+- [x] Supporting Agents can be switched on and off from the UI (console checkboxes, table in `src/api/demo_switches.py`)
 - [ ] Only finished tiers appear in the demo
-- [ ] The README explains how to install and run the project
+- [x] The README explains how to install and run the project
 - [ ] The walkthrough has been rehearsed end to end twice
-- [ ] No credentials are in the repo
+- [x] No credentials are in the repo (`.env` is git-ignored; checked 13 Oct 2026)
