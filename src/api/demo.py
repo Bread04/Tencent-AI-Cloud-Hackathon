@@ -6,7 +6,6 @@ By default every Case replays its stored Dispute's prepared script independently
 Set MODEL_PROVIDER=openai_compatible (and the credentials in `.env.example`) to run on a real model instead.
 """
 
-import os
 from copy import deepcopy
 
 from fastapi import FastAPI
@@ -15,7 +14,7 @@ from src.api import create_app
 from src.intake import load_catalog
 from src.llm.stub import StubModel, load_replies
 from src.llm.adapter import ModelError
-from src.llm.factory import model_from_environment
+from src.llm.factory import environment_with_dotenv, model_from_environment
 from src.store import CaseStore
 
 PREPARED_DISPUTES = ("DISP-002", "DISP-003", "DISP-004")
@@ -45,8 +44,10 @@ class ReplayModel(StubModel):
 
 def create_demo_app() -> FastAPI:
     store = CaseStore()
-    model = model_from_environment(os.environ, stub=ReplayModel(store))
-    return create_app(store=store, model=model, catalog=load_catalog())
+    env = environment_with_dotenv()
+    model = model_from_environment(env, stub=ReplayModel(store))
+    label = f"Live model: {env['MODEL_NAME']}" if env.get("MODEL_PROVIDER") == "openai_compatible" else "Scripted replies"
+    return create_app(store=store, model=model, catalog=load_catalog(), model_label=label)
 
 
 app = create_demo_app()

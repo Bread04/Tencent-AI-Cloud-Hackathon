@@ -7,7 +7,9 @@
 Credentials are read only from the environment (see `.env.example`) and are never in the repo.
 """
 
+import os
 from collections.abc import Mapping
+from pathlib import Path
 
 from src.config import CONFIG
 from src.llm.adapter import ModelAdapter
@@ -17,6 +19,9 @@ REAL = "openai_compatible"
 STUB = "stub"
 REQUIRED = ("MODEL_BASE_URL", "MODEL_API_KEY", "MODEL_NAME")
 STRUCTURED_OUTPUT_MODES = ("json_schema", "json_object")
+
+
+DOTENV = Path(__file__).resolve().parents[2] / ".env"  # git-ignored; see .env.example
 
 
 class ModelNotConfigured(Exception):
@@ -59,3 +64,16 @@ def _timeout(env: Mapping[str, str]) -> float:
     if seconds <= 0:
         raise ModelNotConfigured(f"MODEL_TIMEOUT_SECONDS must be a positive number of seconds, not '{raw}'.")
     return seconds
+
+
+def environment_with_dotenv(path: Path = DOTENV, *, environ: Mapping[str, str] = os.environ) -> dict[str, str]:
+    """The process environment plus a `.env` file's settings; a real environment variable wins over the file."""
+    settings: dict[str, str] = {}
+    if path.is_file():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            name, value = line.split("=", 1)
+            settings[name.strip()] = value.strip().strip("'\"")
+    return {**settings, **environ}

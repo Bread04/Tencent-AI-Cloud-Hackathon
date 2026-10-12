@@ -113,3 +113,13 @@ def test_the_console_is_told_the_escalation_threshold_so_the_confidence_gauge_ma
     page = client.get("/").text
 
     assert f'data-threshold="{CONFIG.escalation.confidence_threshold}"' in page
+
+
+def test_the_console_says_it_is_running_on_scripted_replies_by_default(client):
+    assert "Scripted replies" in client.get("/").text
+
+
+def test_the_console_names_the_live_model_when_one_is_in_use():
+    app = create_app(store=CaseStore(), model=a_stub_for("CASE-0001"), catalog=load_catalog(), model_label="Live model: some/model:free")
+
+    assert "Live model: some/model:free" in TestClient(app).get("/").text

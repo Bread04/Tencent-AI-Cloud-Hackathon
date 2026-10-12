@@ -8,12 +8,11 @@ no agent ever sees it. A model that fails ends in review with the reason, never 
 """
 
 import json
-import os
 import sys
 
 from src.api.demo import ReplayModel
 from src.intake import DEFAULT_DATA_DIR, load_catalog
-from src.llm.factory import model_from_environment
+from src.llm.factory import environment_with_dotenv, model_from_environment
 from src.orchestrator import run_dispute
 from src.store import CaseStore
 
@@ -21,7 +20,7 @@ from src.store import CaseStore
 def main(dispute_id: str) -> None:
     sys.stdout.reconfigure(encoding="utf-8")  # model text can hold characters the Windows console codepage cannot print
     catalog, store = load_catalog(), CaseStore()
-    model = model_from_environment(os.environ, stub=ReplayModel(store))
+    model = model_from_environment(environment_with_dotenv(), stub=ReplayModel(store))
     case = run_dispute(catalog.dispute(dispute_id), store=store, model=model, catalog=catalog)
     label = json.loads((DEFAULT_DATA_DIR / f"{dispute_id.lower()}.eval.json").read_text(encoding="utf-8"))
 

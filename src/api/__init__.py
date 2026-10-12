@@ -28,7 +28,7 @@ PROTOTYPES = HERE.parents[1] / "prototypes"
 START_TIMEOUT_SECONDS = 5  # how long a run may take to create its Case before the start request gives up
 
 
-def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog) -> FastAPI:
+def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model_label: str = "Scripted replies") -> FastAPI:
     app = FastAPI(title="Ryde Dispute Resolution (simulated)")
     run_errors: dict[str, str] = {}  # case id -> why its run stopped, for the console
     app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
@@ -39,7 +39,7 @@ def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog) -> Fa
     def home():
         rows = "".join(_dispute_row(d, catalog.trip(d.trip_id)["trip"]) for d in catalog.disputes.values())
         template = (HERE / "console.html").read_text(encoding="utf-8")
-        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
+        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
 
     @app.post("/api/disputes/{dispute_id}/run", status_code=202)
     def start_run(dispute_id: str):

@@ -112,3 +112,30 @@ def test_the_structured_output_mode_can_be_chosen_and_a_wrong_one_is_refused():
     assert chosen._structured_output == "json_object"
     with pytest.raises(ModelNotConfigured, match="MODEL_STRUCTURED_OUTPUT"):
         model_from_environment({**REAL, "MODEL_STRUCTURED_OUTPUT": "xml"}, stub=a_stub_for("CASE-0001"))
+
+
+# --- .env file ---------------------------------------------------------------------------------------------------
+
+
+def test_settings_can_come_from_a_dotenv_file(tmp_path):
+    from src.llm.factory import environment_with_dotenv
+
+    (tmp_path / ".env").write_text("# a comment\nMODEL_PROVIDER=openai_compatible\nMODEL_API_KEY='sk-quoted'\n\nMODEL_NAME = some/model:free\n", encoding="utf-8")
+
+    env = environment_with_dotenv(tmp_path / ".env", environ={})
+
+    assert env == {"MODEL_PROVIDER": "openai_compatible", "MODEL_API_KEY": "sk-quoted", "MODEL_NAME": "some/model:free"}
+
+
+def test_a_real_environment_variable_beats_the_dotenv_file(tmp_path):
+    from src.llm.factory import environment_with_dotenv
+
+    (tmp_path / ".env").write_text("MODEL_PROVIDER=openai_compatible\n", encoding="utf-8")
+
+    assert environment_with_dotenv(tmp_path / ".env", environ={"MODEL_PROVIDER": "stub"})["MODEL_PROVIDER"] == "stub"
+
+
+def test_a_missing_dotenv_file_is_fine(tmp_path):
+    from src.llm.factory import environment_with_dotenv
+
+    assert environment_with_dotenv(tmp_path / "nope.env", environ={"A": "1"}) == {"A": "1"}
