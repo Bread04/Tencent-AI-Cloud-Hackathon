@@ -22,7 +22,7 @@ def a_reply(content: str) -> dict:
 
 
 def a_model(handler, **overrides) -> OpenAICompatibleModel:
-    settings = dict(base_url="https://models.example/v1", api_key=SECRET, model="test-model", timeout_seconds=5.0)
+    settings = dict(base_url="https://models.example/v1", api_key=SECRET, model="test-model", timeout_seconds=5.0, sleep=lambda seconds: None)
     return OpenAICompatibleModel(**{**settings, **overrides}, transport=httpx.MockTransport(handler))
 
 
@@ -220,3 +220,71 @@ def test_a_wrapped_provider_error_shows_the_real_reason_from_the_metadata():
 
     with pytest.raises(ModelError, match="Supported: json_object"):
         ask(model)
+
+
+# --- Rate limits: wait as long as the provider says, a bounded number of times -------------------------------------
+
+
+def rate_limited_then_ok(waits, header=None, message=None):
+    state = {"calls": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        state["calls"] += 1
+        if state["calls"] <= waits:
+            headers = {"retry-after": header} if header else {}
+            body = {"error": {"message": message or "Rate limit reached."}}
+            return httpx.Response(429, json=body, headers=headers)
+        return httpx.Response(200, json=a_reply("Done."))
+
+    return handler, state
+
+
+def test_a_rate_limit_is_waited_out_using_the_retry_after_header_then_the_call_succeeds():
+    handler, state = rate_limited_then_ok(2, header="7")
+    slept = []
+
+    result = ask(a_model(handler, sleep=slept.append))
+
+    assert result == "Done." and state["calls"] == 3
+    assert slept == [7.0, 7.0]
+
+
+def test_the_wait_can_be_read_from_the_providers_message_when_there_is_no_header():
+    handler, _ = rate_limited_then_ok(1, message="Rate limit reached. Please try again in 31.5525s. Need more tokens?")
+    slept = []
+
+    ask(a_model(handler, sleep=slept.append))
+
+    assert slept == [pytest.approx(32.5525, abs=1.5)]  # the stated wait, plus a little margin
+
+
+def test_a_very_long_wait_is_capped():
+    handler, _ = rate_limited_then_ok(1, header="3600")
+    slept = []
+
+    ask(a_model(handler, sleep=slept.append, max_wait_seconds=45))
+
+    assert slept == [45.0]
+
+
+def test_a_rate_limit_that_never_clears_is_a_model_error_after_the_retries_and_says_so():
+    handler, state = rate_limited_then_ok(99, header="1", message="Rate limit reached for tokens per minute.")
+
+    with pytest.raises(ModelError, match="rate limit") as error:
+        ask(a_model(handler, sleep=lambda seconds: None, rate_limit_retries=3))
+
+    assert state["calls"] == 4  # the first try and three retries
+    assert "tokens per minute" in str(error.value)
+
+
+def test_other_http_errors_are_not_retried():
+    state = {"calls": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        state["calls"] += 1
+        return httpx.Response(500, text="boom")
+
+    with pytest.raises(ModelError):
+        ask(a_model(handler, sleep=lambda seconds: None))
+
+    assert state["calls"] == 1

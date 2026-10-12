@@ -11,6 +11,8 @@ import base64
 import json
 import mimetypes
 import re
+import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import TypeVar
 
@@ -22,6 +24,9 @@ from src.llm.adapter import Message, ModelError
 T = TypeVar("T", bound=BaseModel)
 
 FENCE = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.DOTALL)
+RETRY_IN = re.compile(r"try again in ([0-9.]+)\s*(ms|s)", re.IGNORECASE)
+WAIT_MARGIN_SECONDS = 1.0  # a little past the wait the provider asks for
+DEFAULT_WAIT_SECONDS = 5.0  # when a rate limit says nothing about how long
 
 
 class OpenAICompatibleModel:
@@ -33,6 +38,9 @@ class OpenAICompatibleModel:
         model: str,
         timeout_seconds: float,
         structured_output: str = "json_schema",
+        rate_limit_retries: int = 3,
+        max_wait_seconds: float = 60.0,
+        sleep: Callable[[float], None] = time.sleep,
         transport: httpx.BaseTransport | None = None,
     ):
         self._url = base_url.rstrip("/") + "/chat/completions"
@@ -42,6 +50,9 @@ class OpenAICompatibleModel:
         self._model = model
         self._timeout = timeout_seconds
         self._structured_output = structured_output  # json_schema, or json_object for providers without schema support
+        self._rate_limit_retries = rate_limit_retries  # free tiers limit tokens per minute; wait it out, a bounded number of times
+        self._max_wait = max_wait_seconds
+        self._sleep = sleep
         self._transport = transport
 
     def __repr__(self) -> str:
@@ -62,14 +73,27 @@ class OpenAICompatibleModel:
             return content
         return schema.model_validate_json(_unfenced(content))
 
-    def _post(self, body: dict, agent: str) -> str:
+    def _send(self, body: dict, agent: str) -> httpx.Response:
         try:
             with httpx.Client(timeout=self._timeout, transport=self._transport) as http:
-                response = http.post(self._url, json=body, headers=self._headers)
+                return http.post(self._url, json=body, headers=self._headers)
         except httpx.TimeoutException as error:
             raise ModelError(f"The model timed out after {self._timeout:g} seconds (agent {agent}).") from error
         except httpx.HTTPError as error:
             raise ModelError(f"The model could not be reached at {self._where} ({type(error).__name__}).") from error
+
+    def _post(self, body: dict, agent: str) -> str:
+        response = self._send(body, agent)
+        for _ in range(self._rate_limit_retries):
+            if response.status_code != 429:
+                break
+            self._sleep(self._wait_for(response))
+            response = self._send(body, agent)
+        if response.status_code == 429:
+            raise ModelError(
+                f"The model's rate limit (HTTP 429) was still in effect after {self._rate_limit_retries} retries (agent {agent})."
+                f"{self._provider_message(response)}"
+            )
         if response.status_code >= 400:
             raise ModelError(f"The model returned HTTP {response.status_code} (agent {agent}).{self._provider_message(response)}")
         try:
@@ -79,6 +103,18 @@ class OpenAICompatibleModel:
         if not content:
             raise ModelError(f"The model returned no content (agent {agent}).")
         return content
+
+    def _wait_for(self, response: httpx.Response) -> float:
+        """How long the provider asked us to wait: the Retry-After header, else the 'try again in 31s' in its message."""
+        seconds = DEFAULT_WAIT_SECONDS
+        header = response.headers.get("retry-after", "")
+        try:
+            seconds = float(header)
+        except ValueError:
+            found = RETRY_IN.search(self._provider_message(response))
+            if found:
+                seconds = float(found.group(1)) / (1000 if found.group(2).lower() == "ms" else 1) + WAIT_MARGIN_SECONDS
+        return min(seconds, self._max_wait)
 
     def _provider_message(self, response: httpx.Response) -> str:
         """The provider's own explanation, when it sends one, with the key scrubbed.
