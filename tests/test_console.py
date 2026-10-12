@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.api import create_app
-from src.contracts import Case, LogEvent
+from src.contracts import Case, DisputeCategory, LogEvent
 from src.intake import load_catalog
 from src.store import CaseStore
 
@@ -103,7 +103,7 @@ def test_every_prepared_dispute_has_a_recorded_stream_the_console_can_replay_wit
 
     case = Case.model_validate(body["case"])
     assert case.dispute.dispute_id == dispute_id
-    assert case.ruling is not None or case.outcomes  # a ruled or held Case, never empty
+    assert case.ruling is not None or case.outcomes or case.status.value == "rejected"  # ruled, held, or turned away with a reason
     assert body["log"]
 
 
@@ -123,3 +123,15 @@ def test_the_console_names_the_live_model_when_one_is_in_use():
     app = create_app(store=CaseStore(), model=a_stub_for("CASE-0001"), catalog=load_catalog(), model_label="Live model: some/model:free")
 
     assert "Live model: some/model:free" in TestClient(app).get("/").text
+
+
+NO_SHOW_DISPUTES = [d for d, dispute in sorted(load_catalog().disputes.items()) if dispute.category is DisputeCategory.NO_SHOW_CHARGE]
+
+
+@pytest.mark.parametrize("dispute_id", NO_SHOW_DISPUTES)
+def test_every_no_show_dispute_also_has_a_recorded_stream_with_the_precedent_switch_on(dispute_id):
+    body = json.loads((RECORDED / f"{dispute_id}.precedent.json").read_text(encoding="utf-8"))
+
+    case = Case.model_validate(body["case"])
+    assert case.switches.policy_precedent and case.precedents
+    assert any(event["kind"] == "precedent_retrieved" for event in body["log"])

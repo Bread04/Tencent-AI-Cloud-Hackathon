@@ -48,6 +48,8 @@ class JudgeDraft(Contract):
     policy_fit_reason: Text
     cited_evidence_ids: list[str] = []
     cited_policy_clause_ids: list[str] = []
+    cited_precedent_ids: list[str] = []  # precedents it relied on; each must have been shown
+    precedent_departure: str | None = None  # why its Remedy differs from a precedent that was shown
     amount_input_evidence_ids: list[str] = []  # the Evidence Items the amount comes from; code does the arithmetic
     own_findings: list[OwnFinding] = []  # points neither advocate raised, from the sealed evidence only
     policy_gap: str | None = None  # a situation no clause covers; the closest clause is applied
@@ -61,6 +63,7 @@ def draft_problems(case: Case, arguments: list[Argument], draft: JudgeDraft) -> 
         *_burden_problems(case, draft),
         *_amount_problems(case, draft),
         *_policy_gap_problems(draft),
+        *_precedent_problems(case, draft),
     ]
 
 
@@ -141,3 +144,15 @@ def _policy_gap_problems(draft: JudgeDraft) -> list[str]:
     if draft.policy_fit is PolicyFit.UNCLEAR and not draft.policy_gap:
         return ["The draft says Policy Fit is unclear but does not name the gap; name the gap, the situation no clause covers."]
     return []
+
+
+def _precedent_problems(case: Case, draft: JudgeDraft) -> list[str]:
+    """Precedent is advisory, but a Remedy that differs from one the Judge was shown needs a stated reason."""
+    differing = [p for p in case.precedents if p.ruling.remedy is not draft.remedy]
+    if not differing or (draft.precedent_departure or "").strip():
+        return []
+    ids = ", ".join(f"{p.precedent_id} ({p.ruling.remedy.value})" for p in differing)
+    return [
+        f"The Remedy {draft.remedy.value} differs from the precedent(s) shown: {ids}. "
+        "Say in precedent_departure why this Case is different, or follow the precedent."
+    ]

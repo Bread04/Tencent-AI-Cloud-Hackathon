@@ -16,8 +16,11 @@ from urllib.parse import parse_qs
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 from src.agents.policy import SIMULATED_LABEL as POLICY_SIMULATED
+from src.agents.intake import IntakeError, resolve_category
+from src.api.demo_switches import checkboxes_html, switches_from_query
 from src.api.review import add_review_routes
 from src.config import CONFIG
 from src.api.chat import (CHAT_STYLE, COOKIE_NAME, SESSION_SECONDS, CLIENT_COOKIE_NAME,
@@ -34,6 +37,11 @@ SIMULATED = "Simulated: all trips, evidence, policy and payments on this page ar
 HERE = Path(__file__).resolve().parent
 PROTOTYPES = HERE.parents[1] / "prototypes"
 START_TIMEOUT_SECONDS = 5  # how long a run may take to create its Case before the start request gives up
+
+
+class ClassifyRequest(BaseModel):
+    description: str
+    category: str | None = None
 
 
 def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model_label: str = "Scripted replies") -> FastAPI:
@@ -141,20 +149,21 @@ def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model
     def home():
         rows = "".join(_dispute_row(d, catalog.trip(d.trip_id)["trip"]) for d in catalog.disputes.values())
         template = (HERE / "console.html").read_text(encoding="utf-8")
-        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
+        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{SWITCHES}}", checkboxes_html()).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
 
     @app.post("/api/disputes/{dispute_id}/run", status_code=202)
-    def start_run(dispute_id: str):
+    def start_run(dispute_id: str, request: Request):
         """Start a run in the background and return its Case ID as soon as the Case exists, so the console can watch it."""
         try:
             dispute = catalog.dispute(dispute_id)
         except UnknownDispute as error:
             return JSONResponse({"error": str(error)}, status_code=404)
         known = {case.case_id for case in store.list_cases()}
+        switches = switches_from_query(request.query_params)  # None: the configured defaults
 
         def work():
             try:
-                run_dispute(dispute, store=store, model=model, catalog=catalog)
+                run_dispute(dispute, store=store, model=model, catalog=catalog, switches=switches)
             except Exception as error:  # a failed run is shown in the console, never hidden
                 created = [case.case_id for case in store.list_cases() if case.case_id not in known]
                 if created:
@@ -183,6 +192,15 @@ def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model
         }
 
     add_review_routes(app, store=store, simulated=SIMULATED, model_label=model_label)
+
+    @app.post("/api/classify")
+    def classify_description(request: ClassifyRequest):
+        """Which category a description belongs to, when none was chosen; a clear error when it fits none."""
+        try:
+            category = resolve_category(request.category, request.description)
+        except IntakeError as error:
+            return JSONResponse({"error": str(error)}, status_code=422)
+        return {"category": category.value, "chosen": bool(request.category)}
 
     @app.post("/disputes/{dispute_id}/run")
     def run(dispute_id: str):

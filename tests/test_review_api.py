@@ -102,3 +102,56 @@ def test_the_reviewer_screen_is_a_page_and_the_console_links_to_it(client):
 
     assert screen.status_code == 200 and "Review queue" in screen.text and "review.js" in screen.text
     assert 'href="/review"' in client.get("/").text
+
+
+# --- The precedent switch from the API --------------------------------------------------------------------------------------
+
+
+def test_a_run_started_with_precedent_on_serves_precedents_and_the_ruling_cites_one(client):
+    case_id = client.post("/api/disputes/DISP-003/run?precedent=true").json()["case_id"]
+    for _ in range(100):
+        body = client.get(f"/api/cases/{case_id}").json()
+        if body["case"]["outcomes"]:
+            break
+        time.sleep(0.05)
+
+    assert body["case"]["switches"]["policy_precedent"] is True
+    assert [p["precedent_id"] for p in body["case"]["precedents"]]
+    assert body["case"]["ruling"]["cited_precedent_ids"] == ["PREC-NS-02"]
+    assert any(event["kind"] == "precedent_retrieved" for event in body["log"])
+
+
+def test_a_run_started_without_the_switch_has_no_precedents(client):
+    body = client.get(f"/api/cases/{run_and_wait(client, 'DISP-003')}").json()
+
+    assert body["case"]["switches"]["policy_precedent"] is False and body["case"]["precedents"] == []
+
+
+# --- The stability switch from the API -----------------------------------------------------------------------------------------
+
+
+def test_a_run_started_with_the_stability_check_is_ruled_twice_and_a_disagreement_holds_the_case(client):
+    case_id = client.post("/api/disputes/DISP-003/run?stability=true").json()["case_id"]
+    for _ in range(100):
+        body = client.get(f"/api/cases/{case_id}").json()
+        if body["case"]["outcomes"]:
+            break
+        time.sleep(0.05)
+
+    assert body["case"]["switches"]["stability_check"] is True
+    assert [c["agent"] for c in body["calls"]].count("judge_second_pass") == 1
+    assert body["case"]["status"] == "pending_review"  # the scripted second pass turns the verdict round
+    assert "stability_disagreement" in [t["trigger"] for t in body["case"]["ruling"]["review_triggers"]]
+    assert any(event["kind"] == "stability_check" for event in body["log"])
+
+
+def test_where_the_second_pass_agrees_the_case_resolves_as_before(client):
+    case_id = client.post("/api/disputes/DISP-002/run?stability=true").json()["case_id"]
+    for _ in range(100):
+        body = client.get(f"/api/cases/{case_id}").json()
+        if body["case"]["outcomes"]:
+            break
+        time.sleep(0.05)
+
+    assert body["case"]["status"] == "notified"
+    assert body["case"]["ruling"]["confidence"]["components"]["stability"] == 0.95

@@ -34,9 +34,11 @@ def _pending(party: Party) -> Outcome:
     )
 
 
-def _decision(ruling: Ruling, claimant: Party, reader: Party) -> str:
+def _decision(ruling: Ruling, claimant: Party, reader: Party, category: DisputeCategory) -> str:
     whose = "Your claim" if reader is claimant else f"The {claimant.value}'s claim"
     reason = f" Reason: {ruling.reasoning_summary}"
+    if category is DisputeCategory.SAFETY_INCIDENT:
+        return _safety_decision(ruling, whose, reason)
     if ruling.outcome is RulingOutcome.REJECT:
         return f"{whose} was not upheld. The no-show fee stands.{reason}"
     amount = f"The {ruling.currency} {ruling.amount} no-show fee" if ruling.amount is not None else "The no-show fee"

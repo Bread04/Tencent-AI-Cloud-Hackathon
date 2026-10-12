@@ -37,33 +37,42 @@ from src.contracts import (
 from src.store import CaseStore
 
 
-def apply_escalation(ruling: Ruling, *, enabled: bool, threshold: float) -> Ruling:
+def apply_escalation(ruling: Ruling, *, enabled: bool, threshold: float, safety_incident: bool = False) -> Ruling:
     """Hold a Ruling for review when its Confidence is below `threshold`; finalize everything when escalation is off.
 
     Run after the History step, so a Ruling that History pulls below the threshold is held too.
     Other triggers (balanced evidence, a Policy Gap, a History rule) are added where they arise and already
-    leave the Ruling a proposal; this adds the Confidence one and does not repeat it.
+    leave the Ruling a proposal; this adds the Confidence and amount ones and does not repeat them.
+    A Safety Incident is always held, whatever the Confidence and even with escalation off: it is never finalized by code.
     """
-    if not enabled:
+    if not enabled and not safety_incident:
         return ruling.model_copy(update={"status": RulingStatus.FINAL})
     triggers = list(ruling.review_triggers)
     held_for = {record.trigger for record in triggers}
-    # Rounded, so floating-point noise (0.7000000000000001) cannot decide a Case at exactly the threshold.
-    if ruling.confidence is not None and round(ruling.confidence.value, 2) < threshold and ReviewTrigger.LOW_CONFIDENCE not in held_for:
+    if safety_incident and ReviewTrigger.SAFETY_INCIDENT not in held_for:
         triggers.append(
             ReviewTriggerRecord(
-                trigger=ReviewTrigger.LOW_CONFIDENCE,
-                reason=f"Calculated confidence {ruling.confidence.value} is below the configured threshold {threshold}.",
+                trigger=ReviewTrigger.SAFETY_INCIDENT,
+                reason="This is a Safety Incident, so it is always reviewed by a person, whatever the Confidence.",
             )
         )
-    limit = CONFIG.escalation.amount_limit
-    if ruling.amount is not None and ruling.amount > limit and ReviewTrigger.AMOUNT_OVER_LIMIT not in held_for:
-        triggers.append(
-            ReviewTriggerRecord(
-                trigger=ReviewTrigger.AMOUNT_OVER_LIMIT,
-                reason=f"The amount {ruling.currency} {ruling.amount} is above the configured limit {limit}.",
+    if enabled:
+        # Rounded, so floating-point noise (0.7000000000000001) cannot decide a Case at exactly the threshold.
+        if ruling.confidence is not None and round(ruling.confidence.value, 2) < threshold and ReviewTrigger.LOW_CONFIDENCE not in held_for:
+            triggers.append(
+                ReviewTriggerRecord(
+                    trigger=ReviewTrigger.LOW_CONFIDENCE,
+                    reason=f"Calculated confidence {ruling.confidence.value} is below the configured threshold {threshold}.",
+                )
             )
-        )
+        limit = CONFIG.escalation.amount_limit
+        if ruling.amount is not None and ruling.amount > limit and ReviewTrigger.AMOUNT_OVER_LIMIT not in held_for:
+            triggers.append(
+                ReviewTriggerRecord(
+                    trigger=ReviewTrigger.AMOUNT_OVER_LIMIT,
+                    reason=f"The amount {ruling.currency} {ruling.amount} is above the configured limit {limit}.",
+                )
+            )
     return ruling.model_copy(update={"status": RulingStatus.PROPOSAL if triggers else ruling.status, "review_triggers": triggers})
 
 

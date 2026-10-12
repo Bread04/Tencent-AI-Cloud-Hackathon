@@ -185,3 +185,8 @@ details.call .call-meta { margin-left: auto; margin-right: 12px; font: 11px var(
 .call .msg { margin-bottom: 10px; }
 .call pre { max-height: 280px; overflow: auto; }
 @media (max-width: 720px) { .lane { grid-template-columns: 110px 1fr 40px; } }
+
+/* Header switches */
+.account { gap: 18px; }
+.account label.switch { display: flex; align-items: center; gap: 6px; color: #a9b2be; font: 11px/1.5 var(--mono); cursor: pointer; }
+.account label.switch input { accent-color: var(--blue); }

@@ -1,0 +1,102 @@
+{
+  "_simulated": "Scripted replies for the offline model stub. Mock data, not model output.",
+  "rider_advocate": {
+    "author": "rider_advocate",
+    "claim_restated": "The driver drove recklessly and changed lanes too often, so I want his conduct reviewed.",
+    "facts_relied_on": [
+      "EV-GPS-1",
+      "EV-CHAT-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
+    "counter_arguments": [
+      {
+        "argument": "The driver says nothing unusual happened.",
+        "response": "Lane changes are not in the record, so they cannot be proven either way."
+      }
+    ],
+    "policy_clause_ids": [
+      "R-05",
+      "R-06"
+    ],
+    "requested_outcome": "Refund the fare and have the driver's conduct reviewed."
+  },
+  "driver_advocate": {
+    "author": "driver_advocate",
+    "claim_restated": "The driver kept to the normal speed and the trip was completed without incident.",
+    "facts_relied_on": [
+      "EV-GPS-1",
+      "EV-CHAT-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
+    "counter_arguments": [
+      {
+        "argument": "The rider says the driving felt reckless.",
+        "response": "GPS shows steady speeds between 48 and 52 km/h and no alert."
+      }
+    ],
+    "policy_clause_ids": [
+      "D-05",
+      "D-06"
+    ],
+    "requested_outcome": "Reject the claim; no refund is due."
+  },
+  "judge": {
+    "outcome": "reject",
+    "balance_of_evidence": "respondent",
+    "remedy": "no_action",
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "unproven",
+        "reason": "GPS shows steady speeds near the limit and nothing in the chat or app events records unsafe driving.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "The driver's account matches the steady speeds in the record.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "accepted",
+        "reason": "The record shows a normal trip at steady speed that was completed.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "Lane changes are not recorded in the evidence, so they cannot be weighed.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      }
+    ],
+    "policy_fit": "clear",
+    "policy_fit_reason": "The evidence is complete enough to apply the safe-driving clauses.",
+    "cited_evidence_ids": [
+      "EV-GPS-1",
+      "EV-CHAT-1"
+    ],
+    "cited_policy_clause_ids": [
+      "R-05",
+      "D-05"
+    ],
+    "reasoning_summary": "Speeds stayed between 48 and 52 km/h, no alert was raised and no message reports a concern. The rider's account is unproven. Because this is a Safety Incident, the proposal goes to a person."
+  },
+  "judge_self_check": {
+    "supported": true,
+    "problems": []
+  }
+}

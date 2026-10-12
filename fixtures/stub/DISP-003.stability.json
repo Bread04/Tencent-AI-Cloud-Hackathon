@@ -1,0 +1,55 @@
+{
+  "_simulated": "Scripted second-pass reply used when the stability check is on. It turns the verdict round, to show the check catching an order-sensitive Judge. Mock data, not model output.",
+  "judge_second_pass": {
+    "outcome": "reject",
+    "balance_of_evidence": "respondent",
+    "remedy": "no_action",
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "unproven",
+        "reason": "No record places the rider at the pickup point, and the rider's location is missing.",
+        "evidence_ids": [
+          "EV-RIDERLOC-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "rejected",
+        "reason": "GPS places the driver at the pickup point from arrival to cancellation.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "accepted",
+        "reason": "GPS shows eight minutes at the pickup point and chat shows four messages and a call with no reply.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "GPS shows the driver stationary at the pickup point from arrival to cancellation.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      }
+    ],
+    "policy_fit": "clear",
+    "policy_fit_reason": "The driver waited past the no-show threshold, so the fee applies.",
+    "cited_evidence_ids": [
+      "EV-GPS-1",
+      "EV-CHAT-1",
+      "EV-FARE-1"
+    ],
+    "reasoning_summary": "Reading the Submissions in the other order, the driver's account of waiting and trying to make contact carries more weight, and the rider's position is unknown, so the rider's claim is not made out and the fee stands.",
+    "cited_policy_clause_ids": [
+      "R-02",
+      "D-02"
+    ]
+  }
+}

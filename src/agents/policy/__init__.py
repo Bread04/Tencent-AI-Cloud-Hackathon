@@ -27,6 +27,7 @@ SIMULATED_LABEL = "Draft policy: Waypoint prototype guidance for the demo, not R
 CATEGORY_CLAUSES: dict[DisputeCategory, tuple[str, ...]] = {
     DisputeCategory.ROUTE_DEVIATION: ("R-04", "D-04", "R-03", "D-03"),
     DisputeCategory.NO_SHOW_CHARGE: ("R-01", "R-02", "R-03", "R-06", "D-02", "D-03", "D-06", "D-09"),
+    DisputeCategory.SAFETY_INCIDENT: ("R-05", "R-06", "D-05", "D-06"),
 }
 
 # The Remedy each outcome may carry, per category. The shared policy set does not state this, so it is
@@ -40,6 +41,11 @@ ALLOWED_REMEDIES: dict[DisputeCategory, dict[RulingOutcome, Remedy]] = {
     },
     DisputeCategory.NO_SHOW_CHARGE: {
         RulingOutcome.UPHOLD: Remedy.FEE_REVERSAL,
+        RulingOutcome.REJECT: Remedy.NO_ACTION,
+    },
+    # A Safety Incident Ruling is only ever a proposal for a person (it always escalates); the refund is the Remedy it proposes.
+    DisputeCategory.SAFETY_INCIDENT: {
+        RulingOutcome.UPHOLD: Remedy.FULL_REFUND,
         RulingOutcome.REJECT: Remedy.NO_ACTION,
     },
 }

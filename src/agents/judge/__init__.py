@@ -17,7 +17,8 @@ from src.agents.judge.arguments import Argument, arguments_in
 from src.agents.judge.draft import DraftAssessment, DraftRejected, JudgeDraft, draft_problems
 from src.agents.judge.numbers import amount_for, checklist_for, confidence_for
 from src.agents.judge.selfcheck import self_check
-from src.agents.prompting import evidence_for_prompt, policy_for_prompt
+from src.agents.judge.stability import StabilityResult, compare, submission_order_flipped, unfinished
+from src.agents.prompting import evidence_for_prompt, policy_for_prompt, precedents_for_prompt
 from src.config import CONFIG
 from src.contracts import (
     ArgumentAssessment,
@@ -34,7 +35,7 @@ from src.contracts import (
     RulingStatus,
     Submission,
 )
-from src.llm.adapter import ModelAdapter
+from src.llm.adapter import ModelAdapter, ModelError
 from src.llm.repair import StageFailed, complete_with_repair, feedback_message
 
 __all__ = ["DraftAssessment", "DraftRejected", "JudgeDraft", "judge"]
@@ -69,8 +70,34 @@ def judge(
     *,
     record: Recorder | None = None,
 ) -> Ruling:
+    record = record or _ignore
     arguments = arguments_in(rider_submission, driver_submission)
-    messages = [
+    check = case.switches.stability_check
+    flipped = submission_order_flipped(case.case_id)
+    messages = _messages(case, rider_submission, driver_submission, neutral=check, flipped=flipped)
+    draft = _draft_passing_every_check(case, arguments, messages, model, record)
+    for assessment in draft.argument_assessments:  # the verdict on each argument, one row each in the log
+        record(
+            LogEventKind.ARGUMENT_ASSESSED,
+            f"{assessment.ref}: {assessment.verdict.value.replace('_', ' ')}. {assessment.reason}",
+            assessment.evidence_ids,
+        )
+    stability = _stability(case, arguments, (rider_submission, driver_submission), model, draft, flipped, record) if check else None
+
+    return _ruling_from(case, arguments, draft, stability)
+
+
+def _messages(case: Case, rider: Submission, driver: Submission, *, neutral: bool, flipped: bool) -> list[dict]:
+    """The Judge's prompt. With the stability check on, the Submissions sit under neutral labels in an order set by `flipped`."""
+    ordered = [driver, rider] if (neutral and flipped) else [rider, driver]
+    if neutral:
+        sections = [f"Submission {label}:\n{submission.model_dump_json(indent=2)}" for label, submission in zip("AB", ordered)]
+    else:
+        sections = [
+            f"Rider Advocate Submission:\n{rider.model_dump_json(indent=2)}",
+            f"Driver Advocate Submission:\n{driver.model_dump_json(indent=2)}",
+        ]
+    return [
         {"role": "system", "content": SYSTEM_PROMPT},
         {
             "role": "user",
@@ -79,26 +106,47 @@ def judge(
                     f"Dispute:\n{case.dispute.model_dump_json(indent=2)}",
                     f"Evidence (sealed, version {case.evidence_version}):\n{evidence_for_prompt(case)}",
                     f"Policy clauses (cite by clause_id):\n{policy_for_prompt(case)}",
-                    f"Arguments to assess, each exactly once, by ref:\n{_argument_list(arguments)}",
-                    f"Rider Advocate Submission:\n{rider_submission.model_dump_json(indent=2)}",
-                    f"Driver Advocate Submission:\n{driver_submission.model_dump_json(indent=2)}",
+                    *([precedents_for_prompt(case)] if case.switches.policy_precedent else []),
+                    f"Arguments to assess, each exactly once, by ref:\n{_argument_list(arguments_in(*ordered))}",
+                    *sections,
                 ]
             ),
         },
     ]
-    record = record or _ignore
-    draft = _draft_passing_every_check(case, arguments, messages, model, record)
-    for assessment in draft.argument_assessments:  # the verdict on each argument, one row each in the log
-        record(
-            LogEventKind.ARGUMENT_ASSESSED,
-            f"{assessment.ref}: {assessment.verdict.value.replace('_', ' ')}. {assessment.reason}",
-            assessment.evidence_ids,
+
+
+def _stability(case, arguments, submissions, model, first: JudgeDraft, first_flipped: bool, record) -> StabilityResult:
+    """Rule again with the Submissions in the other order and compare by code. A second pass that fails holds the Case."""
+    rider, driver = submissions
+    messages = _messages(case, rider, driver, neutral=True, flipped=not first_flipped)
+    try:
+        second = complete_with_repair(
+            model,
+            messages,
+            case_id=case.case_id,
+            agent="judge_second_pass",
+            schema=JudgeDraft,
+            check=lambda candidate: _problems(case, arguments, candidate),
+            attempts=CONFIG.model.repair_attempts,
         )
+    except (StageFailed, ModelError) as failure:
+        result = unfinished(str(failure)[:160])
+    else:
+        result = compare(
+            (first.outcome, _confidence(case, first).value),
+            (second.outcome, _confidence(case, second).value),
+            margin=CONFIG.confidence.stability_margin,
+        )
+    record(LogEventKind.STABILITY_CHECK, f"Stability check: {result.reason}")
+    return result
 
-    return _ruling_from(case, arguments, draft)
+
+def _confidence(case: Case, draft: JudgeDraft) -> Confidence:
+    """A pass's own Confidence, before the stability component is added."""
+    return confidence_for(case, draft.policy_fit, checklist_for(case), draft.own_findings)
 
 
-def _ruling_from(case: Case, arguments: list[Argument], draft: JudgeDraft) -> Ruling:
+def _ruling_from(case: Case, arguments: list[Argument], draft: JudgeDraft, stability: StabilityResult | None = None) -> Ruling:
     amount, calculation = amount_for(case, draft.remedy, draft.amount_input_evidence_ids)
     checklist = checklist_for(case)
     confidence = confidence_for(case, draft.policy_fit, checklist, draft.own_findings)
@@ -122,9 +170,10 @@ def _ruling_from(case: Case, arguments: list[Argument], draft: JudgeDraft) -> Ru
         policy_fit_reason=draft.policy_fit_reason,
         cited_evidence_ids=draft.cited_evidence_ids,
         cited_policy_clause_ids=draft.cited_policy_clause_ids,
+        cited_precedent_ids=draft.cited_precedent_ids,
         own_findings=draft.own_findings,
         policy_gap=draft.policy_gap,
-        reasoning_summary=draft.reasoning_summary,
+        reasoning_summary=_with_departure(draft),
         confidence=confidence,
         material_evidence=checklist,
         review_triggers=triggers,
@@ -186,8 +235,10 @@ def _assessments(arguments: list[Argument], draft: JudgeDraft) -> list[ArgumentA
     ]
 
 
-def _review_triggers(draft: JudgeDraft, confidence: Confidence) -> list[ReviewTriggerRecord]:
+def _review_triggers(draft: JudgeDraft, confidence: Confidence, stability: StabilityResult | None = None) -> list[ReviewTriggerRecord]:
     triggers = []
+    if stability is not None and not stability.agrees:
+        triggers.append(ReviewTriggerRecord(trigger=ReviewTrigger.STABILITY_DISAGREEMENT, reason=stability.reason))
     if draft.balance_of_evidence is BalanceOfEvidence.BALANCED:
         triggers.append(
             ReviewTriggerRecord(
@@ -211,3 +262,10 @@ def _review_triggers(draft: JudgeDraft, confidence: Confidence) -> list[ReviewTr
             )
         )
     return triggers
+
+
+def _with_departure(draft: JudgeDraft) -> str:
+    """The reasoning, with the stated reason for departing from a precedent where there is one."""
+    if draft.precedent_departure and draft.precedent_departure.strip():
+        return f"{draft.reasoning_summary} Departs from precedent: {draft.precedent_departure.strip()}"
+    return draft.reasoning_summary

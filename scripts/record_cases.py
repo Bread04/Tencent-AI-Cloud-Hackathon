@@ -6,10 +6,13 @@ Writes `src/api/static/recorded/<dispute id>.json`, in the same shape as `GET /a
 then be built and demonstrated without the orchestrator running. Re-run it when the pipeline's output changes.
 """
 
+import itertools
 import json
 from pathlib import Path
 
 from src.intake import load_catalog
+from src.api.demo_switches import DEMO_SWITCHES
+from src.config import CONFIG
 from src.llm.stub import StubModel, load_replies
 from src.orchestrator import run_dispute
 from src.store import CaseStore
@@ -21,17 +24,21 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     catalog = load_catalog()
     for dispute_id, dispute in catalog.disputes.items():
-        store = CaseStore()
-        model = StubModel({("CASE-0001", agent): reply for agent, reply in load_replies(dispute_id).items()})
-        case = run_dispute(dispute, store=store, model=model, catalog=catalog)
-        body = {
-            "case": case.model_dump(mode="json"),
-            "log": [event.model_dump(mode="json") for event in store.log(case.case_id)],
-            "calls": [call.model_dump(mode="json") for call in store.calls(case.case_id)],
-            "run_error": None,
-        }
-        (OUT / f"{dispute_id}.json").write_text(json.dumps(body, indent=2) + "\n", encoding="utf-8")
-        print(f"recorded {dispute_id}: {len(body['log'])} log events")
+        for flags in itertools.product([False, True], repeat=len(DEMO_SWITCHES)):  # every combination of the demo switches
+            variants = tuple(s.name for s, on in zip(DEMO_SWITCHES, flags) if on)
+            store = CaseStore()
+            model = StubModel({("CASE-0001", agent): reply for agent, reply in load_replies(dispute_id, *variants).items()})
+            on = {s.field: s.name in variants for s in DEMO_SWITCHES}
+            case = run_dispute(dispute, store=store, model=model, catalog=catalog, switches=CONFIG.switches.model_copy(update=on) if variants else None)
+            body = {
+                "case": case.model_dump(mode="json"),
+                "log": [event.model_dump(mode="json") for event in store.log(case.case_id)],
+                "calls": [call.model_dump(mode="json") for call in store.calls(case.case_id)],
+                "run_error": None,
+            }
+            name = ".".join([dispute_id, *variants]) + ".json"
+            (OUT / name).write_text(json.dumps(body, indent=2) + "\n", encoding="utf-8")
+            print(f"recorded {name}: {len(body['log'])} log events")
 
 
 if __name__ == "__main__":

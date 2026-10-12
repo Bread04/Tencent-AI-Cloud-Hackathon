@@ -29,6 +29,7 @@ def add_review_routes(app: FastAPI, *, store: CaseStore, simulated: str, model_l
     @app.get("/api/review")
     def queue():
         held = [case for case in store.list_cases() if case.status is CaseStatus.PENDING_REVIEW]
+        held.sort(key=lambda case: (-case.priority, case.created_at))  # most urgent first, then the one waiting longest
         return {
             "cases": [
                 {
@@ -36,6 +37,8 @@ def add_review_routes(app: FastAPI, *, store: CaseStore, simulated: str, model_l
                     "dispute_id": case.dispute.dispute_id,
                     "category": case.dispute.category.value,
                     "status": case.status.value,
+                    "priority": case.priority,
+                    "priority_reason": case.priority_reason,
                     "proposed_outcome": case.ruling.outcome.value if case.ruling else None,
                     "confidence": case.ruling.confidence.value if case.ruling and case.ruling.confidence else None,
                     "reasons": [r.model_dump(mode="json") for r in review_package(case, store.log(case.case_id)).reasons],

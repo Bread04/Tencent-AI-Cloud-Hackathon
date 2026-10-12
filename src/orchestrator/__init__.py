@@ -6,6 +6,8 @@ Outcomes. A proposal or a failed Judge holds the Case for review. Not here yet: 
 supporting agents and their switches, the review queue and reviewer (ticket 09).
 """
 
+from collections.abc import Sequence
+from decimal import Decimal
 from concurrent.futures import ThreadPoolExecutor
 
 from src.agents.advocates import build_submission
@@ -14,6 +16,8 @@ from src.agents.judge import judge
 from src.agents.judge.history import apply_history
 from src.agents.outcomes import outcomes_for, pending_outcomes
 from src.agents.policy import policy_for
+from src.agents.routing import score
+from src.agents.policy.precedents import describe, load_embedder, retrieve_precedents, seeded_precedents
 from src.config import CONFIG
 from src.contracts import (
     Advocate,
@@ -21,6 +25,7 @@ from src.contracts import (
     Dispute,
     DisputeCategory,
     LogEventKind,
+    Precedent,
     ReviewTrigger,
     ReviewTriggerRecord,
     RulingStatus,
@@ -38,17 +43,22 @@ SUPPORTED_CATEGORIES = frozenset({DisputeCategory.NO_SHOW_CHARGE, DisputeCategor
 
 
 def run_dispute(
-    dispute: Dispute, *, store: CaseStore, model: ModelAdapter, catalog: Catalog, switches: Switches | None = None
+    dispute: Dispute, *, store: CaseStore, model: ModelAdapter, catalog: Catalog,
+    switches: Switches | None = None, precedents: Sequence[Precedent] | None = None,
 ) -> Case:
     case = store.create_case(dispute, switches)
     case_id = case.case_id
     if not isinstance(model, RecordingModel):
         model = RecordingModel(model, store)  # every model call is recorded and shown in the log
 
-    reason = _rejection_reason(dispute, catalog)
+    reason = _rejection_reason(dispute, catalog, case.switches.sla_routing)
     if reason:
         store.reject_case(case_id, reason)
         return store.get_case(case_id)
+
+    if case.switches.sla_routing:  # a Priority and its reason for every Case; without the switch all Cases share one
+        priority = score(dispute, Decimal(catalog.trip(dispute.trip_id)["trip"]["cancellation_fee"]))
+        store.set_priority(case_id, priority.value, priority.reason)
 
     store.log_event(
         case_id,
@@ -60,6 +70,13 @@ def run_dispute(
     store.add_evidence(case_id, gather_evidence(dispute.trip_id, catalog), agent="evidence")
     store.seal_evidence(case_id)
     store.add_policy_clauses(case_id, policy_for(dispute.category), agent="policy")
+    if case.switches.policy_precedent:  # the same Precedents go to both advocates and the Judge; advisory only
+        mode = CONFIG.precedents.retrieval
+        found = retrieve_precedents(
+            store.get_case(case_id), seeded_precedents() if precedents is None else precedents,
+            mode=mode, embedder=load_embedder() if mode == "embeddings" else None,
+        )
+        store.add_precedents(case_id, [s.precedent for s in found.served], describe(found))
 
     # Both advocates work from this snapshot (sealed evidence and policy), taken before either has filed.
     sealed = store.get_case(case_id)
@@ -124,13 +141,14 @@ def _failure_reason(subject: str, noun: str, failure: Exception) -> str:
     return f"The {subject} could not produce a valid {noun}: {failure}"
 
 
-def _rejection_reason(dispute: Dispute, catalog: Catalog) -> str | None:
+def _rejection_reason(dispute: Dispute, catalog: Catalog, routing: bool = False) -> str | None:
     try:
         catalog.trip(dispute.trip_id)
     except UnknownTrip:
         return f"Trip {dispute.trip_id} does not exist."
-    if dispute.category not in SUPPORTED_CATEGORIES:
-        supported = ", ".join(sorted(category.value for category in SUPPORTED_CATEGORIES))
+    supported_now = ROUTED_CATEGORIES if routing else SUPPORTED_CATEGORIES
+    if dispute.category not in supported_now:
+        supported = ", ".join(sorted(category.value for category in supported_now))
         return f"{dispute.category.value} Disputes cannot be resolved yet; supported: {supported}."
     return None
 

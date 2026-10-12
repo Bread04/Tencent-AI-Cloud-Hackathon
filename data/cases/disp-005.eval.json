@@ -1,0 +1,16 @@
+{
+  "_note": "Evaluation label only. Agents must never read this file.",
+  "dispute_id": "DISP-005",
+  "scenario_classification": "claimant_wins",
+  "expected_outcome": "uphold",
+  "expected_remedy": "full_refund",
+  "expected_review_required": true,
+  "acceptable_review_triggers": [
+    "safety_incident"
+  ],
+  "expected_summary": "Sustained speeding is recorded by GPS (84 to 91 km/h) and the driver's own message dismisses the rider's request to slow down. The claim is made out, but a Safety Incident always goes to a person.",
+  "expected_facts": {
+    "max_speed_kmh": 91
+  },
+  "policy_version": "waypoint-singapore-draft-2026-10"
+}

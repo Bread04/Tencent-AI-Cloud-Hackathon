@@ -1,0 +1,134 @@
+{
+  "_simulated": "Mock report and trip records for the hackathon. Not a real trip.",
+  "dispute": {
+    "dispute_id": "DISP-006",
+    "trip_id": "TRIP-2026-09961",
+    "filed_by": "rider",
+    "category": "safety_incident",
+    "description": "I felt the driver was driving recklessly and changed lanes too often. I want to report him.",
+    "requested_remedy": "Review the driver's conduct",
+    "filed_at": "2026-09-17T09:00:00+08:00",
+    "photos": [],
+    "driver_statement": "I drove at the normal speed and changed lanes only when needed. Nothing unusual happened."
+  },
+  "trip": {
+    "trip_id": "TRIP-2026-09961",
+    "rider_id": "R-7831",
+    "driver_id": "D-2406",
+    "pickup_location": {
+      "name": "Raffles Place pickup bay",
+      "lat": 1.283,
+      "lng": 103.851
+    },
+    "dropoff_location": {
+      "name": "Bugis Junction",
+      "lat": 1.302,
+      "lng": 103.869
+    },
+    "scheduled_time": "2026-09-17T08:00:00+08:00",
+    "driver_arrival_time": "2026-09-17T08:00:00+08:00",
+    "driver_wait_start": "2026-09-17T08:00:00+08:00",
+    "cancellation_time": "2026-09-17T08:16:00+08:00",
+    "cancellation_fee": "0.00",
+    "currency": "SGD",
+    "cancellation_reason": "rider_ended_trip_early"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-17T08:00:00+08:00",
+      "lat": 1.283,
+      "lng": 103.851,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-09-17T08:04:00+08:00",
+      "lat": 1.287,
+      "lng": 103.854,
+      "speed_kmh": 48,
+      "status": "driving"
+    },
+    {
+      "timestamp": "2026-09-17T08:08:00+08:00",
+      "lat": 1.292,
+      "lng": 103.859,
+      "speed_kmh": 52,
+      "status": "driving"
+    },
+    {
+      "timestamp": "2026-09-17T08:12:00+08:00",
+      "lat": 1.298,
+      "lng": 103.864,
+      "speed_kmh": 50,
+      "status": "driving"
+    },
+    {
+      "timestamp": "2026-09-17T08:16:00+08:00",
+      "lat": 1.302,
+      "lng": 103.869,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-17T08:00:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am at the pickup bay."
+    },
+    {
+      "timestamp": "2026-09-17T08:16:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip completed. Fare charged."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-17T07:50:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider booked a trip from Raffles Place to Bugis."
+    },
+    {
+      "timestamp": "2026-09-17T08:00:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "GPS recorded the driver at the booked pickup coordinates."
+    },
+    {
+      "timestamp": "2026-09-17T08:16:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed and the fare was charged."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": "5.00",
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation"
+  },
+  "rider_history": {
+    "rider_id": "R-7831",
+    "account_age_days": 300,
+    "total_trips": 64,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0
+  },
+  "driver_history": {
+    "driver_id": "D-2406",
+    "account_age_days": 800,
+    "total_trips": 2600,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0
+  }
+}

@@ -77,7 +77,11 @@ class Advocate(StrEnum):
 
 
 class PrecedentSource(StrEnum):
+    """Where a Precedent came from (ADR 0003). Only the last three are retrievable: an unreviewed `model` Ruling is not."""
+
     MODEL = "model"
+    SEEDED = "seeded"
+    HUMAN_CONFIRMED = "human_confirmed"
     HUMAN_OVERRIDE = "human_override"
 
 
@@ -188,6 +192,7 @@ class Switches(Contract):
     policy_precedent: bool = False
     image_analysis: bool = False
     escalation: bool = False
+    stability_check: bool = False  # the Judge rules twice with the Submission order swapped (architecture 6.7)
     sla_routing: bool = False
     learning_loop: bool = False
 
