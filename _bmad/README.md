@@ -1,10 +1,10 @@
 # Restored BMad workflow loader
 
-This directory restores the missing loader required by the installed `bmad-build` and `bmad-build-auto` skills. It prepares their Markdown instructions; the ride-hailing prototype runs independently.
+This directory restores the loader required by the installed `bmad-build` and `bmad-build-auto` skills, plus the configuration, customization and memory-log helpers used by `bmad-brainstorming`. It prepares skill instructions and session records; the ride-hailing prototype runs independently.
 
 ## Source and compatibility
 
-`scripts/render_skill.py` and its required `scripts/config_utils.py` are unmodified copies from the official [BMAD-METHOD v6.12.0 release](https://github.com/bmad-code-org/BMAD-METHOD/tree/05bfbd46d00766ec88eb9b42e76be2c575d64d7b), commit `05bfbd46d00766ec88eb9b42e76be2c575d64d7b`. The installed build workflow matched that release's workflow exactly after normalizing line endings. Original source URLs and file SHA-256 hashes are recorded in [upstream.json](upstream.json); the upstream MIT license is preserved in [LICENSE](LICENSE).
+`scripts/render_skill.py`, `scripts/config_utils.py`, `scripts/resolve_config.py`, `scripts/resolve_customization.py` and `scripts/memlog.py` are unmodified copies from the official [BMAD-METHOD v6.12.0 release](https://github.com/bmad-code-org/BMAD-METHOD/tree/05bfbd46d00766ec88eb9b42e76be2c575d64d7b), commit `05bfbd46d00766ec88eb9b42e76be2c575d64d7b`. The installed build workflow matched that release's workflow exactly after normalizing line endings. Original source URLs and file SHA-256 hashes, including the upstream tests for the three restored helpers, are recorded in [upstream.json](upstream.json); the upstream MIT license is preserved in [LICENSE](LICENSE).
 
 Python 3.11 or newer is required. These scripts use only the standard library. Installed skills remain in their existing directory; the loader reads them without editing them.
 
@@ -42,12 +42,23 @@ The loader resolves configuration/customization tokens and cross-file snapshot r
 
 Missing or malformed configuration, missing workflow files, invalid references, and modified snapshots produce `HALT:` with a nonzero exit code. Configure each short key such as `communication_language` in only one namespace: this upstream version rejects ambiguous keys across modules. If a snapshot is reported as corrupt, inspect the exact generation named in the error and remove only that generated directory before rendering again.
 
-This is a scoped repair of the rendered-workflow loader, not a complete BMad installation. Other skills that require `resolve_customization.py`, `resolve_config.py`, or `_bmad/bmm/config.yaml` still require their own setup files.
+The brainstorming helpers can also be called directly from the repository root:
+
+```powershell
+uv run _bmad/scripts/resolve_config.py --project-root . --key core
+uv run _bmad/scripts/resolve_customization.py --skill "$env:USERPROFILE/.agents/skills/bmad-brainstorming" --key workflow
+uv run _bmad/scripts/memlog.py init --workspace _bmad-output/brainstorming/example --field topic="Example"
+```
+
+The resolvers print JSON and share the renderer's existing TOML merge rules. The memory log supports `init`, `append` and `set`; writes replace the file atomically. Initialization refuses to overwrite an existing log. Use a new workspace for each session.
+
+This remains a scoped setup, not a complete BMad installation. Skills that require `_bmad/bmm/config.yaml` still need their own setup files. The installed brainstorming skill is read from the supplied skill path and is not copied or modified here.
 
 ## Verification
 
 ```powershell
 python -B -m unittest discover -s "_bmad/scripts/tests" -v
+uv run --locked pytest -q tests _bmad/scripts/tests
 ```
 
-The tests use isolated fixtures and cover rendering, customization precedence, snapshot reuse, source changes, corruption detection, missing/invalid/ambiguous configuration, invalid file references, and command-line execution from another working directory. They require no installed BMad skill or network access.
+The unittest command covers the renderer and configuration resolvers. The pytest command additionally includes memory-log checks and the backend suite. Tests use isolated fixtures and cover rendering, customization precedence, snapshot reuse, source changes, corruption detection, missing/invalid/ambiguous configuration, invalid file references, Windows Unicode output, append-only session entries and command-line execution from another working directory. Once project dependencies are installed, the tests require no installed BMad skill or network access.

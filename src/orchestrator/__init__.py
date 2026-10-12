@@ -41,8 +41,7 @@ from src.llm.repair import StageFailed
 from src.store import CaseStore
 from src.tools.evidence import gather_evidence
 
-SUPPORTED_CATEGORIES = frozenset({DisputeCategory.NO_SHOW_CHARGE})
-ROUTED_CATEGORIES = SUPPORTED_CATEGORIES | {DisputeCategory.SAFETY_INCIDENT}  # Safety Incidents arrive with SLA routing
+SUPPORTED_CATEGORIES = frozenset({DisputeCategory.NO_SHOW_CHARGE, DisputeCategory.ROUTE_DEVIATION})
 
 
 def run_dispute(
@@ -111,8 +110,9 @@ def run_dispute(
 
     # History is applied only now, after the outcome is fixed (ADR 0001).
     ruling = apply_history(ruling, store.get_case(case_id))
-    safety = dispute.category is DisputeCategory.SAFETY_INCIDENT and case.switches.sla_routing
-    ruling = apply_escalation(ruling, enabled=case.switches.escalation, threshold=CONFIG.escalation.confidence_threshold, safety_incident=safety)
+    ruling = apply_escalation(ruling, enabled=case.switches.escalation, threshold=CONFIG.escalation.confidence_threshold)
+    if dispute.category is DisputeCategory.ROUTE_DEVIATION and ruling.status is RulingStatus.PROPOSAL:
+        ruling = ruling.model_copy(update={"amount": None, "currency": None, "calculation": None})
     store.set_ruling(case_id, ruling)
     if ruling.status is RulingStatus.PROPOSAL:
         store.mark_pending_review(case_id, ruling.review_triggers)

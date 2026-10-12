@@ -13,6 +13,9 @@ WITHHELD_SOURCES = frozenset({"history"})
 def evidence_for_prompt(case: Case) -> str:
     """The sealed evidence a model may see, as JSON."""
     items = [item.model_dump(mode="json") for item in case.evidence if item.source not in WITHHELD_SOURCES]
+    for item in items:
+        if item["source"] == "route":
+            item["content"] = "Raw vehicle GPS and baseline geometry are retained in the sealed evidence; use the computed metrics and provenance below."
     return json.dumps(items, indent=2)
 
 

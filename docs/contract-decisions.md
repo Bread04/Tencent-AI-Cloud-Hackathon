@@ -1,5 +1,15 @@
 # Contract session decisions
 
+## Approved Route Deviation rule (2026-10-12)
+
+Ticket 06 uses [ADR 0004](adr/0004-route-deviation-refund-rule.md): compare the
+authoritative paid net receipt with the recomputed optimal net fare, cap the
+refund at the paid amount, and round final SGD cents half-up. Route distances
+use 0.001km and elapsed time 0.01 minute precision. Incomplete, invalid or
+unreconciled inputs require review. R-04, D-04, R-03 and D-03 and shared contract
+fields are unchanged. Calculations carry provenance in existing fields.
+
+
 **Status: proposed, pending confirmation with Kyven.** Nothing here has been agreed in a contract session yet. The values are the proposals in [architecture.md](architecture.md) (sections 5.7, 6.1, 6.2, 6.4), cross-checked against the `RULES` object in `prototypes/judge-decision-logic.prototype.html`. They are the defaults the code runs on until both of us confirm or change them.
 
 The code reads every value from `CONFIG` in [`src/config.py`](../src/config.py). Change a value there and here together. The contract types are in [`src/contracts.py`](../src/contracts.py).
@@ -104,3 +114,24 @@ Placeholders the code currently runs on. Each needs a decision.
 - **SLA routing and Safety Incidents (ticket 13, Braedon, 12 Oct 2026, for Kyven to confirm).** `Case.priority` is set only with `switches.sla_routing` (off by default; otherwise 0). Safety Incident is resolvable only with that switch on, uses the clauses R-05, R-06, D-05, D-06, the remedies full_refund or no_action, and is always held for review. The two Safety Incident mock cases (DISP-005, DISP-006) are rider-filed. Priority points are placeholders.
   Also added with ticket 13: material-evidence checklist entries for Safety Incident in `CONFIG.material_evidence` (`trip_route`, `conversation`, mapped to the GPS and chat items in `src/agents/judge/numbers.py`), `src/agents/intake.py` (keyword classification when no category is chosen) and `POST /api/classify`. Nothing files a Dispute through the classifier yet; ticket 19 (filing from the report form) is where it is called.
 - **Evidence Agents (ticket 11, Braedon, 12 Oct 2026, for Kyven to confirm).** No contract change: extracted facts are ordinary `EvidenceItem`s (`source` `extracted_fact`, IDs `EV-FACT-RIDER-n`, `EV-FACT-DRIVER-n`, `derived` holds `message_ref` and `quote`; a failed agent leaves `EV-FACTS-<SIDE>-1` and a failed tool `EV-TOOLS-1`, both `missing` with the cause). Switch `evidence_agents` stays off by default. References are `EV-CHAT-1#<position>`, `DISPUTE#description` and `DISPUTE#driver_statement`. New mock case DISP-007 (a chat message that tries to instruct the system). The demo gains a fourth switch, so there are 96 recorded streams.
+
+## Rider Python execution amendment (2026-10-12)
+
+All deterministic Rider Evidence, Policy and Advocate rules run in
+`src/agents/rider/`, reusing the existing Python route/fare calculator and shared
+policy JSON. No shared Case, EvidenceItem, PolicyClause or Submission fields
+change. The prototype result schema and exact original report are preserved.
+The browser retains rendering, simulated ownership selection, session storage
+and bounded async API calls only.
+
+The trusted public `data/prototype/rider-catalog.json` supplies all eight current
+Rider app trips; histories/evaluation labels are excluded. Python never accepts
+client telemetry or policy. Requests are limited to 128 KiB/eight nesting levels
+with nested metadata/finite-value validation. Rider selection is simulated
+identity, not production authentication.
+
+Case/evidence APIs register the generated public log on the server, bind an
+opaque handle to the owner cookie and redact all log arrays. The existing access
+gate and legacy client-log migration endpoint remain. Both Rider entry points
+require FastAPI; offline requests preserve the report and show an explicit retry
+without browser agent execution.

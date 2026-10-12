@@ -14,12 +14,14 @@ from src.llm.adapter import ModelError
 from src.store import CaseStore
 
 from tests.cases import DISPUTE_ID, stub_replies
+from tests.test_chat import stable_page
 
 
 def test_the_demo_app_runs_a_prepared_dispute_without_any_setup():
     client = TestClient(create_demo_app())
 
-    page = client.post(f"/disputes/{DISPUTE_ID}/run", follow_redirects=True)
+    client.post(f"/disputes/{DISPUTE_ID}/run")
+    page = client.post("/cases/CASE-0001/chat/unlock", data={"code": "482731"}, follow_redirects=True)
 
     assert page.status_code == 200
     assert "Communication Log" in page.text
@@ -45,6 +47,7 @@ def test_mixed_demo_runs_keep_their_submissions_rulings_and_stored_pages_indepen
         page = client.post(f"/disputes/{dispute_id}/run", follow_redirects=True)
         assert page.status_code == 200
         case = store.list_cases()[-1]
+        page = client.post(f"/cases/{case.case_id}/chat/unlock", data={"code": "482731"}, follow_redirects=True)
         assert case.dispute.dispute_id == dispute_id
         replies = stub_replies(dispute_id)
         assert [s.claim_restated for s in case.submissions] == [
@@ -95,7 +98,7 @@ def test_mixed_demo_runs_keep_their_submissions_rulings_and_stored_pages_indepen
 
     assert len(model.calls) == 16
     for path, original in pages:
-        assert client.get(path).text == original
+        assert stable_page(client.get(path).text) == stable_page(original)
     assert len(model.calls) == 16
 
 

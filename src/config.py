@@ -88,8 +88,13 @@ class Config(_Settings):
     model: ModelSettings = ModelSettings()
 
     # Material evidence per Dispute Category: checklist key -> label shown in the Ruling.
-    # Only No-Show Charge is defined so far; the rest arrive with their policy.
+    # No-Show Charge and Route Deviation have defined policy and code rules.
     material_evidence: dict[DisputeCategory, dict[str, str]] = {
+        DisputeCategory.ROUTE_DEVIATION: {
+            "route_comparison": "Computed vehicle route and supplied road baseline",
+            "fare_calculation": "Reconciled tariff and authoritative receipt",
+            "route_conversation": "Route discussion and exact consent scope",
+        },
         DisputeCategory.NO_SHOW_CHARGE: {
             "driver_at_pickup": "Driver position at the pickup point",
             "arrival_vs_scheduled": "Arrival time against the scheduled time",

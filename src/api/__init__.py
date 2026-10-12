@@ -9,10 +9,13 @@ import threading
 from collections.abc import Callable
 import time
 from html import escape
+import json
+import os
 from pathlib import Path
+from urllib.parse import parse_qs
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -22,7 +25,11 @@ from src.api.demo_switches import checkboxes_html, switches_from_query
 from src.api.evaluation import add_evaluation_routes
 from src.api.review import add_review_routes
 from src.config import CONFIG
-from src.contracts import Case, LogEvent, RulingStatus
+from src.api.chat import (CHAT_STYLE, COOKIE_NAME, SESSION_SECONDS, CLIENT_COOKIE_NAME,
+                         TRANSCRIPT_SECONDS, MAX_TRANSCRIPT_BYTES, ChatAccess, RiderTranscripts,
+                         validate_rider_transcript, case_path, locked_html, log_html)
+from src.api.rider import install_rider_routes
+from src.contracts import Case, DisputeCategory, LogEvent, RulingStatus
 from src.intake import Catalog, UnknownDispute
 from src.llm.adapter import ModelAdapter
 from src.orchestrator import run_dispute
@@ -52,6 +59,100 @@ def create_app(
     app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
     # The console uses the Waypoint prototype's own stylesheets, fonts and artwork, so it looks like the rider app.
     app.mount("/prototypes", StaticFiles(directory=PROTOTYPES), name="prototypes")
+    access = ChatAccess(os.environ.get("RYDE_CHAT_ACCESS_CODE", "482731"))
+    app.state.chat_access = access
+    transcripts = RiderTranscripts()
+    app.state.rider_transcripts = transcripts
+    install_rider_routes(app, transcripts)
+
+    @app.middleware("http")
+    async def prevent_case_caching(request: Request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith(("/cases/", "/api/rider-chat/", "/api/rider/")):
+            response.headers["Cache-Control"] = "no-store"
+        return response
+
+    def set_session(response, request, token):
+        response.set_cookie(COOKIE_NAME, token, httponly=True, samesite="strict", max_age=SESSION_SECONDS,
+                            secure=request.url.scheme == "https")
+
+    async def bounded_json(request, limit):
+        body = bytearray()
+        async for chunk in request.stream():
+            body.extend(chunk)
+            if len(body) > limit:
+                return None
+        try:
+            return json.loads(body.decode("utf-8"))
+        except (ValueError, UnicodeDecodeError, RecursionError):
+            return None
+
+    def owned_transcript(handle, request, *, metadata_only=True):
+        try:
+            return transcripts.get(handle, request.cookies.get(CLIENT_COOKIE_NAME), metadata_only=metadata_only)
+        except KeyError:
+            return JSONResponse({"error": "Communication Log unavailable or expired. Explicitly prepare the Rider case again."}, status_code=404)
+        except PermissionError:
+            return JSONResponse({"error": "Communication Log belongs to another browser session. Prepare this Rider case again."}, status_code=403)
+
+    @app.post("/api/rider-chat/transcripts")
+    async def register_rider_transcript(request: Request):
+        payload = await bounded_json(request, MAX_TRANSCRIPT_BYTES)
+        if not validate_rider_transcript(payload):
+            return JSONResponse({"error": "Invalid or oversized public Communication Log."}, status_code=400)
+        try:
+            handle, owner = transcripts.register(payload, request.cookies.get(CLIENT_COOKIE_NAME))
+        except OverflowError as error:
+            return JSONResponse({"error": str(error)}, status_code=503)
+        response = JSONResponse({"handle": handle, "expires_in": TRANSCRIPT_SECONDS}, status_code=201)
+        response.set_cookie(CLIENT_COOKIE_NAME, owner, httponly=True, samesite="strict",
+                            max_age=TRANSCRIPT_SECONDS, secure=request.url.scheme == "https")
+        return response
+
+    @app.get("/api/rider-chat/transcripts/{handle}")
+    def read_rider_transcript(handle: str, request: Request):
+        record = owned_transcript(handle, request)
+        if isinstance(record, Response):
+            return record
+        if not access.allowed(request.cookies.get(COOKIE_NAME), "rider:" + handle):
+            return JSONResponse({"error": "Communication Log locked. Enter the access code again."}, status_code=403)
+        record = owned_transcript(handle, request, metadata_only=False)
+        if isinstance(record, Response):
+            return record
+        return JSONResponse({**record, "expires_in": min(access.remaining(request.cookies.get(COOKIE_NAME)), transcripts.remaining(handle))})
+
+    @app.post("/api/rider-chat/transcripts/{handle}/unlock")
+    async def unlock_rider_transcript(handle: str, request: Request):
+        record = owned_transcript(handle, request)
+        if isinstance(record, Response):
+            return record
+        payload = await bounded_json(request, 1024)
+        code = payload.get("code", "") if isinstance(payload, dict) and set(payload) == {"code"} else ""
+        token = access.unlock(code if isinstance(code, str) else "", "rider:" + handle, request.cookies.get(COOKIE_NAME))
+        if token is None:
+            response = JSONResponse({"error": "Incorrect access code. Please try again."}, status_code=403)
+            response.delete_cookie(COOKIE_NAME)
+            return response
+        response = Response(status_code=204)
+        set_session(response, request, token)
+        return response
+
+    @app.post("/api/rider-chat/transcripts/{handle}/lock")
+    def lock_rider_transcript(handle: str, request: Request):
+        access.revoke(request.cookies.get(COOKIE_NAME))
+        record = owned_transcript(handle, request)
+        response = record if isinstance(record, Response) else Response(status_code=204)
+        response.delete_cookie(COOKIE_NAME)
+        return response
+
+    def case_response(case_id: str, request: Request, error: str = "", status: int = 200):
+        try:
+            case = store.get_case(case_id)
+        except CaseNotFound as missing:
+            return HTMLResponse(_page("Not found", f"<p>{escape(str(missing))}</p>"), status_code=404)
+        unlocked = not error and access.allowed(request.cookies.get(COOKIE_NAME), case_id)
+        chat = log_html(store.log(case_id), case, access.remaining(request.cookies.get(COOKIE_NAME))) if unlocked else locked_html(case_id, error, focus=request.query_params.get("chat_locked") == "1")
+        return HTMLResponse(_page(f"Case {case_id}", _ruling_html(case) + _policy_html(case) + chat), status_code=status)
 
     @app.get("/", response_class=HTMLResponse)
     def home():
@@ -122,20 +223,51 @@ def create_app(
         return RedirectResponse(f"/cases/{case.case_id}", status_code=303)
 
     @app.get("/cases/{case_id}", response_class=HTMLResponse)
-    def show_case(case_id: str):
+    def show_case(case_id: str, request: Request):
+        return case_response(case_id, request)
+
+    @app.post("/cases/{case_id}/chat/unlock")
+    async def unlock_chat(case_id: str, request: Request):
         try:
-            case, log = store.get_case(case_id), store.log(case_id)
+            store.get_case(case_id)
         except CaseNotFound as error:
             return HTMLResponse(_page("Not found", f"<p>{escape(str(error))}</p>"), status_code=404)
-        return _page(f"Case {case_id}", _ruling_html(case) + _policy_html(case) + _log_html(log))
+        # Read a plain HTML form without adding a multipart dependency. Never echo the code.
+        body = await request.body()
+        values = parse_qs(body.decode("utf-8", errors="replace")) if len(body) <= 1024 else {}
+        codes = values.get("code", [])
+        code = codes[0] if len(codes) == 1 else ""
+        token = access.unlock(code, case_id, request.cookies.get(COOKIE_NAME))
+        if token is None:
+            response = case_response(case_id, request, "Incorrect access code. Please try again.", status=403)
+            response.delete_cookie(COOKIE_NAME)
+            return response
+        response = RedirectResponse(case_path(case_id), status_code=303)
+        set_session(response, request, token)
+        return response
 
+    @app.post("/cases/{case_id}/chat/lock")
+    def lock_chat(case_id: str, request: Request):
+        try:
+            store.get_case(case_id)
+        except CaseNotFound as error:
+            return HTMLResponse(_page("Not found", f"<p>{escape(str(error))}</p>"), status_code=404)
+        access.revoke(request.cookies.get(COOKIE_NAME))
+        response = RedirectResponse(case_path(case_id) + "?chat_locked=1", status_code=303)
+        response.delete_cookie(COOKIE_NAME)
+        return response
+
+    # API and Prepared Disputes routes take precedence over prototype static paths.
+    app.mount("/", StaticFiles(directory=Path(__file__).resolve().parents[2] / "prototypes", html=True), name="prototypes")
     return app
 
 
 def _dispute_row(dispute, trip: dict) -> str:
     """One Dispute in the picker, in the rider app's trip-choice style. The data attributes fill the trip panel."""
     pickup, dropoff = trip["pickup_location"]["name"], trip["dropoff_location"]["name"]
-    fee = f"{trip['currency']} {trip['cancellation_fee']}"
+    is_route = dispute.category is DisputeCategory.ROUTE_DEVIATION
+    fee = f"{trip['currency']} {trip['paid_net'] if is_route else trip['cancellation_fee']}"
+    charge_label = "paid fare" if is_route else "fee"
     when = trip["scheduled_time"][:16].replace("T", " ")
     return (
         f"<button type='button' class='trip-choice' aria-pressed='false' data-dispute='{escape(dispute.dispute_id)}' "
@@ -145,14 +277,14 @@ def _dispute_row(dispute, trip: dict) -> str:
         f"<span class='row'><strong>{escape(dispute.dispute_id)}</strong>"
         f"<span class='tag'>{escape(dispute.category.value.replace('_', ' '))}</span></span>"
         f"<span class='journey'>{escape(pickup)}<small>→ {escape(dropoff)}</small></span>"
-        f"<span class='small muted'>{escape(when)} SGT · {escape(fee)} fee</span></button>"
+        f"<span class='small muted'>{escape(when)} SGT · {escape(fee)} {charge_label}</span></button>"
     )
 
 
 def _page(title: str, body: str) -> str:
     return (
-        f"<!doctype html><html><head><meta charset='utf-8'><title>{escape(title)}</title>"
-        "<link rel='stylesheet' href='/static/console.css'></head><body class='plain'>"
+        f"<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>{escape(title)}</title>"
+        f"<link rel='stylesheet' href='/static/console.css'><style>{CHAT_STYLE}</style></head><body class='plain'>"
         f"<p><strong>{SIMULATED}</strong></p><h1>{escape(title)}</h1>{body}"
         "<p><a href='/'>Prepared Disputes</a></p></body></html>"
     )
@@ -187,14 +319,6 @@ def _ruling_html(case: Case) -> str:
         f"<li>Confidence: {confidence}</li>"
         f"<li>Reasoning: {escape(ruling.reasoning_summary)}</li></ul>"
     )
-
-
-def _log_html(log: list[LogEvent]) -> str:
-    rows = "".join(
-        f"<li>{escape(e.timestamp.isoformat())} · {escape(e.agent)} · {escape(e.kind.value)}: {escape(e.summary)}</li>"
-        for e in log
-    )
-    return f"<h2>Communication Log</h2><ol>{rows}</ol>"
 
 
 def _policy_html(case: Case) -> str:

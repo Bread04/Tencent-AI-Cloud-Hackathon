@@ -1,5 +1,13 @@
 # Rider Advocate Agent
 
+## Current runtime mapping — Python amendment
+
+FastAPI is mandatory for the Rider app and report page. [Python Rider workflow](../rider/__init__.py) executes steps 3 → 4 → 5 using [evidence](../rider/evidence.py), [policy](../rider/policy.py), and [advocacy](../rider/advocate.py), with [nested metadata validation](../rider/validation.py). It reads the trusted [public Rider catalog](../../../data/prototype/rider-catalog.json) and existing [shared policy JSON](../../../data/policy/waypoint-singapore-draft-2026-10.json), including its title/category/keyword metadata. [Route tools](../../tools/evidence/route.py) are the only route/fare calculator. No browser agent rules, model calls or static-only agent execution remain.
+
+[API endpoints](../../api/rider.py) validate simulated ownership, reject client telemetry/policy and malformed metadata, and register the generated public log on the backend. Responses redact both activity arrays and return an opaque owner-cookie-bound transcript handle. [Browser adapters](../../../prototypes/ryde-app/rider-api.js) only select scope, call APIs and render results; an outage preserves the original report and exposes retry. Rider selection is simulated identity, not production authentication. Driver form policy references remain informational only; these Rider endpoints reject Driver reports.
+
+The separate [backend Advocate pipeline](../advocates/__init__.py), [shared evidence tools](../../tools/evidence/__init__.py), and [shared policy retrieval](../policy/__init__.py) continue to support independent Rider/Driver Submissions and the Judge with sealed evidence. Future report-relevance annotations described below remain proposals and do not change shared contracts. Current regression coverage is in [Python Rider tests](../../../tests/test_rider_agents.py), [API tests](../../../tests/test_rider_api.py) and UI/store/chat tests under `prototypes/ryde-app/tests/`.
+
 **Owner:** Kyven  
 **Scope:** Rider-only report preservation, aggregation of Rider Evidence Agent and Rider Policy Agent outputs, and rider Submission preparation.<br>
 **Status:** Agent instructions and proposed integration specification. This Markdown does not execute an agent, connect the report form, or persist files by itself.
@@ -20,7 +28,7 @@ Under [Operational Steps](../../../workflow.md#operational-steps), both advocate
 - [Workflow](../../../workflow.md): evidence and policy support feed the Rider Advocate, which presents the rider case alongside the independent driver case to the Judge.
 - [Rider Evidence Agent](rider-evidence-agent.md): Rider app sources, report-focused evidence selection, collection gaps, and the evidence handoff.
 - [Rider Policy Agent specification](rider-policy-agent.md): full report-focused policy extraction and proposed adapter, including coverage and review signals.
-- [Existing evidence collector](../../../prototypes/ryde-app/rider-evidence-agent.js) and [Rider Policy Agent](../../../prototypes/ryde-app/rider-policy-agent.js): current prototype output fields.
+- [Existing evidence collector](../rider/evidence.py) and [Rider Policy Agent](../rider/policy.py): current prototype output fields.
 - [Shared policy source](../../../prototypes/shared/policies.js): clause text, references, policy version, and draft status used by the prototype matcher.
 - [Interactive report prototype](../../../prototypes/ryde-report/index.html): current report fields and attachment behaviour.
 - [Architecture](../../../docs/architecture.md): shared Case store, sealed evidence, independent advocates, and validated Submissions.
@@ -174,6 +182,40 @@ Resolve both stored outputs through the [shared handoff manifest](README.md#shar
 
 The working claim/evidence/policy table is a derived preparation artifact, not a new shared Submission schema. It should contain concise grounds and citations, not private model reasoning.
 
+### Route Deviation: ticket 06 case building
+
+For [ticket 06](../../../.scratch/dispute-resolution/issues/06-route-deviation-end-to-end.md), preserve the Rider's allegation that the Driver took a longer route and overcharged, together with the original requested resolution. Keep steps 3 → 4 → 5 in order: [Rider Evidence](rider-evidence-agent.md#route-deviation-ticket-06-evidence-requirements) supplies traceable records and shared code findings, [Rider Policy](rider-policy-agent.md#route-deviation-ticket-06-policy-relevance) supplies the relevant shared clauses, and this Advocate produces an independent Submission. The Judge remains responsible for step 6.
+
+| Question for the Submission | Required evidence and handling |
+| --- | --- |
+| Was the route longer than a comparable baseline? | Cite code-computed actual and optimal route distances and their difference, baseline assumptions, original booking and recorded changes. Preserve coverage/accuracy limits. A longer route is a finding to explain, not automatic fault. |
+| Were stops or extra time unexplained? | Cite the code-derived stop candidates, actual/expected duration and difference, with supplied traffic/context evidence. Separate detected stops from proven unauthorized stops and distinguish excess time from its cause. |
+| Did the Rider request or agree to the detour? | Cite exact attributed messages and surrounding replies, timing and the segment/stop they concern. Preserve consent evidence adverse to the Rider. Lack of a recorded request does not prove no agreement; a request for one stop does not authorize all excess. |
+| Was there an attributable extra charge? | Cite quote and receipt breakdown, base/distance/time amounts, recorded surge and promo, currency and other supplied fees. Distinguish total fare differences from the portion attributable to unexplained deviation. Missing components stay missing; do not double-count surge or ignore a discount. |
+| Which policy conditions apply? | Use the same `R-04`, `D-04`, `R-03`, and `D-03` clauses as the Driver Advocate/Judge, adding other material clauses from that version. Explain conditions supporting and limiting the claim, without turning relevance into a finding of breach. |
+
+Build the strongest honest position that the available evidence supports:
+
+| Evidence scenario | Rider Advocate position and potential Judge consideration |
+| --- | --- |
+| Rider-supported | Present source-backed unexplained route/time excess and attributable fare impact, address actual Driver explanations and the consent exchange, and request review of the excess charge. An amount can be supported only by the recorded code rule and its verified evidence inputs; it is never guaranteed by the report. |
+| Driver-supported | Acknowledge the Rider's source-linked detour request and the extent it explains the route/fare. Preserve the original Rider request but state which parts are unsupported and any remaining separate fare issue. A supported rejection of the Rider's claim can result in `no_action`; do not fabricate an argument to force a Rider win. |
+| Ambiguous | Present both accounts and exact missing/conflicting route, consent or fare evidence. Flag balanced/low-confidence or policy-gap concerns for configured review. Do not infer a 50/50 refund or conflate an unproven claim with evenly balanced evidence; the Judge applies the Burden of Proof and review rules. |
+
+These are conditional positions, not Rulings or fixed answers. Future mock cases must keep their expected-outcome labels in separate evaluation files; agents never read them. A Rider receiving less than requested may lead to `partially_uphold`, while a `partial_refund` Remedy describes the refunded portion of the fare; the Judge determines the outcome from the actual claim, evidence and configured rules rather than treating those terms as interchangeable.
+
+#### Refund calculation and readiness
+
+The four shared clauses state no refund formula. The approved rule is now recorded in [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md) and [contract decisions](../../../docs/contract-decisions.md). Backend [route tools](../../tools/evidence/route.py) compute the fare inputs and [Judge numbers](../judge/numbers.py) recomputes the refund. The Python Rider workflow reads curated DISP-005–007 catalog projections and reuses that calculator. Rider prototypes prepare Submissions only; the original two-endpoint sample remains insufficient.
+
+- Keep the original requested amount distinct from any computed refund. A qualified Submission may describe supported facts and missing calculation prerequisites; it cannot pretend that money has been validated.
+- Once defined, reference the actual code rule and its source Evidence Items, including how it handles surge, promo, non-route fees, currency, caps and rounding as decided in the ADR. Do not substitute a model-chosen percentage, total-fare difference, or invented rate.
+- Step 6 code computes the amount and independently validates the Ruling's shown `Calculation.formula`, `input_evidence_ids` and `result` against the authoritative rule and sealed fare/route inputs. Use the contract's `Decimal` money representation; equality with a model's own arithmetic alone is insufficient.
+- If the ADR/rule, required inputs, or recomputation is unavailable or fails, return the limitation to orchestration/configured review. No validated monetary Ruling or completed refund can be claimed. New evidence requires resealing and rebuilding both independent Submissions.
+- Keep No-Show separate: existing trip-data thresholds follow ADR 0002, and the current allowed outcomes remain `uphold` with `fee_reversal` or `reject` with `no_action`. Route Deviation must not introduce partial refunds into No-Show handling.
+
+The Communication Log records actual evidence and policy references, Submission storage and validation failures. Only the Judge/application reports a proposed or final Ruling and action status; this Advocate neither computes Confidence nor executes a refund.
+
 ### Missing inputs and failure handling
 
 | Condition | Required handling |
@@ -207,6 +249,8 @@ Use the following as the Rider Advocate's behavioural instruction once the appli
 > Policy matches are retrieval suggestions, not established facts or a decision. Address clauses supporting and limiting the Rider's position. The prototype's draft clauses and top-five keyword matches cannot establish an unstated waiting threshold, fee, or refund entitlement. Request missing material policy through the authorized shared source; never invent it.
 >
 > Read the Case's sealed evidence and applicable policy version. Cite only supplied Evidence Item and Policy Clause IDs. Present the Rider's position, relevant supporting facts, material counter-evidence, and a response to the strongest counter-argument. History is context, not a reason by itself to accept or reject the claim.
+>
+> For Route Deviation, follow the ticket 06 case-building requirements above. Separate route excess, consent and attributable fare impact; use code-derived distance/stop/duration findings and fare evidence including surge and promo. Apply `R-04`, `D-04`, `R-03`, and `D-03` from the shared version. A Rider-requested detour remains counter-evidence, and ambiguous evidence never implies an automatic split refund. Any refund depends on the separately recorded code rule and validated inputs, not arithmetic invented in your Submission.
 >
 > Return one structured rider Submission using the agreed contract. Do not read the Driver Advocate's Submission or privately negotiate with other agents. The application saves your output and the orchestrator coordinates the next stage.
 >
@@ -285,5 +329,9 @@ The source dataset's expected ruling and Evidence Summary are evaluation materia
 - [ ] Top-five draft policy matches are not treated as exhaustive policy or proof of fault/refund entitlement.
 - [ ] Disabled supporting agents use the configured tool path; failed agents, missing media, and absent policy never produce fabricated findings.
 - [ ] Only validated rider Submissions are saved; storage failures never produce a success receipt.
+- [ ] Route Deviation Submissions cite code-derived actual/optimal distance, stop candidates and duration comparison, the fare breakdown including surge/promo, and the shared `R-04`, `D-04`, `R-03`, `D-03` clauses.
+- [ ] Rider-supported, Driver-supported and ambiguous scenarios produce honest evidence-dependent positions, with Rider-requested detours and material counter-evidence acknowledged and expected labels excluded.
+- [ ] Any partial-refund amount depends on the recorded ADR/code rule and is checked by step 6 code against sealed inputs and the Ruling's calculation; missing rules/inputs cannot yield a claimed validated amount.
+- [ ] Existing No-Show scenarios retain their arrival-based thresholds and binary remedy handling; runtime regression verification remains part of future implementation.
 
 **Next implementation boundary:** connect validated report intake, the evidence and policy output adapters, the shared Case store, and the agreed Submission contract. This Markdown specifies the Rider Advocate's role and handoffs; it adds no executable agent or app integration.

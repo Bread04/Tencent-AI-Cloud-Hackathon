@@ -1,5 +1,13 @@
 # Rider Evidence Agent
 
+## Current runtime mapping — Python amendment
+
+FastAPI is mandatory for the Rider app and report page. [Python Rider workflow](../rider/__init__.py) executes steps 3 → 4 → 5 using [evidence](../rider/evidence.py), [policy](../rider/policy.py), and [advocacy](../rider/advocate.py), with [nested metadata validation](../rider/validation.py). It reads the trusted [public Rider catalog](../../../data/prototype/rider-catalog.json) and existing [shared policy JSON](../../../data/policy/waypoint-singapore-draft-2026-10.json), including its title/category/keyword metadata. [Route tools](../../tools/evidence/route.py) are the only route/fare calculator. No browser agent rules, model calls or static-only agent execution remain.
+
+[API endpoints](../../api/rider.py) validate simulated ownership, reject client telemetry/policy and malformed metadata, and register the generated public log on the backend. Responses redact both activity arrays and return an opaque owner-cookie-bound transcript handle. [Browser adapters](../../../prototypes/ryde-app/rider-api.js) only select scope, call APIs and render results; an outage preserves the original report and exposes retry. Rider selection is simulated identity, not production authentication. Driver form policy references remain informational only; these Rider endpoints reject Driver reports.
+
+The separate [backend Advocate pipeline](../advocates/__init__.py), [shared evidence tools](../../tools/evidence/__init__.py), and [shared policy retrieval](../policy/__init__.py) continue to support independent Rider/Driver Submissions and the Judge with sealed evidence. Future report-relevance annotations described below remain proposals and do not change shared contracts. Current regression coverage is in [Python Rider tests](../../../tests/test_rider_agents.py), [API tests](../../../tests/test_rider_api.py) and UI/store/chat tests under `prototypes/ryde-app/tests/`.
+
 **Owner:** Kyven  
 **Role:** Supporting Agent for report-focused collection of Rider-visible Trip evidence.  
 **Location:** Beside the [Rider Advocate](rider-advocate.md).  
@@ -21,7 +29,7 @@ Start after the application's step 2 intake validation. The Rider Advocate's evi
 
 | Component | Current responsibility |
 | --- | --- |
-| [rider-evidence-agent.js](../../../prototypes/ryde-app/rider-evidence-agent.js) | Implements `RiderEvidenceAgent.collect({ riderId, tripId, report })`. Checks demo Trip ownership, validates an optional report's role and Trip reference, and returns source-labelled Evidence Items and a Communication Log. |
+| [Python evidence](../rider/evidence.py) | Implements `collect(rider_id=..., trip_id=..., report=...)`. Checks demo Trip ownership, validates an optional report's role and Trip reference, and returns source-labelled Evidence Items and a Communication Log. |
 | [data.js](../../../prototypes/ryde-app/data.js) | Supplies isolated, simulated Rider accounts and their Trips, receipts, messages, events, and available Rider-device location samples. |
 | [session-store.js](../../../prototypes/ryde-app/session-store.js) | Saves and reads a report under a Rider-and-Trip-specific session key. Stores report text and attachment metadata. |
 | [report-bridge.js](../../../prototypes/ryde-app/report-bridge.js) | Prefills the linked Trip and saves a completed demo Rider report when the Rider explicitly selects **Save demo report to rider app**. |
@@ -30,9 +38,9 @@ Start after the application's step 2 intake validation. The Rider Advocate's evi
 
 The existing collector gathers all of the selected Trip's supplied Rider-visible records. It preserves the report but does not yet select records according to its category, allegations, incident time, or requested resolution. It also supports a general Trip collection without a saved report, in which the report is explicitly missing.
 
-Keep the executable collector at its current path: the app imports it there. This companion document supplies the agent instructions beside the Rider Advocate without creating a duplicate runtime implementation.
+The executable collector is Python in `src/agents/rider/evidence.py`. The browser calls `/api/rider/evidence` through `rider-api.js`; the former JavaScript collector has been removed. This companion document supplies role instructions without duplicating runtime rules.
 
-The [architecture](../../../docs/architecture.md), [development guide](../../../docs/dev-guide.md), and [Glossary](../../../GLOSSARY.md) remain authoritative for shared contracts. Any future backend implementation belongs in Kyven's `src/agents/evidence/` and `src/tools/evidence/` areas; this document does not introduce or change a shared Python contract.
+The [architecture](../../../docs/architecture.md), [development guide](../../../docs/dev-guide.md), and [Glossary](../../../GLOSSARY.md) remain authoritative for shared contracts. Current Rider implementation lives in `src/agents/rider/` and reuses `src/tools/evidence/`; this document does not introduce or change a shared Python contract.
 
 ## 2. Required inputs and scope checks
 
@@ -99,7 +107,7 @@ These are the form's visible labels. Mapping them to configured Dispute Categori
 | Report category | Report fields that guide selection | Evidence to consider and limitations |
 | --- | --- | --- |
 | No-show / cancellation | `situation`, `waiting`, `contact`; pickup location; disputed fee | Booking and scheduled time; arrival/cancellation events; complete pickup/contact exchange; cancellation receipt; Rider location if supplied. A claimed wait is not a measured wait, and a Driver message announcing arrival is not GPS verification. |
-| Route deviation | `route`, `deviation`, `agreement`; alleged stop or location; requested amount | Booking endpoints; route-related messages and consent discussion; relevant events; Rider location samples; receipt if fare is disputed. The current two-sample route fixture cannot establish the travelled path, excess distance, or an optimal route. |
+| Route deviation | `route`, `deviation`, `agreement`; alleged stop or location; requested amount | Booking endpoints and changes; complete route/consent conversation; Trip start/end events; supplied Rider location; quote and itemized receipt including surge and promo. Shared authorized tools must supply code-computed actual/optimal distance, stops, and duration comparison; the current sparse app samples cannot establish them. See the ticket 06 requirements below. |
 | Fare / payment | `paymentIssue`, `charged`; amount/currency and requested resolution | Itemized receipt, total, payment timestamp/method, Trip outcome, and relevant payment conversation. Mark absent quote, transaction, duplicate-charge, or refund records as missing rather than deriving them from the requested amount. |
 | Safety / conduct | `safetyType`, `safeNow`; statement, incident time/location | Relevant conversation with context; Trip events; available Rider location; declared media. Flag the need for the configured safety review process; collection cannot mark the incident safe or resolved. |
 | Damage / mess | `damageType`, `damageDetail`; alleged time/location and costs | Relevant conversation, Trip events, any associated charge, and declared media. A caption or filename cannot establish damage, responsibility, or repair cost. |
@@ -107,6 +115,31 @@ These are the form's visible labels. Mapping them to configured Dispute Categori
 | Other | `otherType`, summary, statement, incident details | Start from booking/report context and expand only to sources addressing the stated issue. Preserve unclear relevance and return a routing gap if no configured category applies. |
 
 An unsupported category may still produce a useful evidence package. It must not silently become an eligible Case or trigger automatic adjudication. If several issues appear in one report, retain the selected category and attach evidence reasons to each issue separately.
+
+### Route Deviation: ticket 06 evidence requirements
+
+Follow the approved [Ticket 06 spec](../../../_bmad-output/implementation-artifacts/spec-06-route-deviation-end-to-end.md) without changing steps 3 → 4 → 5. [Backend route tools](../../tools/evidence/route.py) now compute route/fare evidence for DISP-005–007 under [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md). Shared simulated vehicle telemetry is explicitly separate from missing Rider device GPS. The original two-endpoint sample remains insufficient. Proposed report-relevance metadata elsewhere in this document remains future work.
+
+The Rider app boundary still applies. Collect the Rider-visible originals here; request unavailable shared Trip analysis through the orchestrator's authorized evidence tools. Keep the resulting shared Evidence Items under their actual producer/provenance rather than relabelling Driver telemetry as Rider-device data. Both advocates and the Judge receive the same sealed findings.
+
+| Required Evidence Item content | Collection and computation requirement |
+| --- | --- |
+| Booking and baseline route | Retain original pickup/destination, any recorded changes, route/quote reference, expected duration, and relevant departure-time/traffic assumptions. Identify which baseline the comparison uses; a later route estimate is not automatically the original optimal route. |
+| Actual and optimal route distances | Deterministic code computes both distances and their difference from adequate authorized route records. Store source IDs, method/version, inputs, units, coverage, and uncertainty. An endpoint-to-endpoint straight line is not a drivable optimal route; sparse GPS cannot establish the entire travelled route. |
+| Unexpected-stop candidates | Code detects stops with locations, start/end times, duration, and the configured detection method/thresholds. Compare with recorded agreed stops. Keep an unexplained stop distinct from an unauthorized stop: GPS alone cannot establish its purpose, traffic conditions, or consent. |
+| Duration comparison | Code compares recorded actual Trip duration with the baseline expected duration, using consistent start/end definitions and time zones. Retain both values and the difference; missing endpoints or incompatible baselines leave the affected comparison missing/qualified. |
+| Fare breakdown | Preserve the quote and actual receipt, currency, base/distance/time components, surge multiplier and/or amount as recorded, promo/discount, and other supplied fees. Distinguish fare components from a total or requested refund. An absent surge/promo record is unknown, not zero; do not apply a multiplier or discount twice. |
+| Route requests and consent | Preserve Rider and Driver messages, exact passages, sender, timestamps, IDs, replies, and route-change context. Any extracted request links to the original message Evidence Item and states which stop/segment it concerns. Silence, a generic agreement, or a Driver's assertion alone does not prove consent to every detour or fare change. |
+
+Use one shared deterministic analysis for both sides. Code-derived findings are separate Evidence Items linked to the originals and validated/stored before sealing; relevance notes must not substitute model arithmetic for those findings. If a source fails or coverage is insufficient, record the cause and affected metric as missing/qualified, not a fabricated route or zero excess. Route and stop detection thresholds require an explicit documented code configuration; this document sets no numeric defaults.
+
+| Scenario to exercise later | Evidence handling, independent of expected-outcome labels |
+| --- | --- |
+| Evidence supports the Rider | Retain computed excess distance/time, unexplained stops, fare impact, and the complete consent exchange, including any material Driver explanation. A longer route alone does not establish overcharging. |
+| Evidence supports the Driver | Retain and surface a Rider-requested detour in chat, including the actual requested stop and timing, even when it weakens the report. Link the request to the travelled segment; retain any separate fare issue. |
+| Ambiguous evidence | Preserve gaps, conflicting consent accounts, route coverage limits, and uncertain fare attribution. Neither side's account becomes a verified fact because the other source is absent. |
+
+The partial-refund formula is the separate approved code decision in [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md). Preserve explicit tariff, surge, promo and receipt inputs; no missing defaults are permitted. Route distance is 0.001km, time 0.01 minute, final SGD cents half-up. Stop candidates use 25m/120s, exclude endpoint dwell within 50m and never bridge gaps over 120s. Expected labels stay in separate evaluation files. Existing No-Show collection and arrival-based thresholds remain unchanged.
 
 ## 5. Evidence Items and proposed relevance output
 
@@ -139,7 +172,7 @@ Keep the existing collection bundle intact and attach a separate selection objec
 | `selection.gaps` | Required source, affected report field/question, reason it is unavailable, and the missing Evidence Item ID where supplied or created by the approved adapter. |
 | `selection.conflicts` | References to the conflicting source items and report fields, with a neutral description. An alleged inconsistency is not a finding of dishonesty. |
 
-The architecture permits `conflicting` Evidence Items. The current JavaScript collector does not detect or emit that status. A future adapter must validate conflict links and use the agreed contract rather than silently changing raw source items.
+The architecture permits `conflicting` Evidence Items. The current Python collector does not detect or emit that status. A future adapter must validate conflict links and use the agreed contract rather than silently changing raw source items.
 
 Validate every selection, gap, and conflict reference against the returned snapshot. IDs alone are not immutable version identifiers: current item IDs are reused on later collections of the same Trip. The application must pair them with the report snapshot and collection/evidence version when it persists a Case.
 
@@ -155,7 +188,7 @@ Retain each attachment's `originalFilename`, `type`, `sizeBytes`, `source`, `las
 - Distinguish no record supplied, inaccessible source, retrieval failure, and unsupported analysis. None of these proves that the alleged event did not happen.
 - A scope or identity mismatch blocks collection. A failed optional source yields a visible gap and a partial collection, preserving the other records that were successfully read.
 
-The current app saves the latest report text and metadata in `sessionStorage`; the collected evidence bundle is held in page memory and can be downloaded. It does not persist a versioned Case evidence store or automatically invoke the Rider Advocate.
+The current app saves the report text and metadata before Python preparation. Confirmed reports invoke the Rider Evidence, Policy and Advocate workflow; standalone evidence remains in page memory. Both views use backend-gated logs and authorized exports. This is a Rider snapshot, not the complete sealed shared Case store.
 
 For future integration, the application saves the original collection and its report-focused selection through the shared Case store, acknowledges the write, and returns its real reference/version. Recollections for changed reports create new snapshots. The orchestrator combines relevant evidence from all authorized sources, validates it, and seals the common evidence version before the advocates run. Never claim persistence or sealing before the responsible application operation succeeds.
 
@@ -174,6 +207,8 @@ Use these instructions when the application supplies the scoped sources and appr
 > Keep reported claims, app-recorded events, and tool-derived findings distinguishable. Missing data stays explicitly missing. A message sent is not proof it was read. Sparse location samples do not establish an entire route. Media metadata does not establish media content or authenticity.
 >
 > Return source IDs, available timestamps, status, relevance reasons, gaps, conflicts, and the Communication Log. Cite only records actually returned by authorized tools. Never invent timestamps, GPS, messages, attachments, identifiers, or calculations.
+>
+> For Route Deviation, follow the ticket 06 evidence requirements above. Preserve consent and counter-evidence, request shared code-computed route/stop/duration findings, and retain the fare breakdown including surge and promo. Do not infer an unauthorized detour, overcharge, or refund from a longer route alone.
 >
 > Submit the collection through the application's approved storage flow when available and report the real storage result. The orchestrator seals shared evidence; the Rider Advocate builds its independent Submission. Do not issue a Ruling, assign fault, choose compensation, execute payments, or read evaluation-only answers.
 
@@ -219,5 +254,8 @@ The focused result would include the contact exchange and notification limitatio
 - [ ] No-show collection preserves contact records without equating sent with read; sparse route samples never become a complete route.
 - [ ] Failed storage is reported as failed; evidence is handed to the Rider Advocate only with its actual collection/version context.
 - [ ] Both advocates ultimately use the same sealed evidence version. Collection produces neither a Submission nor a Ruling.
+- [ ] Route Deviation actual/optimal distances, stop candidates, and duration difference come from deterministic code and are stored as source-linked Evidence Items, with missing or insufficient inputs explicit.
+- [ ] Route Deviation quote/receipt evidence retains surge and promo without invented zero values; Rider-requested detours remain available to the Driver Advocate through the shared store.
+- [ ] The three Route Deviation scenarios use evidence only, never evaluation labels; existing No-Show collection behaviour remains unchanged.
 
-The [existing collector tests](../../../prototypes/ryde-app/tests/evidence.test.cjs) cover the current ownership boundary, wrong-role/Trip rejection, report preservation, metadata-only media, missing GPS, and fixture isolation. They do not yet verify the proposed report-relevance selection or versioned storage described here.
+The [Python collector tests](../../../tests/test_rider_agents.py) cover the current ownership boundary, wrong-role/Trip rejection, report preservation, metadata-only media, missing GPS, and fixture isolation. They do not yet verify the proposed report-relevance selection or versioned storage described here.

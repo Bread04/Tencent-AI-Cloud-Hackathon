@@ -15,6 +15,13 @@ from src.intake import Catalog
 
 def gather_evidence(trip_id: str, catalog: Catalog) -> list[EvidenceItem]:
     record = catalog.trip(trip_id)
+    if record["dispute"]["category"] == "route_deviation":
+        from src.tools.evidence.route import gather_route_evidence
+        chat = _chat_item(trip_id, record) if isinstance(record.get("chat_logs"), list) else EvidenceItem(
+            evidence_id="EV-CHAT-1", source="chat", trip_id=trip_id, side="shared", status="missing",
+            content="No route conversation records were supplied; consent remains unknown.")
+        return [*gather_route_evidence(trip_id, record), chat,
+                _history_item(trip_id, record), _rider_location_item(trip_id)]
     return [
         _gps_item(trip_id, record),
         _chat_item(trip_id, record),

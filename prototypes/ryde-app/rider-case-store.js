@@ -10,6 +10,7 @@
     return Object.freeze({
       save(rider, trip, report, result) {
         check(rider, trip, report, result);
+        if (result.communication_log?.length || result.evidence?.log?.length) throw new Error('Register the Communication Log with the backend before saving this case.');
         const serialized = JSON.stringify(result);
         if (serialized.length > 750000) throw new Error('The Rider case is too large for this local session. Download it instead.');
         storage.setItem(key(rider, trip), serialized);
