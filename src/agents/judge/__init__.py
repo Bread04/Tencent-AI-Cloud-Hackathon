@@ -24,6 +24,7 @@ from src.contracts import (
     citation_errors,
     BalanceOfEvidence,
     Case,
+    Confidence,
     LogEventKind,
     ReviewTrigger,
     ReviewTriggerRecord,
@@ -84,7 +85,8 @@ def judge(
 def _ruling_from(case: Case, arguments: list[Argument], draft: JudgeDraft) -> Ruling:
     amount, calculation = amount_for(case, draft.remedy, draft.amount_input_evidence_ids)
     checklist = checklist_for(case)
-    triggers = _review_triggers(draft)
+    confidence = confidence_for(case, draft.policy_fit, checklist, draft.own_findings)
+    triggers = _review_triggers(draft, confidence)
     ruling = Ruling(
         status=RulingStatus.PROPOSAL if triggers else RulingStatus.FINAL,
         outcome=draft.outcome,
@@ -101,7 +103,7 @@ def _ruling_from(case: Case, arguments: list[Argument], draft: JudgeDraft) -> Ru
         own_findings=draft.own_findings,
         policy_gap=draft.policy_gap,
         reasoning_summary=draft.reasoning_summary,
-        confidence=confidence_for(case, draft.policy_fit, checklist, draft.own_findings),
+        confidence=confidence,
         material_evidence=checklist,
         review_triggers=triggers,
     )
@@ -162,7 +164,7 @@ def _assessments(arguments: list[Argument], draft: JudgeDraft) -> list[ArgumentA
     ]
 
 
-def _review_triggers(draft: JudgeDraft) -> list[ReviewTriggerRecord]:
+def _review_triggers(draft: JudgeDraft, confidence: Confidence) -> list[ReviewTriggerRecord]:
     triggers = []
     if draft.balance_of_evidence is BalanceOfEvidence.BALANCED:
         triggers.append(
@@ -176,6 +178,14 @@ def _review_triggers(draft: JudgeDraft) -> list[ReviewTriggerRecord]:
             ReviewTriggerRecord(
                 trigger=ReviewTrigger.POLICY_GAP,
                 reason=f"Policy Gap: {draft.policy_gap}",
+            )
+        )
+    if confidence.value < CONFIG.escalation.confidence_threshold:
+        triggers.append(
+            ReviewTriggerRecord(
+                trigger=ReviewTrigger.LOW_CONFIDENCE,
+                reason=f"Calculated confidence {confidence.value} is below the configured threshold "
+                f"{CONFIG.escalation.confidence_threshold}.",
             )
         )
     return triggers

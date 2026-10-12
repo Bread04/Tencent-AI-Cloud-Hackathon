@@ -284,7 +284,7 @@
     "submissions": [
       {
         "author": "rider_advocate",
-        "claim_restated": "The rider went to the booked bay and could not find the car, and the driver's GPS stops after two minutes, so nothing shows the driver stayed for the full wait.",
+        "claim_restated": "The rider says they could not find the car at Tiong Bahru Plaza, messaged at 09:03, and made an unconnected call at 09:05. They dispute the no-show fee applied at 09:08. GPS coverage ends at 09:02, so the driver's later presence is unknown.",
         "facts_relied_on": [
           "EV-GPS-1",
           "EV-CHAT-1",
@@ -295,19 +295,19 @@
         ],
         "counter_arguments": [
           {
-            "argument": "The driver said in chat they were still at the pickup bay.",
-            "response": "That is the driver's own statement, and the GPS record that could confirm it ends at 09:02, six minutes before cancellation."
+            "argument": "The driver says they stayed until the eight-minute timer elapsed.",
+            "response": "The timer measures eight elapsed minutes, not continuous presence. GPS supports arrival and the first two minutes only. Later messages support the driver's account as statements, but the GPS gap does not prove they stayed or left; no rider location is recorded."
           }
         ],
         "policy_clause_ids": [
           "R-02",
-          "R-06"
+          "R-03"
         ],
-        "requested_outcome": "Reverse the $5.00 no-show fee."
+        "requested_outcome": "Seek reversal of the no-show fee, with human review of the unresolved location gap before a final decision."
       },
       {
         "author": "driver_advocate",
-        "claim_restated": "The driver arrived at 09:00, waited the full eight minutes, messaged and called the rider, and cancelled only when the no-show threshold was reached.",
+        "claim_restated": "The driver says they stayed at Tiong Bahru Plaza from 09:00 until cancellation at 09:08 despite losing location updates. GPS establishes arrival and coverage through 09:02 only; chat records messages and an unconnected driver call at 09:04.",
         "facts_relied_on": [
           "EV-GPS-1",
           "EV-CHAT-1",
@@ -318,15 +318,15 @@
         ],
         "counter_arguments": [
           {
-            "argument": "GPS stops after two minutes, so the driver's presence for the rest of the wait is not recorded.",
-            "response": "The driver's messages at 09:03 and 09:07 and the call at 09:04 were made during the gap, and the wait timer ran to eight minutes."
+            "argument": "The rider believes the driver left after the GPS updates stopped.",
+            "response": "The GPS gap does not prove departure. The driver reported at 09:03:30 that their location was not updating and said at 09:07 that they were waiting. These remain unverified statements; eight elapsed minutes cannot establish continuous presence, and both calls failed to connect."
           }
         ],
         "policy_clause_ids": [
           "D-02",
-          "D-09"
+          "D-03"
         ],
-        "requested_outcome": "Uphold the $5.00 no-show fee."
+        "requested_outcome": "Seek retention of the no-show fee on the driver's account, subject to human review because continuous presence is unverified."
       }
     ],
     "ruling": {
@@ -340,40 +340,44 @@
       "argument_assessments": [
         {
           "author": "rider_advocate",
-          "argument": "The rider went to the booked bay and could not find the car, and the driver's GPS stops after two minutes, so nothing shows the driver stayed for the full wait.",
+          "argument": "The rider says they could not find the car at Tiong Bahru Plaza, messaged at 09:03, and made an unconnected call at 09:05. They dispute the no-show fee applied at 09:08. GPS coverage ends at 09:02, so the driver's later presence is unknown.",
           "verdict": "unproven",
-          "reason": "The GPS gap leaves the driver's departure unproven, and the rider's own position is missing.",
+          "reason": "GPS stops after 09:02. The rider's messages report not finding the car, but neither those statements nor the absence of later GPS samples proves departure.",
           "evidence_ids": [
             "EV-GPS-1",
+            "EV-CHAT-1",
             "EV-RIDERLOC-1"
           ]
         },
         {
           "author": "rider_advocate",
-          "argument": "The driver said in chat they were still at the pickup bay.",
-          "verdict": "not_decisive",
-          "reason": "The driver's chat statements are not independent proof of presence, but nothing contradicts them.",
-          "evidence_ids": [
-            "EV-CHAT-1",
-            "EV-GPS-1"
-          ]
-        },
-        {
-          "author": "driver_advocate",
-          "argument": "The driver arrived at 09:00, waited the full eight minutes, messaged and called the rider, and cancelled only when the no-show threshold was reached.",
+          "argument": "The driver says they stayed until the eight-minute timer elapsed.",
           "verdict": "unproven",
-          "reason": "Arrival and eight elapsed minutes are shown, but continuous presence is not verified after 09:02.",
+          "reason": "The driver's claim of staying throughout the wait is not verified beyond the last GPS sample at 09:02. Elapsed time and messages do not establish location.",
           "evidence_ids": [
             "EV-GPS-1",
+            "EV-CHAT-1",
             "EV-FARE-1"
           ]
         },
         {
           "author": "driver_advocate",
-          "argument": "GPS stops after two minutes, so the driver's presence for the rest of the wait is not recorded.",
-          "verdict": "not_decisive",
-          "reason": "Messages and a call show contact attempts, not where the driver was.",
+          "argument": "The driver says they stayed at Tiong Bahru Plaza from 09:00 until cancellation at 09:08 despite losing location updates. GPS establishes arrival and coverage through 09:02 only; chat records messages and an unconnected driver call at 09:04.",
+          "verdict": "unproven",
+          "reason": "GPS supports arrival and coverage through 09:02 only. Later driver messages are unverified statements. Fare timer events show eight elapsed minutes and do not establish physical presence throughout the gap.",
           "evidence_ids": [
+            "EV-GPS-1",
+            "EV-CHAT-1",
+            "EV-FARE-1"
+          ]
+        },
+        {
+          "author": "driver_advocate",
+          "argument": "The rider believes the driver left after the GPS updates stopped.",
+          "verdict": "unproven",
+          "reason": "The rider's belief that the driver left cannot be verified from a gap in GPS coverage; no independent record establishes departure.",
+          "evidence_ids": [
+            "EV-GPS-1",
             "EV-CHAT-1"
           ]
         }
@@ -390,10 +394,12 @@
       "missing_evidence_ids": [],
       "cited_policy_clause_ids": [
         "R-02",
-        "D-02"
+        "R-03",
+        "D-02",
+        "D-03"
       ],
       "cited_precedent_ids": [],
-      "reasoning_summary": "Arrival and the full eight minutes are recorded, but GPS ends after two minutes and neither the driver's presence nor the rider's position is established for the rest. The evidence is balanced, so this is a proposal for a Human Reviewer.",
+      "reasoning_summary": "The evidence is balanced: GPS covers only the first two minutes, both parties report being at the bay, and neither call connected. Eight elapsed minutes does not establish continuous driver presence; the gap does not prove departure either. Rider location is unavailable. This is a proposal pending human review with no final decision or payment authorization. The required draft outcome and remedy are provisional and do not settle the fee.",
       "confidence": {
         "value": 0.5,
         "components": {
@@ -446,6 +452,10 @@
         {
           "trigger": "policy_gap",
           "reason": "Policy Gap: No clause covers a gap in the driver's GPS record during the wait."
+        },
+        {
+          "trigger": "low_confidence",
+          "reason": "Calculated confidence 0.5 is below the configured threshold 0.7."
         }
       ]
     },
@@ -462,13 +472,13 @@
       }
     ],
     "review_record": null,
-    "created_at": "2026-10-12T04:42:14.173073Z",
-    "updated_at": "2026-10-12T04:42:14.175998Z"
+    "created_at": "2026-10-12T05:20:48.550367Z",
+    "updated_at": "2026-10-12T05:20:48.553366Z"
   },
   "log": [
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T04:42:14.173073Z",
+      "timestamp": "2026-10-12T05:20:48.550367Z",
       "agent": "intake",
       "kind": "case_filed",
       "summary": "Rider filed a no_show_charge Dispute on trip TRIP-2026-09947.",
@@ -479,7 +489,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T04:42:14.173194Z",
+      "timestamp": "2026-10-12T05:20:48.550457Z",
       "agent": "orchestrator",
       "kind": "evidence_requested",
       "summary": "Requested GPS, chat, fare and History evidence for trip TRIP-2026-09947.",
@@ -489,7 +499,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T04:42:14.173292Z",
+      "timestamp": "2026-10-12T05:20:48.550549Z",
       "agent": "evidence",
       "kind": "evidence_returned",
       "summary": "5 Evidence Item(s) returned, 1 marked missing.",
@@ -503,7 +513,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T04:42:14.173398Z",
+      "timestamp": "2026-10-12T05:20:48.550645Z",
       "agent": "orchestrator",
       "kind": "evidence_sealed",
       "summary": "Evidence set sealed as CASE-0001-evidence-v1 with 5 item(s).",
@@ -513,7 +523,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T04:42:14.173677Z",
+      "timestamp": "2026-10-12T05:20:48.550891Z",
       "agent": "policy",
       "kind": "policy_retrieved",
       "summary": "8 applicable Policy Clause(s) retrieved.",
@@ -530,35 +540,35 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T04:42:14.174479Z",
+      "timestamp": "2026-10-12T05:20:48.551735Z",
       "agent": "rider_advocate",
       "kind": "submission_filed",
-      "summary": "Submission filed: Reverse the $5.00 no-show fee.",
+      "summary": "Submission filed: Seek reversal of the no-show fee, with human review of the unresolved location gap before a final decision.",
       "references": [
         "EV-GPS-1",
         "EV-CHAT-1",
         "EV-FARE-1",
         "R-02",
-        "R-06"
+        "R-03"
       ]
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T04:42:14.174638Z",
+      "timestamp": "2026-10-12T05:20:48.551979Z",
       "agent": "driver_advocate",
       "kind": "submission_filed",
-      "summary": "Submission filed: Uphold the $5.00 no-show fee.",
+      "summary": "Submission filed: Seek retention of the no-show fee on the driver's account, subject to human review because continuous presence is unverified.",
       "references": [
         "EV-GPS-1",
         "EV-CHAT-1",
         "EV-FARE-1",
         "D-02",
-        "D-09"
+        "D-03"
       ]
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T04:42:14.175094Z",
+      "timestamp": "2026-10-12T05:20:48.552460Z",
       "agent": "judge",
       "kind": "self_check_passed",
       "summary": "Self-check passed: each cited item supports the claim made about it.",
@@ -566,32 +576,35 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T04:42:14.175371Z",
+      "timestamp": "2026-10-12T05:20:48.552743Z",
       "agent": "judge",
       "kind": "ruling_drafted",
-      "summary": "Ruling (proposal): reject, no_action.",
+      "summary": "Proposal recorded: no final decision or payment authorization. Pending review: balanced_evidence: The Judge found the evidence evenly balanced, so the Ruling is a proposal for a Human Reviewer.; policy_gap: Policy Gap: No clause covers a gap in the driver's GPS record during the wait.; low_confidence: Calculated confidence 0.5 is below the configured threshold 0.7.",
       "references": [
         "EV-GPS-1",
         "EV-CHAT-1",
         "EV-FARE-1",
         "R-02",
-        "D-02"
+        "R-03",
+        "D-02",
+        "D-03"
       ]
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T04:42:14.175535Z",
+      "timestamp": "2026-10-12T05:20:48.552905Z",
       "agent": "escalation",
       "kind": "escalated",
-      "summary": "Sent to a Human Reviewer: The Judge found the evidence evenly balanced, so the Ruling is a proposal for a Human Reviewer.; Policy Gap: No clause covers a gap in the driver's GPS record during the wait.",
+      "summary": "Sent to a Human Reviewer: The Judge found the evidence evenly balanced, so the Ruling is a proposal for a Human Reviewer.; Policy Gap: No clause covers a gap in the driver's GPS record during the wait.; Calculated confidence 0.5 is below the configured threshold 0.7.",
       "references": [
         "balanced_evidence",
-        "policy_gap"
+        "policy_gap",
+        "low_confidence"
       ]
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T04:42:14.175843Z",
+      "timestamp": "2026-10-12T05:20:48.553209Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
       "summary": "Outcome sent to the rider (pending_review).",
@@ -599,7 +612,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T04:42:14.175998Z",
+      "timestamp": "2026-10-12T05:20:48.553366Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
       "summary": "Outcome sent to the driver (pending_review).",

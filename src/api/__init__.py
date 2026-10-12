@@ -16,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 
 from src.agents.policy import SIMULATED_LABEL as POLICY_SIMULATED
 from src.config import CONFIG
-from src.contracts import Case, LogEvent
+from src.contracts import Case, LogEvent, RulingStatus
 from src.intake import Catalog, UnknownDispute
 from src.llm.adapter import ModelAdapter
 from src.orchestrator import run_dispute
@@ -129,13 +129,29 @@ def _ruling_html(case: Case) -> str:
     ruling = case.ruling
     if ruling is None:
         return f"<h2>Ruling</h2><p>No Ruling. Case status: {escape(case.status.value)}.</p>"
+    confidence = "not available"
+    if ruling.confidence is not None:
+        components = ", ".join(f"{escape(name)} {value}" for name, value in ruling.confidence.components.items())
+        confidence = f"{ruling.confidence.value} ({components})"
+    if ruling.status is RulingStatus.PROPOSAL:
+        reasons = "".join(
+            f"<li>{escape(record.trigger.value)}: {escape(record.reason)}</li>"
+            for record in ruling.review_triggers
+        )
+        return (
+            "<h2>Proposal — no final decision</h2>"
+            f"<p><strong>Case status: {escape(case.status.value)}. "
+            "No payment is authorized or executed.</strong></p>"
+            f"<h3>Review reasons</h3><ul>{reasons}</ul>"
+            f"<p>Confidence: {confidence}</p>"
+            f"<p>Proposal reasoning: {escape(ruling.reasoning_summary)}</p>"
+        )
     amount = f"{escape(ruling.currency)} {ruling.amount}" if ruling.amount is not None else "none"
-    components = ", ".join(f"{escape(name)} {value}" for name, value in ruling.confidence.components.items())
     return (
         "<h2>Ruling</h2><ul>"
         f"<li>Outcome: {escape(ruling.outcome.value)} (remedy: {escape(ruling.remedy.value)})</li>"
         f"<li>Amount: {amount}</li>"
-        f"<li>Confidence: {ruling.confidence.value} ({components})</li>"
+        f"<li>Confidence: {confidence}</li>"
         f"<li>Reasoning: {escape(ruling.reasoning_summary)}</li></ul>"
     )
 

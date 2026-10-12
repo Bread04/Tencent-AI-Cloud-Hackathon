@@ -6,6 +6,7 @@ from decimal import Decimal
 import pytest
 
 from src.agents.judge import DraftRejected, judge
+from src.config import CONFIG
 from src.contracts import ArgumentVerdict, LogEventKind, ReviewTrigger, RulingOutcome, RulingStatus
 from src.llm.repair import StageFailed
 from src.llm.stub import StubModel
@@ -265,7 +266,7 @@ def test_a_policy_gap_is_named_makes_policy_fit_unclear_and_marks_the_ruling_for
     assert ruling.policy_fit.value == "unclear"
     assert ruling.confidence.components["policy_fit"] == 0.5
     assert ruling.status is RulingStatus.PROPOSAL
-    assert [t.trigger for t in ruling.review_triggers] == [ReviewTrigger.POLICY_GAP]
+    assert [t.trigger for t in ruling.review_triggers] == [ReviewTrigger.POLICY_GAP, ReviewTrigger.LOW_CONFIDENCE]
 
 
 def test_a_policy_gap_with_a_clear_policy_fit_is_refused():
@@ -350,3 +351,65 @@ def test_a_draft_still_breaking_a_rule_after_the_repair_budget_fails_the_stage()
 
     with pytest.raises(StageFailed, match="driver_advocate#counter-1"):
         run_judge(a_judge_draft(argument_assessments=skipped))  # the same bad reply every time
+
+def test_balanced_evidence_is_a_proposal_even_above_the_confidence_threshold():
+    ruling, _ = run_judge(a_judge_draft(balance_of_evidence="balanced", policy_fit="arguable"))
+
+    assert ruling.status is RulingStatus.PROPOSAL
+    assert ruling.confidence.value == 0.75
+    assert [record.trigger for record in ruling.review_triggers] == ["balanced_evidence"]
+
+
+@pytest.mark.parametrize("balance, expected", [
+    ("respondent", ["policy_gap", "low_confidence"]),
+    ("balanced", ["balanced_evidence", "policy_gap", "low_confidence"]),
+])
+def test_low_computed_confidence_makes_the_draft_a_proposal(balance, expected):
+    ruling, _ = run_judge(a_judge_draft(balance_of_evidence=balance, policy_fit="unclear", policy_gap="No clause covers the disputed telemetry gap."))
+
+    assert ruling.status is RulingStatus.PROPOSAL
+    assert ruling.confidence.value == 0.5
+    assert [record.trigger for record in ruling.review_triggers] == expected
+    assert str(CONFIG.escalation.confidence_threshold) in ruling.review_triggers[-1].reason
+
+
+def test_low_confidence_trigger_uses_the_configured_threshold_and_is_strict(monkeypatch):
+    # The unchanged DISP-002 completeness calculation is 0.8.
+    monkeypatch.setattr("src.agents.judge.CONFIG", CONFIG.model_copy(update={
+        "escalation": CONFIG.escalation.model_copy(update={"confidence_threshold": 0.8})
+    }))
+    ruling, _ = run_judge(a_judge_draft())
+    assert ruling.status is RulingStatus.FINAL
+    assert not ruling.review_triggers
+
+    monkeypatch.setattr("src.agents.judge.CONFIG", CONFIG.model_copy(update={
+        "escalation": CONFIG.escalation.model_copy(update={"confidence_threshold": 0.81})
+    }))
+    ruling, _ = run_judge(a_judge_draft())
+    assert ruling.status is RulingStatus.PROPOSAL
+    assert [record.trigger for record in ruling.review_triggers] == ["low_confidence"]
+
+
+def test_fee_reversal_proposals_store_the_fare_derived_amount_and_matching_calculation():
+    balance, policy_fit = "claimant", "unclear"
+    store, case = a_sealed_no_show_case()
+    rider, driver = fixture_submissions()
+    model = StubModel({(case.case_id, "judge_self_check"): SELF_CHECK_PASSES, (case.case_id, "judge"): a_judge_draft(
+        outcome="uphold", remedy="fee_reversal", balance_of_evidence=balance, policy_fit=policy_fit,
+        policy_gap="No clause covers the disputed telemetry gap.", amount_input_evidence_ids=["EV-FARE-1"],
+    )})
+    ruling = judge(case, rider, driver, model)
+    store.add_submission(case.case_id, rider)
+    store.add_submission(case.case_id, driver)
+    store.set_ruling(case.case_id, ruling)
+
+    stored = store.get_case(case.case_id)
+    fare = next(item for item in stored.evidence if item.source == "fare")
+    assert stored.status == "pending_review"
+    assert stored.ruling.status is RulingStatus.PROPOSAL
+    assert stored.ruling.outcome == "uphold" and stored.ruling.remedy == "fee_reversal"
+    assert [record.trigger for record in stored.ruling.review_triggers] == ["policy_gap", "low_confidence"]
+    assert stored.ruling.amount == Decimal(fare.derived["cancellation_fee"])
+    assert stored.ruling.calculation.result == stored.ruling.amount
+    assert stored.ruling.calculation.input_evidence_ids == [fare.evidence_id]
+    assert not stored.outcomes

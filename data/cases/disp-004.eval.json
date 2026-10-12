@@ -37,7 +37,7 @@
   "evaluation_caveats": [
     "Do not treat ambiguous as a partial ruling or authorize a payment before review.",
     "The current GPS evidence helper's minutes_at_pickup measures elapsed time from arrival to cancellation; it does not verify presence through a telemetry gap.",
-    "The existing demo ReplayModel uses the DISP-002 script for every case. These new datasets do not add case-specific advocate or Judge replies."
+    "The prepared demo uses separate case-specific scripts and routes DISP-004 to a proposal pending review. This evaluation label is test-only and is never read by catalog or model runtime code."
   ],
   "policy_version": "waypoint-singapore-draft-2026-10"
 }
