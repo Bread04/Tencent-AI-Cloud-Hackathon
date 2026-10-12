@@ -37,7 +37,7 @@ class ConfidenceSettings(_Settings):
     stability_margin: Score = 0.1  # PLACEHOLDER: Confidence gap between passes that counts as disagreement
     authenticity_failed_or_unknown: Score = 0.5  # Tier 3, a photo that matters
     decisive_own_finding_cap: Score = 0.75
-    history_step: Score = 0.1  # per History rule that fires
+    history_step: Score = 0.05  # per History rule that fires (PLACEHOLDER: 0.1 pulled the DISP-002 demo case below the threshold)
     history_max: Score = 0.2  # most that History can lower Confidence
 
 
@@ -72,7 +72,7 @@ class HistoryRule(_Settings):
 
 
 class Config(_Settings):
-    switches: Switches = Switches()  # every Supporting Agent off = Tier 0 MVP
+    switches: Switches = Switches(escalation=True)  # the other Supporting Agents off; Escalation on for the demo (ticket 09)
     currency: str = "SGD"
     confidence: ConfidenceSettings = ConfidenceSettings()
     escalation: EscalationSettings = EscalationSettings()

@@ -12,22 +12,22 @@ from src.config import CONFIG, Config
 from src.contracts import Switches
 
 
-def test_every_supporting_agent_has_a_switch_and_all_default_to_off():
+def test_every_supporting_agent_has_a_switch_and_only_escalation_is_on_by_default():
     assert CONFIG.switches.model_dump() == {
         "evidence_agents": False,
         "policy_precedent": False,
         "image_analysis": False,
-        "escalation": False,
+        "escalation": True,
         "sla_routing": False,
         "learning_loop": False,
     }
 
 
 def test_a_switch_can_be_turned_on_without_touching_the_defaults():
-    demo = CONFIG.model_copy(update={"switches": Switches(escalation=True)})
+    demo = CONFIG.model_copy(update={"switches": Switches(learning_loop=True)})
 
-    assert demo.switches.escalation is True
-    assert CONFIG.switches.escalation is False
+    assert demo.switches.learning_loop is True
+    assert CONFIG.switches.learning_loop is False
 
 
 def test_a_misspelt_switch_is_rejected():
@@ -45,7 +45,7 @@ def test_confidence_components_use_the_proposed_starting_values():
     assert (confidence.stability_agree, confidence.stability_disagree) == (0.95, 0.5)
     assert confidence.authenticity_failed_or_unknown == 0.5
     assert confidence.decisive_own_finding_cap == 0.75
-    assert (confidence.history_step, confidence.history_max) == (0.1, 0.2)
+    assert (confidence.history_step, confidence.history_max) == (0.05, 0.2)
 
 
 def test_escalation_threshold_defaults_to_0_7_and_is_configurable():

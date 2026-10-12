@@ -39,9 +39,9 @@ def test_a_clean_record_changes_nothing():
 def test_each_rule_that_fires_lowers_confidence_by_one_step_and_is_listed_with_its_reason():
     ruling = apply_history(a_ruling_at(0.8), a_case_with_rider_history(**THREE_REJECTED))
 
-    assert ruling.confidence.value == pytest.approx(0.7)
+    assert ruling.confidence.value == pytest.approx(0.75)
     assert [a.rule for a in ruling.history_adjustments] == ["prior_rejected"]
-    assert ruling.history_adjustments[0].confidence_step == pytest.approx(0.1)
+    assert ruling.history_adjustments[0].confidence_step == pytest.approx(0.05)
     assert "3" in ruling.history_adjustments[0].reason  # says what it saw
 
 
@@ -51,7 +51,17 @@ def test_the_total_cut_is_capped_at_the_configured_maximum():
     ruling = apply_history(a_ruling_at(0.8), a_case_with_rider_history(**both))
 
     assert [a.rule for a in ruling.history_adjustments] == ["prior_rejected", "late_cancel_flag"]
-    assert ruling.confidence.value == pytest.approx(0.6)  # 0.8 less two steps of 0.1, the most History may take
+    assert ruling.confidence.value == pytest.approx(0.7)  # 0.8 less two steps of 0.05
+
+
+def test_the_total_cut_is_capped_at_the_configured_maximum_however_many_rules_fire():
+    from src.config import CONFIG
+
+    rule = CONFIG.history_rules[0]
+
+    ruling = apply_history(a_ruling_at(0.9), a_case_with_rider_history(**THREE_REJECTED), rules=(rule,) * 6)
+
+    assert ruling.confidence.value == pytest.approx(0.9 - CONFIG.confidence.history_max)
 
 
 def test_the_late_cancellation_flag_is_a_rule_of_its_own():

@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 from pydantic import ValidationError
 
+from src.config import CONFIG
 from src.contracts import Switches
 from src.store import CaseNotFound, CaseStore, StoreError
 from tests import builders as b
@@ -46,14 +47,14 @@ def test_create_write_read_back_and_see_one_log_event_per_write():
     assert kinds(store, case.case_id) == ["case_filed", "evidence_returned", "evidence_sealed", "submission_filed"]
 
 
-def test_a_new_case_is_filed_with_the_configured_switches_all_off():
+def test_a_new_case_is_filed_with_the_configured_switches_and_only_escalation_is_on():
     store = CaseStore()
 
     case = store.create_case(b.a_dispute())
 
     assert case.status == "filed"
-    assert case.switches == Switches()
-    assert not any(case.switches.model_dump().values())
+    assert case.switches == CONFIG.switches
+    assert [name for name, on in case.switches.model_dump().items() if on] == ["escalation"]
 
 
 def test_a_case_can_be_created_with_chosen_switches_in_force():

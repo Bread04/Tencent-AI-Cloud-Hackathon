@@ -171,9 +171,9 @@ def run_with_reply(agent: str, reply):
 def test_history_lowers_confidence_after_the_outcome_is_fixed_and_never_changes_the_outcome():
     _, _, case = run_prepared_dispute()
 
-    # The rider has 3 prior rejected disputes and a late-cancellation flag, so both rules fire: 0.8 less 0.2.
+    # The rider has 3 prior rejected disputes and a late-cancellation flag, so both rules fire: 0.8 less 0.1.
     assert [a.rule for a in case.ruling.history_adjustments] == ["prior_rejected", "late_cancel_flag"]
-    assert case.ruling.confidence.value == pytest.approx(0.6)
+    assert case.ruling.confidence.value == pytest.approx(0.7)
     assert case.ruling.outcome is RulingOutcome.REJECT  # History never decides
 
 

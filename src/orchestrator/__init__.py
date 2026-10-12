@@ -9,11 +9,24 @@ supporting agents and their switches, the review queue and reviewer (ticket 09).
 from concurrent.futures import ThreadPoolExecutor
 
 from src.agents.advocates import build_submission
+from src.agents.escalation import apply_escalation
 from src.agents.judge import judge
 from src.agents.judge.history import apply_history
 from src.agents.outcomes import outcomes_for, pending_outcomes
 from src.agents.policy import policy_for
-from src.contracts import Advocate, Case, Dispute, DisputeCategory, LogEventKind, ReviewTrigger, ReviewTriggerRecord, Submission
+from src.config import CONFIG
+from src.contracts import (
+    Advocate,
+    Case,
+    Dispute,
+    DisputeCategory,
+    LogEventKind,
+    ReviewTrigger,
+    ReviewTriggerRecord,
+    RulingStatus,
+    Submission,
+    Switches,
+)
 from src.intake import Catalog, UnknownTrip
 from src.llm.adapter import ModelAdapter, ModelError
 from src.llm.repair import StageFailed
@@ -23,8 +36,10 @@ from src.tools.evidence import gather_evidence
 SUPPORTED_CATEGORIES = frozenset({DisputeCategory.NO_SHOW_CHARGE})
 
 
-def run_dispute(dispute: Dispute, *, store: CaseStore, model: ModelAdapter, catalog: Catalog) -> Case:
-    case = store.create_case(dispute)
+def run_dispute(
+    dispute: Dispute, *, store: CaseStore, model: ModelAdapter, catalog: Catalog, switches: Switches | None = None
+) -> Case:
+    case = store.create_case(dispute, switches)
     case_id = case.case_id
 
     reason = _rejection_reason(dispute, catalog)
@@ -68,8 +83,9 @@ def run_dispute(dispute: Dispute, *, store: CaseStore, model: ModelAdapter, cata
 
     # History is applied only now, after the outcome is fixed (ADR 0001).
     ruling = apply_history(ruling, store.get_case(case_id))
+    ruling = apply_escalation(ruling, enabled=case.switches.escalation, threshold=CONFIG.escalation.confidence_threshold)
     store.set_ruling(case_id, ruling)
-    if ruling.review_triggers:
+    if ruling.status is RulingStatus.PROPOSAL:
         store.mark_pending_review(case_id, ruling.review_triggers)
     for outcome in outcomes_for(ruling, store.get_case(case_id)):
         store.add_outcome(case_id, outcome)

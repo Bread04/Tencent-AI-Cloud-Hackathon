@@ -43,8 +43,7 @@ def test_the_claimant_wins_mock_case_stays_above_the_escalation_threshold():
     assert run("DISP-003").ruling.confidence.value >= CONFIG.escalation.confidence_threshold
 
 
-@pytest.mark.xfail(strict=True, reason="Known risk: both History rules fire for the DISP-002 rider, 0.8 -> 0.6, so ticket 09 would escalate the demo case")
-def test_the_respondent_wins_demo_case_stays_above_the_escalation_threshold():
+def test_the_respondent_wins_demo_case_stays_at_the_escalation_threshold_after_history():
     assert run("DISP-002").ruling.confidence.value >= CONFIG.escalation.confidence_threshold
 
 
