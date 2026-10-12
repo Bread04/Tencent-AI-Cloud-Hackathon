@@ -29,16 +29,22 @@ class ReplayModel(StubModel):
         self._prepared = deepcopy(scripts) if scripts is not None else {
             dispute_id: load_replies(dispute_id) for dispute_id in PREPARED_DISPUTES
         }
+        # With the precedent switch on, the Judge cites the precedents it was shown (the same script otherwise).
+        self._prepared_with_precedent = deepcopy(scripts) if scripts is not None else {
+            dispute_id: load_replies(dispute_id, "precedent") for dispute_id in PREPARED_DISPUTES
+        }
 
     def _next_reply(self, case_id: str, agent: str):
-        dispute_id = self._store.get_case(case_id).dispute.dispute_id
-        if dispute_id not in self._prepared:
+        case = self._store.get_case(case_id)
+        dispute_id = case.dispute.dispute_id
+        prepared = self._prepared_with_precedent if case.switches.policy_precedent else self._prepared
+        if dispute_id not in prepared:
             raise ModelError(f"ReplayModel has no prepared script for dispute {dispute_id} (case {case_id}).")
         key = (case_id, agent)
         if key not in self._script:
-            if agent not in self._prepared[dispute_id]:
+            if agent not in prepared[dispute_id]:
                 raise ModelError(f"ReplayModel has no scripted reply for dispute {dispute_id}, agent {agent}.")
-            self._script[key] = deepcopy(self._prepared[dispute_id][agent])
+            self._script[key] = deepcopy(prepared[dispute_id][agent])
         return super()._next_reply(case_id, agent)
 
 

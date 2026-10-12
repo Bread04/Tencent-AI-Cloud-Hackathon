@@ -43,17 +43,18 @@ def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model
         return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
 
     @app.post("/api/disputes/{dispute_id}/run", status_code=202)
-    def start_run(dispute_id: str):
+    def start_run(dispute_id: str, precedent: bool = False):
         """Start a run in the background and return its Case ID as soon as the Case exists, so the console can watch it."""
         try:
             dispute = catalog.dispute(dispute_id)
         except UnknownDispute as error:
             return JSONResponse({"error": str(error)}, status_code=404)
         known = {case.case_id for case in store.list_cases()}
+        switches = CONFIG.switches.model_copy(update={"policy_precedent": True}) if precedent else None  # None: the configured defaults
 
         def work():
             try:
-                run_dispute(dispute, store=store, model=model, catalog=catalog)
+                run_dispute(dispute, store=store, model=model, catalog=catalog, switches=switches)
             except Exception as error:  # a failed run is shown in the console, never hidden
                 created = [case.case_id for case in store.list_cases() if case.case_id not in known]
                 if created:

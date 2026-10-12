@@ -6,6 +6,9 @@
   const params = new URLSearchParams(location.search);
   const recorded = params.has("recorded"); // replay /static/recorded/<dispute>.json instead of calling the orchestrator
   const POLL_MS = 400;
+  const precedentBox = document.getElementById("usePrecedent");
+  precedentBox.checked = params.has("precedent");
+  const usePrecedent = () => precedentBox.checked;
 
   const $ = (id) => document.getElementById(id);
   const paceEl = $("pace");
@@ -89,14 +92,14 @@
   }
 
   async function loadRecorded(disputeId) {
-    const response = await fetch(`/static/recorded/${disputeId}.json`);
+    const response = await fetch(`/static/recorded/${disputeId}${usePrecedent() ? ".precedent" : ""}.json`);
     if (!response.ok) throw new Error(`no recorded stream for ${disputeId}`);
     const body = await response.json();
     return async () => body;
   }
 
   async function start(disputeId) {
-    const response = await fetch(`/api/disputes/${disputeId}/run`, { method: "POST" });
+    const response = await fetch(`/api/disputes/${disputeId}/run${usePrecedent() ? "?precedent=true" : ""}`, { method: "POST" });
     const started = await response.json();
     if (!response.ok) throw new Error(started.error || response.statusText);
     return async () => {
@@ -223,7 +226,7 @@
     }
     parts.push(detail("Material evidence", el("ul", { class: "checklist" }, ...ruling.material_evidence.map((m) =>
       el("li", { class: m.evidence_ids.length ? "" : "missing" }, `${m.evidence_ids.length ? "Available" : "Missing"}: ${m.label}`)))));
-    parts.push(detail("Cited", el("div", { class: "cites" }, ...ruling.cited_evidence_ids.map(citeButton), ...ruling.cited_policy_clause_ids.map(citeButton))));
+    parts.push(detail("Cited", el("div", { class: "cites" }, ...ruling.cited_evidence_ids.map(citeButton), ...ruling.cited_policy_clause_ids.map(citeButton), ...ruling.cited_precedent_ids.map(citeButton))));
     $("ruling").replaceChildren(...parts);
   }
 
@@ -292,6 +295,10 @@
       ...kase.evidence.map(evidenceItem),
       el("div", { class: "section-title" }, el("h3", {}, `Policy clauses (${kase.policy_clauses.length})`)),
       ...kase.policy_clauses.map(clauseItem),
+      ...(kase.switches.policy_precedent ? [
+        el("div", { class: "section-title" }, el("h3", {}, kase.precedents.length ? `Similar precedents (${kase.precedents.length}, advisory)` : "Precedents: none found for this Case")),
+        ...kase.precedents.map(precedentItem),
+      ] : []),
     ];
     $("evidence").replaceChildren(...parts);
   }
@@ -315,6 +322,17 @@
     return el("details", { class: "evidence-item", id: `item-${clause.clause_id}` },
       el("summary", {}, el("span", {}, `${clause.clause_id} · ${words(clause.category)}`), el("span", { class: "state" }, `v ${clause.version}`)),
       el("div", { class: "evidence-body" }, el("p", {}, clause.text)));
+  }
+
+  function precedentItem(p) {
+    const r = p.ruling;
+    return el("details", { class: "evidence-item", id: `item-${p.precedent_id}` },
+      el("summary", {}, el("span", {}, `${p.precedent_id} · ${words(r.outcome)} · ${words(r.remedy)}`), el("span", { class: "state" }, words(p.source))),
+      el("div", { class: "evidence-body" },
+        el("p", {}, p.case_summary),
+        el("p", { class: "who" }, `Similar because: ${p.similarity_tags.map(words).join(", ")}`),
+        el("p", {}, el("strong", {}, "Reasoning then: "), r.reasoning_summary),
+        el("p", { class: "who" }, `Policy cited: ${r.cited_policy_clause_ids.join(", ")}`)));
   }
 
   function citeButton(id) {
@@ -519,8 +537,11 @@
     if (!currentCase) return;
     const ev = currentCase.evidence.find((e) => e.evidence_id === id);
     const cl = currentCase.policy_clauses.find((c) => c.clause_id === id);
-    if (!ev && !cl) return;
-    if (cl) {
+    const pr = currentCase.precedents.find((p) => p.precedent_id === id);
+    if (!ev && !cl && !pr) return;
+    if (pr) {
+      card.replaceChildren(el("strong", {}, `${pr.precedent_id} · precedent (${words(pr.source)})`), el("p", {}, pr.case_summary), el("p", {}, `${words(pr.ruling.outcome)} · ${words(pr.ruling.remedy)}`));
+    } else if (cl) {
       card.replaceChildren(el("strong", {}, `${cl.clause_id} · policy clause`), el("p", {}, cl.text.length > 220 ? cl.text.slice(0, 220) + "…" : cl.text));
     } else {
       const facts = Object.entries(ev.derived || {}).slice(0, 5);

@@ -1,0 +1,67 @@
+{
+  "_simulated": "Scripted replies used when the precedent switch is on. They overlay the base script: only the agents listed here change. Mock data, not model output.",
+  "judge": {
+    "outcome": "reject",
+    "balance_of_evidence": "balanced",
+    "remedy": "no_action",
+    "argument_assessments": [
+      {
+        "verdict": "unproven",
+        "reason": "GPS stops after 09:02. The rider's messages report not finding the car, but neither those statements nor the absence of later GPS samples proves departure.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-CHAT-1",
+          "EV-RIDERLOC-1"
+        ],
+        "ref": "rider_advocate#claim"
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "unproven",
+        "reason": "The driver's claim of staying throughout the wait is not verified beyond the last GPS sample at 09:02. Elapsed time and messages do not establish location.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-CHAT-1",
+          "EV-FARE-1"
+        ]
+      },
+      {
+        "verdict": "unproven",
+        "reason": "GPS supports arrival and coverage through 09:02 only. Later driver messages are unverified statements. Fare timer events show eight elapsed minutes and do not establish physical presence throughout the gap.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-CHAT-1",
+          "EV-FARE-1"
+        ],
+        "ref": "driver_advocate#claim"
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "unproven",
+        "reason": "The rider's belief that the driver left cannot be verified from a gap in GPS coverage; no independent record establishes departure.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-CHAT-1"
+        ]
+      }
+    ],
+    "policy_fit": "unclear",
+    "policy_fit_reason": "No clause says how a gap in the driver's GPS record bears on presence for the full wait.",
+    "cited_evidence_ids": [
+      "EV-GPS-1",
+      "EV-CHAT-1",
+      "EV-FARE-1"
+    ],
+    "cited_policy_clause_ids": [
+      "R-02",
+      "R-03",
+      "D-02",
+      "D-03"
+    ],
+    "reasoning_summary": "The evidence is balanced: GPS covers only the first two minutes, both parties report being at the bay, and neither call connected. Eight elapsed minutes does not establish continuous driver presence; the gap does not prove departure either. Rider location is unavailable. This is a proposal pending human review with no final decision or payment authorization. The required draft outcome and remedy are provisional and do not settle the fee.",
+    "policy_gap": "No clause covers a gap in the driver's GPS record during the wait.",
+    "cited_precedent_ids": [
+      "PREC-NS-05"
+    ]
+  }
+}

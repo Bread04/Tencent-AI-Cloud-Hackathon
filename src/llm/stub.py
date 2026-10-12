@@ -52,7 +52,13 @@ class StubModel:
         return scripted.pop(0)
 
 
-def load_replies(dispute_id: str) -> dict[str, Reply]:
-    """The scripted replies for a prepared Dispute (`fixtures/stub/<id>.json`), keyed by agent name."""
+def load_replies(dispute_id: str, variant: str | None = None) -> dict[str, Reply]:
+    """The scripted replies for a prepared Dispute (`fixtures/stub/<id>.json`), keyed by agent name.
+
+    A variant (`fixtures/stub/<id>.<variant>.json`, for example `precedent`) overlays the base script: only
+    the agents it lists change.
+    """
     replies = json.loads((FIXTURE_DIR / f"{dispute_id}.json").read_text(encoding="utf-8"))
+    if variant:
+        replies = {**replies, **json.loads((FIXTURE_DIR / f"{dispute_id}.{variant}.json").read_text(encoding="utf-8"))}
     return {agent: reply for agent, reply in replies.items() if not agent.startswith("_")}
