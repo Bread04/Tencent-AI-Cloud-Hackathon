@@ -21,30 +21,41 @@ PREPARED_DISPUTES = ("DISP-002", "DISP-003", "DISP-004")
 
 
 class ReplayModel(StubModel):
-    """Resolve scripts through the Case store, with a fresh reply sequence per Case."""
+    """Resolve scripts through the Case store, with a fresh reply sequence per Case.
+
+    The script follows the Case's switches: with the precedent switch on the Judge cites the precedents it was
+    shown, and with the stability check on the second pass has its own reply (the same as the first by default).
+    """
 
     def __init__(self, store: CaseStore, scripts: dict | None = None):
         super().__init__({})
         self._store = store
-        self._prepared = deepcopy(scripts) if scripts is not None else {
-            dispute_id: load_replies(dispute_id) for dispute_id in PREPARED_DISPUTES
-        }
-        # With the precedent switch on, the Judge cites the precedents it was shown (the same script otherwise).
-        self._prepared_with_precedent = deepcopy(scripts) if scripts is not None else {
-            dispute_id: load_replies(dispute_id, "precedent") for dispute_id in PREPARED_DISPUTES
-        }
+        self._custom = deepcopy(scripts) if scripts is not None else None  # tests hand in their own scripts
+        self._loaded: dict[tuple, dict] = {}
+
+    def _replies_for(self, case) -> dict | None:
+        dispute_id = case.dispute.dispute_id
+        if self._custom is not None:
+            return self._custom.get(dispute_id)
+        if dispute_id not in PREPARED_DISPUTES:
+            return None
+        variants = tuple(name for name, on in (("precedent", case.switches.policy_precedent), ("stability", case.switches.stability_check)) if on)
+        if (dispute_id, variants) not in self._loaded:
+            self._loaded[(dispute_id, variants)] = load_replies(dispute_id, *variants)
+        return self._loaded[(dispute_id, variants)]
 
     def _next_reply(self, case_id: str, agent: str):
         case = self._store.get_case(case_id)
         dispute_id = case.dispute.dispute_id
-        prepared = self._prepared_with_precedent if case.switches.policy_precedent else self._prepared
-        if dispute_id not in prepared:
+        replies = self._replies_for(case)
+        if replies is None:
             raise ModelError(f"ReplayModel has no prepared script for dispute {dispute_id} (case {case_id}).")
         key = (case_id, agent)
         if key not in self._script:
-            if agent not in prepared[dispute_id]:
+            scripted = replies.get(agent, replies.get("judge") if agent == "judge_second_pass" else None)
+            if scripted is None:
                 raise ModelError(f"ReplayModel has no scripted reply for dispute {dispute_id}, agent {agent}.")
-            self._script[key] = deepcopy(prepared[dispute_id][agent])
+            self._script[key] = deepcopy(scripted)
         return super()._next_reply(case_id, agent)
 
 

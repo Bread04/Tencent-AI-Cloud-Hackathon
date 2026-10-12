@@ -18,6 +18,7 @@ def test_every_supporting_agent_has_a_switch_and_only_escalation_is_on_by_defaul
         "policy_precedent": False,
         "image_analysis": False,
         "escalation": True,
+        "stability_check": False,
         "sla_routing": False,
         "learning_loop": False,
     }

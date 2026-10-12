@@ -53,7 +53,11 @@ def checklist_for(case: Case) -> list[MaterialEvidenceEntry]:
 
 
 def confidence_for(
-    case: Case, policy_fit: PolicyFit, checklist: list[MaterialEvidenceEntry], own_findings: list[OwnFinding]
+    case: Case,
+    policy_fit: PolicyFit,
+    checklist: list[MaterialEvidenceEntry],
+    own_findings: list[OwnFinding],
+    stable: bool | None = None,
 ) -> Confidence:
     """The lowest of its components: a Ruling is only as sound as its weakest support."""
     settings = CONFIG.confidence
@@ -63,6 +67,8 @@ def confidence_for(
         "evidence_completeness": sum(entry.available for entry in checklist) / len(checklist),
         "consistency": settings.consistency_conflict if conflicting else settings.consistency_no_conflict,
     }
+    if stable is not None:  # only when the stability check ran: agreement is no cap, disagreement caps Confidence
+        components["stability"] = settings.stability_agree if stable else settings.stability_disagree
     if any(finding.decisive for finding in own_findings):
         components["own_finding_cap"] = settings.decisive_own_finding_cap  # a point neither advocate argued decided it
     return Confidence(value=min(components.values()), components=components)

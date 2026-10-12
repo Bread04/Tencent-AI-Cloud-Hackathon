@@ -9,6 +9,11 @@
   const precedentBox = document.getElementById("usePrecedent");
   precedentBox.checked = params.has("precedent");
   const usePrecedent = () => precedentBox.checked;
+  const stabilityBox = document.getElementById("useStability");
+  stabilityBox.checked = params.has("stability");
+  // The setting as a file suffix (recorded streams) and as a query string (the live API).
+  const variantSuffix = () => (usePrecedent() ? ".precedent" : "") + (stabilityBox.checked ? ".stability" : "");
+  const switchQuery = () => [usePrecedent() && "precedent=true", stabilityBox.checked && "stability=true"].filter(Boolean).join("&");
 
   const $ = (id) => document.getElementById(id);
   const paceEl = $("pace");
@@ -92,14 +97,14 @@
   }
 
   async function loadRecorded(disputeId) {
-    const response = await fetch(`/static/recorded/${disputeId}${usePrecedent() ? ".precedent" : ""}.json`);
+    const response = await fetch(`/static/recorded/${disputeId}${variantSuffix()}.json`);
     if (!response.ok) throw new Error(`no recorded stream for ${disputeId}`);
     const body = await response.json();
     return async () => body;
   }
 
   async function start(disputeId) {
-    const response = await fetch(`/api/disputes/${disputeId}/run${usePrecedent() ? "?precedent=true" : ""}`, { method: "POST" });
+    const response = await fetch(`/api/disputes/${disputeId}/run${switchQuery() ? "?" + switchQuery() : ""}`, { method: "POST" });
     const started = await response.json();
     if (!response.ok) throw new Error(started.error || response.statusText);
     return async () => {
@@ -235,7 +240,6 @@
     const entries = Object.entries(components);
     const weakest = Math.min(...entries.map(([, v]) => v));
     const block = el("div", { class: "detail-section" },
-      el("h3", {}, "Confidence"),
       gauge(value),
       el("p", { class: "who" }, "Confidence is the lowest of its parts."),
       el("ul", { class: "bars" }, ...entries.map(([name, v]) =>

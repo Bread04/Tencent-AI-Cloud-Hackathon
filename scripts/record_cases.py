@@ -22,18 +22,18 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     catalog = load_catalog()
     for dispute_id, dispute in catalog.disputes.items():
-        for variant in (None, "precedent"):  # without and with the precedent switch
+        for variants in ((), ("precedent",), ("stability",), ("precedent", "stability")):  # every setting of the two switches
             store = CaseStore()
-            model = StubModel({("CASE-0001", agent): reply for agent, reply in load_replies(dispute_id, variant).items()})
-            switches = CONFIG.switches.model_copy(update={"policy_precedent": True}) if variant else None
-            case = run_dispute(dispute, store=store, model=model, catalog=catalog, switches=switches)
+            model = StubModel({("CASE-0001", agent): reply for agent, reply in load_replies(dispute_id, *variants).items()})
+            on = {"policy_precedent": "precedent" in variants, "stability_check": "stability" in variants}
+            case = run_dispute(dispute, store=store, model=model, catalog=catalog, switches=CONFIG.switches.model_copy(update=on) if variants else None)
             body = {
                 "case": case.model_dump(mode="json"),
                 "log": [event.model_dump(mode="json") for event in store.log(case.case_id)],
                 "calls": [call.model_dump(mode="json") for call in store.calls(case.case_id)],
                 "run_error": None,
             }
-            name = f"{dispute_id}.{variant}.json" if variant else f"{dispute_id}.json"
+            name = ".".join([dispute_id, *variants]) + ".json"
             (OUT / name).write_text(json.dumps(body, indent=2) + "\n", encoding="utf-8")
             print(f"recorded {name}: {len(body['log'])} log events")
 
