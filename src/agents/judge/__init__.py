@@ -24,6 +24,8 @@ from src.contracts import (
     MaterialEvidenceEntry,
     PolicyFit,
     Remedy,
+    ReviewTrigger,
+    ReviewTriggerRecord,
     Ruling,
     RulingOutcome,
     RulingStatus,
@@ -89,8 +91,21 @@ def judge(case: Case, rider_submission: Submission, driver_submission: Submissio
     _require_allowed_remedy(case, draft)
     amount, calculation = _amount(case, draft.remedy)
     checklist = _checklist(case)
+    confidence = _confidence(case, draft.policy_fit, checklist)
+    triggers = []
+    if draft.balance_of_evidence is BalanceOfEvidence.BALANCED:
+        triggers.append(ReviewTriggerRecord(
+            trigger=ReviewTrigger.BALANCED_EVIDENCE,
+            reason="The evidence is balanced; a Human Reviewer must assess the proposal before any final decision.",
+        ))
+    if confidence.value < CONFIG.escalation.confidence_threshold:
+        triggers.append(ReviewTriggerRecord(
+            trigger=ReviewTrigger.LOW_CONFIDENCE,
+            reason=f"Calculated confidence {confidence.value} is below the configured threshold "
+            f"{CONFIG.escalation.confidence_threshold}.",
+        ))
     ruling = Ruling(
-        status=RulingStatus.FINAL,
+        status=RulingStatus.PROPOSAL if triggers else RulingStatus.FINAL,
         outcome=draft.outcome,
         balance_of_evidence=draft.balance_of_evidence,
         remedy=draft.remedy,
@@ -103,8 +118,9 @@ def judge(case: Case, rider_submission: Submission, driver_submission: Submissio
         cited_evidence_ids=draft.cited_evidence_ids,
         cited_policy_clause_ids=draft.cited_policy_clause_ids,
         reasoning_summary=draft.reasoning_summary,
-        confidence=_confidence(case, draft.policy_fit, checklist),
+        confidence=confidence,
         material_evidence=checklist,
+        review_triggers=triggers,
     )
     require_valid_citations(ruling, case)
     return ruling

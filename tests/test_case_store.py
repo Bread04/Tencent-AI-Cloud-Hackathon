@@ -160,6 +160,34 @@ def test_a_proposed_ruling_is_stored_but_the_case_is_not_ruled():
     assert case.ruling.status == "proposal"
     assert case.status == "judging"
 
+    assert "no final decision or payment authorization" in store.log(case_id)[-1].summary
+
+
+def test_a_triggered_proposal_becomes_pending_review_with_one_atomic_log_event():
+    store = CaseStore()
+    case_id = a_case_with_sealed_evidence(store)
+    store.add_submission(case_id, b.a_submission(author="rider_advocate"))
+    store.add_submission(case_id, b.a_submission(author="driver_advocate"))
+    before = len(store.log(case_id))
+    ruling = b.a_ruling(status="proposal", review_triggers=[{
+        "trigger": "balanced_evidence", "reason": "Continuous driver presence is unverified."
+    }])
+
+    store.set_ruling(case_id, ruling)
+
+    case = store.get_case(case_id)
+    assert case.status == "pending_review"
+    assert case.ruling == ruling
+    assert case.outcomes == []
+    assert len(store.log(case_id)) == before + 1
+    event = store.log(case_id)[-1]
+    assert event.kind == "ruling_drafted"
+    assert event.references == [*ruling.cited_evidence_ids, *ruling.cited_policy_clause_ids]
+    assert "no final decision or payment authorization" in event.summary
+    assert "balanced_evidence" in event.summary
+    assert ruling.review_triggers[0].reason in event.summary
+    assert "fee_reversal" not in event.summary
+
 
 def test_rejecting_a_case_records_why():
     store = CaseStore()

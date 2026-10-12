@@ -173,18 +173,27 @@ class CaseStore:
         )
 
     def set_ruling(self, case_id: str, ruling: Ruling, agent: str = "judge") -> None:
-        """Store the Ruling. A final Ruling moves the Case to `ruled`; a proposal leaves the status alone."""
+        """Final rulings become `ruled`; triggered proposals become `pending_review`."""
         case = self._case(case_id)
         if len(case.submissions) != 2:
             raise StoreError(f"A Ruling cannot be stored for {case_id} until both Submissions are filed.")
         amount = f" {ruling.currency} {ruling.amount}" if ruling.amount is not None else ""
+        if ruling.status is RulingStatus.PROPOSAL:
+            reasons = "; ".join(f"{record.trigger.value}: {record.reason}" for record in ruling.review_triggers)
+            summary = "Proposal recorded: no final decision or payment authorization."
+            if reasons:
+                summary += f" Pending review: {reasons}"
+            status = CaseStatus.PENDING_REVIEW if ruling.review_triggers else case.status
+        else:
+            summary = f"Ruling ({ruling.status.value}): {ruling.outcome.value}, {ruling.remedy.value}{amount}."
+            status = CaseStatus.RULED
         self._write(
             case_id,
             agent,
             LogEventKind.RULING_DRAFTED,
-            f"Ruling ({ruling.status.value}): {ruling.outcome.value}, {ruling.remedy.value}{amount}.",
+            summary,
             references=[*ruling.cited_evidence_ids, *ruling.cited_policy_clause_ids, *ruling.cited_precedent_ids],
-            status=CaseStatus.RULED if ruling.status is RulingStatus.FINAL else case.status,
+            status=status,
             ruling=ruling,
         )
 
