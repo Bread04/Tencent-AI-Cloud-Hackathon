@@ -11,7 +11,13 @@
 **Tier:** 1 · **Owner:** Braedon
 
 - [ ] A store of Precedents exists, seeded with mock past Rulings for both MVP categories
-- [ ] For a Case, the agent returns applicable clauses plus similar Precedents with the reason for similarity
+- [ ] Each Dispute Category has fixed Applicable Clauses, always served in full and identically to both advocates and the Judge; clauses are never retrieved by similarity
+- [ ] For a Case, the agent returns the Applicable Clauses plus similar Precedents with the reason for similarity
+- [ ] Precedents are ranked by category filter then tag overlap; with `precedent_retrieval = embeddings` they are reranked by a local open-source embedding model, and if that model is unavailable retrieval falls back to tags and says so in the Communication Log
+- [ ] Only seeded and human-confirmed or overridden Rulings are retrievable; an unreviewed model Ruling is not, and each served Precedent carries its source
+- [ ] A test fails if any Precedent contains a party identifier, trip ID or History-derived text
+- [ ] A Ruling whose Remedy differs from a Precedent it was shown, with no explanation, fails the self-check once and then goes to review
+- [ ] The tag and embedding modes are compared on the mock cases in the evaluation harness (ticket 20)
 - [x] Both advocates and the Judge receive the same policy version
 - [ ] A Ruling can cite Precedent IDs, and a citation to a missing Precedent is rejected
 - [ ] When no Precedent is found, the Judge is told so explicitly

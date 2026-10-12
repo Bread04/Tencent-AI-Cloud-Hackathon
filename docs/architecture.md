@@ -136,10 +136,14 @@ For each agent: purpose, how it runs, what goes in and out, and what happens on 
 ### 5.3 Policy & Precedent Agent (Tier 1)
 
 - **Purpose:** serve the applicable rules and relevant past rulings, consistently, to everyone.
-- **Runs as:** code for retrieval, optionally a model to rank or summarise. Policy is a small versioned set of clauses with stable IDs; precedent is a store of past Rulings. Retrieval is by category and tags first (cheap, explainable); embeddings are an optional upgrade, not the baseline.
-- **In:** category, Case facts. **Out:** applicable Policy Clauses, plus up to a few similar Precedents with why they are similar.
+- **Runs as:** code for retrieval, optionally a model to summarise. Policy is a small versioned set of clauses with stable IDs (about a dozen, so no retrieval step can add value over serving them directly); precedent is a store of past Rulings.
+- **Clauses are not retrieved.** Each Dispute Category has a fixed set of **Applicable Clauses**, always served in full and identically to both advocates and the Judge. Keyword matching may add further relevant clauses on top, never in place of them.
+- **Precedents are retrieved in layers:** filter by category, rank by tag overlap, then optionally rerank by embedding similarity of the Case summary. A switch (`precedent_retrieval = tags | embeddings`) chooses the last step, so a failed or missing embedding model falls back to tags and the eval harness can compare the two. Embeddings come from a small open-source model run locally (see [ADR 0003](adr/0003-precedents-are-anonymised-and-human-verified.md) for the model choice), behind an interface so another provider can replace it.
+- **Eligibility:** only seeded Precedents and human-confirmed or overridden Rulings are retrievable. An unreviewed model Ruling is not, so one wrong Ruling cannot become authority for the next. Each Precedent served carries its source.
+- **Anonymised:** a Precedent holds category, key facts, Ruling, Remedy, clauses cited and reasoning, and never party identifiers, trip IDs or History-derived facts ([ADR 0001](adr/0001-history-withheld-from-judge.md)).
+- **In:** category, Case facts. **Out:** Applicable Clauses, plus up to a few similar Precedents with why they are similar.
 - **One source, three roles:** the whiteboard's rider-side, driver-side and both-sides policy agents are a `role` parameter on this one agent. All three get the same policy version.
-- **Precedent is advisory.** The Judge may cite it but evidence and policy take priority.
+- **Precedent is advisory.** The Judge may cite it but evidence and policy take priority. A Ruling whose Remedy differs from a Precedent it was shown, without an explanation, fails the self-check once and then goes to review.
 - **Failure:** if retrieval returns nothing, the Judge is told "no precedent found" explicitly.
 
 ### 5.4 Image Analysis and Authenticity (Tier 3)
@@ -303,7 +307,7 @@ The hackathon requires an architecture diagram. The Mermaid chart in section 2 i
 1. Confirm the Confidence starting values and the History rule table (sections 6.1 and 6.2); the method itself is decided.
 2. Exact fields and types of each contract object (section 4).
 3. The structured-output format (schema-constrained JSON) and the model provider, including a vision-capable model.
-4. Whether similarity search for precedent uses tags only or embeddings.
+4. ~~Whether similarity search for precedent uses tags only or embeddings.~~ Decided: tags first, with an optional local open-source embedding rerank behind a switch (section 5.3, [ADR 0003](adr/0003-precedents-are-anonymised-and-human-verified.md)).
 5. Who owns Intake (proposed: Kyven) and the configuration file (proposed: Braedon).
 6. The list of escalation triggers and the amount limit.
 7. ~~Mock policy wording, including the free-wait versus no-show threshold ambiguity.~~ Decided: the shared policy is generic and the thresholds come from trip data, counted from arrival ([ADR 0002](adr/0002-thresholds-come-from-trip-data-not-policy-text.md)).

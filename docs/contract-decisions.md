@@ -87,7 +87,7 @@ Placeholders the code currently runs on. Each needs a decision.
 | 15 | **Claimant and Respondent** are derived from `filed_by` rather than stored, so a fixture that carries `claimant` is rejected. | Derived properties |
 | 16 | **Where citation rules run.** `citation_errors` is called by the agents (so they can repair), not by the store on `add_submission` or `set_ruling`. | Agents call it |
 | 17 | **Invalid Dispute Category.** It fails contract validation before a Case exists, so no `case_rejected` event is logged for it. Intake needs to decide how to show that rejection. | Validation error |
-| 18 | Still open from architecture section 12 and untouched here: precedent similarity (tags or embeddings), mock policy wording, timeouts per stage. | |
+| 18 | Still open from architecture section 12 and untouched here: precedent similarity (now decided: tags first, optional embedding rerank, see architecture 5.3), mock policy wording, timeouts per stage. | |
 | 9 | **Where the Route Deviation refund formula lives.** The shared policy set has none (see ADR 0002). | Not defined |
 
 ## Decided (Braedon, 11 Oct 2026, for Kyven to confirm)
