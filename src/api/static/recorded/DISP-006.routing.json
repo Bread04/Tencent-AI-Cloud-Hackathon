@@ -369,13 +369,13 @@
       }
     ],
     "review_record": null,
-    "created_at": "2026-10-12T07:09:34.180167Z",
-    "updated_at": "2026-10-12T07:09:34.191695Z"
+    "created_at": "2026-10-12T07:22:05.834476Z",
+    "updated_at": "2026-10-12T07:22:05.850810Z"
   },
   "log": [
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.180167Z",
+      "timestamp": "2026-10-12T07:22:05.834476Z",
       "agent": "intake",
       "kind": "case_filed",
       "summary": "Rider filed a safety_incident Dispute on trip TRIP-2026-09961.",
@@ -386,7 +386,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.180537Z",
+      "timestamp": "2026-10-12T07:22:05.834872Z",
       "agent": "intake",
       "kind": "priority_set",
       "summary": "Priority set to 130: safety incident (+100); safety-related words: recklessly (+30)",
@@ -394,7 +394,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.180747Z",
+      "timestamp": "2026-10-12T07:22:05.835039Z",
       "agent": "orchestrator",
       "kind": "evidence_requested",
       "summary": "Requested GPS, chat, fare and History evidence for trip TRIP-2026-09961.",
@@ -404,7 +404,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.181038Z",
+      "timestamp": "2026-10-12T07:22:05.835336Z",
       "agent": "evidence",
       "kind": "evidence_returned",
       "summary": "5 Evidence Item(s) returned, 1 marked missing.",
@@ -418,7 +418,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.181487Z",
+      "timestamp": "2026-10-12T07:22:05.835637Z",
       "agent": "orchestrator",
       "kind": "evidence_sealed",
       "summary": "Evidence set sealed as CASE-0001-evidence-v1 with 5 item(s).",
@@ -428,7 +428,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.182391Z",
+      "timestamp": "2026-10-12T07:22:05.836695Z",
       "agent": "policy",
       "kind": "policy_retrieved",
       "summary": "4 applicable Policy Clause(s) retrieved.",
@@ -441,7 +441,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.184133Z",
+      "timestamp": "2026-10-12T07:22:05.838456Z",
       "agent": "rider_advocate",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -449,7 +449,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.185258Z",
+      "timestamp": "2026-10-12T07:22:05.839597Z",
       "agent": "driver_advocate",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -457,7 +457,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.185983Z",
+      "timestamp": "2026-10-12T07:22:05.840381Z",
       "agent": "rider_advocate",
       "kind": "submission_filed",
       "summary": "Submission filed: Refund the fare and have the driver's conduct reviewed.",
@@ -470,7 +470,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.186334Z",
+      "timestamp": "2026-10-12T07:22:05.840848Z",
       "agent": "driver_advocate",
       "kind": "submission_filed",
       "summary": "Submission filed: Reject the claim; no refund is due.",
@@ -483,7 +483,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.187345Z",
+      "timestamp": "2026-10-12T07:22:05.842567Z",
       "agent": "judge",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -491,7 +491,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.188039Z",
+      "timestamp": "2026-10-12T07:22:05.843988Z",
       "agent": "judge_self_check",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -499,7 +499,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.188365Z",
+      "timestamp": "2026-10-12T07:22:05.844587Z",
       "agent": "judge",
       "kind": "self_check_passed",
       "summary": "Self-check passed: each cited item supports the claim made about it.",
@@ -507,7 +507,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.188688Z",
+      "timestamp": "2026-10-12T07:22:05.845125Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "rider_advocate#claim: unproven. GPS shows steady speeds near the limit and nothing in the chat or app events records unsafe driving.",
@@ -517,7 +517,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.188980Z",
+      "timestamp": "2026-10-12T07:22:05.845785Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "rider_advocate#counter-1: accepted. The driver's account matches the steady speeds in the record.",
@@ -527,7 +527,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.189264Z",
+      "timestamp": "2026-10-12T07:22:05.846325Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "driver_advocate#claim: accepted. The record shows a normal trip at steady speed that was completed.",
@@ -538,7 +538,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.189545Z",
+      "timestamp": "2026-10-12T07:22:05.846985Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "driver_advocate#counter-1: accepted. Lane changes are not recorded in the evidence, so they cannot be weighed.",
@@ -548,7 +548,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.190213Z",
+      "timestamp": "2026-10-12T07:22:05.848049Z",
       "agent": "judge",
       "kind": "ruling_drafted",
       "summary": "Proposal recorded: no final decision or payment authorization. Pending review: safety_incident: This is a Safety Incident, so it is always reviewed by a person, whatever the Confidence.",
@@ -561,7 +561,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.190592Z",
+      "timestamp": "2026-10-12T07:22:05.848697Z",
       "agent": "escalation",
       "kind": "escalated",
       "summary": "Sent to a Human Reviewer: This is a Safety Incident, so it is always reviewed by a person, whatever the Confidence.",
@@ -571,7 +571,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.191322Z",
+      "timestamp": "2026-10-12T07:22:05.850089Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
       "summary": "Outcome sent to the rider (pending_review).",
@@ -579,7 +579,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T07:09:34.191695Z",
+      "timestamp": "2026-10-12T07:22:05.850810Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
       "summary": "Outcome sent to the driver (pending_review).",
@@ -592,7 +592,7 @@
       "agent": "rider_advocate",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T07:09:34.183993Z",
+      "started_at": "2026-10-12T07:22:05.838276Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -614,7 +614,7 @@
       "agent": "driver_advocate",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T07:09:34.185158Z",
+      "started_at": "2026-10-12T07:22:05.839499Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -636,7 +636,7 @@
       "agent": "judge",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T07:09:34.187220Z",
+      "started_at": "2026-10-12T07:22:05.842319Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -658,7 +658,7 @@
       "agent": "judge_self_check",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T07:09:34.187992Z",
+      "started_at": "2026-10-12T07:22:05.843878Z",
       "seconds": 0.0,
       "messages": [
         {

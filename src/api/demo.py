@@ -11,6 +11,7 @@ from copy import deepcopy
 from fastapi import FastAPI
 
 from src.api import create_app
+from src.api.demo_switches import DEMO_SWITCHES
 from src.intake import load_catalog
 from src.llm.stub import StubModel, load_replies
 from src.llm.adapter import ModelError
@@ -39,7 +40,7 @@ class ReplayModel(StubModel):
             return self._custom.get(dispute_id)
         if dispute_id not in PREPARED_DISPUTES:
             return None
-        variants = tuple(name for name, on in (("precedent", case.switches.policy_precedent), ("stability", case.switches.stability_check)) if on)
+        variants = tuple(s.name for s in DEMO_SWITCHES if getattr(case.switches, s.field))  # a missing variant file keeps the base replies
         if (dispute_id, variants) not in self._loaded:
             self._loaded[(dispute_id, variants)] = load_replies(dispute_id, *variants)
         return self._loaded[(dispute_id, variants)]

@@ -10,13 +10,14 @@ import time
 from html import escape
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from src.agents.policy import SIMULATED_LABEL as POLICY_SIMULATED
 from src.agents.intake import IntakeError, resolve_category
+from src.api.demo_switches import checkboxes_html, switches_from_query
 from src.api.review import add_review_routes
 from src.config import CONFIG
 from src.contracts import Case, LogEvent, RulingStatus
@@ -47,18 +48,17 @@ def create_app(*, store: CaseStore, model: ModelAdapter, catalog: Catalog, model
     def home():
         rows = "".join(_dispute_row(d, catalog.trip(d.trip_id)["trip"]) for d in catalog.disputes.values())
         template = (HERE / "console.html").read_text(encoding="utf-8")
-        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
+        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{SWITCHES}}", checkboxes_html()).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
 
     @app.post("/api/disputes/{dispute_id}/run", status_code=202)
-    def start_run(dispute_id: str, precedent: bool = False, stability: bool = False, routing: bool = False):
+    def start_run(dispute_id: str, request: Request):
         """Start a run in the background and return its Case ID as soon as the Case exists, so the console can watch it."""
         try:
             dispute = catalog.dispute(dispute_id)
         except UnknownDispute as error:
             return JSONResponse({"error": str(error)}, status_code=404)
         known = {case.case_id for case in store.list_cases()}
-        chosen = {name: True for name, on in [("policy_precedent", precedent), ("stability_check", stability), ("sla_routing", routing)] if on}
-        switches = CONFIG.switches.model_copy(update=chosen) if chosen else None  # None: the configured defaults
+        switches = switches_from_query(request.query_params)  # None: the configured defaults
 
         def work():
             try:

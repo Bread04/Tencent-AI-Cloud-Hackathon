@@ -6,10 +6,12 @@ Writes `src/api/static/recorded/<dispute id>.json`, in the same shape as `GET /a
 then be built and demonstrated without the orchestrator running. Re-run it when the pipeline's output changes.
 """
 
+import itertools
 import json
 from pathlib import Path
 
 from src.intake import load_catalog
+from src.api.demo_switches import DEMO_SWITCHES
 from src.config import CONFIG
 from src.llm.stub import StubModel, load_replies
 from src.orchestrator import run_dispute
@@ -22,10 +24,11 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     catalog = load_catalog()
     for dispute_id, dispute in catalog.disputes.items():
-        for variants in ((), ("precedent",), ("stability",), ("precedent", "stability"), ("routing",)):  # the settings the console can replay
+        for flags in itertools.product([False, True], repeat=len(DEMO_SWITCHES)):  # every combination of the demo switches
+            variants = tuple(s.name for s, on in zip(DEMO_SWITCHES, flags) if on)
             store = CaseStore()
             model = StubModel({("CASE-0001", agent): reply for agent, reply in load_replies(dispute_id, *variants).items()})
-            on = {"policy_precedent": "precedent" in variants, "stability_check": "stability" in variants, "sla_routing": "routing" in variants}
+            on = {s.field: s.name in variants for s in DEMO_SWITCHES}
             case = run_dispute(dispute, store=store, model=model, catalog=catalog, switches=CONFIG.switches.model_copy(update=on) if variants else None)
             body = {
                 "case": case.model_dump(mode="json"),

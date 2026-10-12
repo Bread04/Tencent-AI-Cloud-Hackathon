@@ -6,16 +6,12 @@
   const params = new URLSearchParams(location.search);
   const recorded = params.has("recorded"); // replay /static/recorded/<dispute>.json instead of calling the orchestrator
   const POLL_MS = 400;
-  const precedentBox = document.getElementById("usePrecedent");
-  precedentBox.checked = params.has("precedent");
-  const usePrecedent = () => precedentBox.checked;
-  const stabilityBox = document.getElementById("useStability");
-  stabilityBox.checked = params.has("stability");
-  // The setting as a file suffix (recorded streams) and as a query string (the live API).
-  const routingBox = document.getElementById("useRouting");
-  routingBox.checked = params.has("routing");
-  const variantSuffix = () => (usePrecedent() ? ".precedent" : "") + (stabilityBox.checked ? ".stability" : "") + (routingBox.checked ? ".routing" : "");
-  const switchQuery = () => [usePrecedent() && "precedent=true", stabilityBox.checked && "stability=true", routingBox.checked && "routing=true"].filter(Boolean).join("&");
+  // Every `input[data-switch]` is a demo switch (the table is in src/api/demo_switches.py). `?name=1` ticks it.
+  const switchBoxes = [...document.querySelectorAll("input[data-switch]")];
+  switchBoxes.forEach((box) => { box.checked = params.has(box.dataset.switch); });
+  const ticked = () => switchBoxes.filter((box) => box.checked).map((box) => box.dataset.switch);
+  const variantSuffix = () => ticked().map((name) => `.${name}`).join(""); // the recorded stream for this setting
+  const switchQuery = () => ticked().map((name) => `${name}=true`).join("&"); // the live API
 
   const $ = (id) => document.getElementById(id);
   const paceEl = $("pace");
