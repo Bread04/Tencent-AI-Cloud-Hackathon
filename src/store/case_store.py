@@ -29,6 +29,7 @@ from src.contracts import (
     ReviewDecision,
     ReviewRecord,
     PolicyClause,
+    Precedent,
     ReviewTriggerRecord,
     Ruling,
     RulingStatus,
@@ -167,6 +168,16 @@ class CaseStore:
             f"{len(clauses)} applicable Policy Clause(s) retrieved.",
             references=new_ids,
             policy_clauses=[*case.policy_clauses, *clauses],
+        )
+
+    def add_precedents(self, case_id: str, precedents: list[Precedent], summary: str, agent: str = "policy") -> None:
+        """Serve the similar past Rulings found for this Case, once; the summary says how they were chosen."""
+        case = self._case(case_id)
+        if case.precedents:
+            raise StoreError(f"{case_id} already has its Precedents.")
+        self._write(
+            case_id, agent, LogEventKind.PRECEDENT_RETRIEVED, summary,
+            references=[p.precedent_id for p in precedents], precedents=precedents,
         )
 
     def add_submission(self, case_id: str, submission: Submission) -> None:

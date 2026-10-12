@@ -6,6 +6,7 @@ Outcomes. A proposal or a failed Judge holds the Case for review. Not here yet: 
 supporting agents and their switches, the review queue and reviewer (ticket 09).
 """
 
+from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 
 from src.agents.advocates import build_submission
@@ -14,6 +15,7 @@ from src.agents.judge import judge
 from src.agents.judge.history import apply_history
 from src.agents.outcomes import outcomes_for, pending_outcomes
 from src.agents.policy import policy_for
+from src.agents.policy.precedents import describe, load_embedder, retrieve_precedents, seeded_precedents
 from src.config import CONFIG
 from src.contracts import (
     Advocate,
@@ -21,6 +23,7 @@ from src.contracts import (
     Dispute,
     DisputeCategory,
     LogEventKind,
+    Precedent,
     ReviewTrigger,
     ReviewTriggerRecord,
     RulingStatus,
@@ -38,7 +41,8 @@ SUPPORTED_CATEGORIES = frozenset({DisputeCategory.NO_SHOW_CHARGE})
 
 
 def run_dispute(
-    dispute: Dispute, *, store: CaseStore, model: ModelAdapter, catalog: Catalog, switches: Switches | None = None
+    dispute: Dispute, *, store: CaseStore, model: ModelAdapter, catalog: Catalog,
+    switches: Switches | None = None, precedents: Sequence[Precedent] | None = None,
 ) -> Case:
     case = store.create_case(dispute, switches)
     case_id = case.case_id
@@ -60,6 +64,13 @@ def run_dispute(
     store.add_evidence(case_id, gather_evidence(dispute.trip_id, catalog), agent="evidence")
     store.seal_evidence(case_id)
     store.add_policy_clauses(case_id, policy_for(dispute.category), agent="policy")
+    if case.switches.policy_precedent:  # the same Precedents go to both advocates and the Judge; advisory only
+        mode = CONFIG.precedents.retrieval
+        found = retrieve_precedents(
+            store.get_case(case_id), seeded_precedents() if precedents is None else precedents,
+            mode=mode, embedder=load_embedder() if mode == "embeddings" else None,
+        )
+        store.add_precedents(case_id, [s.precedent for s in found.served], describe(found))
 
     # Both advocates work from this snapshot (sealed evidence and policy), taken before either has filed.
     sealed = store.get_case(case_id)

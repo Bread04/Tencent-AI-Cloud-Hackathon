@@ -49,6 +49,13 @@ class EscalationSettings(_Settings):
     triggers: tuple[ReviewTrigger, ...] = tuple(ReviewTrigger)  # any one escalates
 
 
+class PrecedentSettings(_Settings):
+    """How Precedents are retrieved (architecture.md section 5.3, ADR 0003)."""
+
+    retrieval: Literal["tags", "embeddings"] = "tags"  # embeddings reranks the tag candidates and falls back to tags
+    limit: int = Field(default=3, ge=1)  # most Precedents served for one Case
+
+
 class ModelSettings(_Settings):
     """How agents talk to the model (architecture.md sections 6.4 and 8)."""
 
@@ -76,6 +83,7 @@ class Config(_Settings):
     currency: str = "SGD"
     confidence: ConfidenceSettings = ConfidenceSettings()
     escalation: EscalationSettings = EscalationSettings()
+    precedents: PrecedentSettings = PrecedentSettings()
     model: ModelSettings = ModelSettings()
 
     # Material evidence per Dispute Category: checklist key -> label shown in the Ruling.

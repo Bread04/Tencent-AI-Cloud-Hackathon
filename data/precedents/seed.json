@@ -1,0 +1,85 @@
+{
+  "_note": "Mock past Rulings that seed the Precedent store (ADR 0003). Anonymised: category, key facts, Ruling, Remedy, clauses and reasoning only. No party IDs, trip IDs or History-derived facts. Simulated.",
+  "precedents": [
+    {
+      "precedent_id": "PREC-NS-01",
+      "category": "no_show_charge",
+      "case_summary": "The driver reached the pickup point on time, waited past the free wait and the no-show threshold, and tried to reach the rider by message and call. The rider's position is unknown.",
+      "tags": ["driver_at_pickup", "driver_on_time", "free_wait_over", "no_show_threshold_reached", "driver_contacted_rider", "rider_location_missing"],
+      "outcome": "reject",
+      "remedy": "no_action",
+      "clauses": ["R-02", "D-02", "D-03"],
+      "reasoning": "The driver met every wait threshold in the fare evidence and tried to make contact. The rider's claim of waiting elsewhere was unproven, so the fee stands."
+    },
+    {
+      "precedent_id": "PREC-NS-02",
+      "category": "no_show_charge",
+      "case_summary": "The driver arrived on time and cancelled before the free wait had ended, after the rider replied that they were on their way.",
+      "tags": ["driver_at_pickup", "driver_on_time", "free_wait_not_over", "no_show_threshold_not_reached", "driver_contacted_rider", "rider_replied", "rider_location_missing"],
+      "outcome": "uphold",
+      "remedy": "fee_reversal",
+      "clauses": ["R-02", "R-03", "D-02"],
+      "reasoning": "The wait recorded in the fare evidence was shorter than the free wait, so the conditions for a no-show charge were not met. Not knowing where the rider was does not shorten the wait."
+    },
+    {
+      "precedent_id": "PREC-NS-03",
+      "category": "no_show_charge",
+      "case_summary": "GPS placed the driver away from the pickup point when the timer started. The driver then waited past the free wait and the no-show threshold.",
+      "tags": ["driver_away_from_pickup", "free_wait_over", "no_show_threshold_reached", "driver_contacted_rider", "rider_location_missing"],
+      "outcome": "uphold",
+      "remedy": "fee_reversal",
+      "clauses": ["R-02", "R-03", "D-02"],
+      "reasoning": "Waiting counts only from arrival at the booked pickup point. The driver was elsewhere, so the recorded wait did not satisfy the conditions for the charge."
+    },
+    {
+      "precedent_id": "PREC-NS-04",
+      "category": "no_show_charge",
+      "case_summary": "The driver was at the pickup point and waited past the free wait but cancelled before the no-show threshold, with no message or call to the rider.",
+      "tags": ["driver_at_pickup", "driver_on_time", "free_wait_over", "no_show_threshold_not_reached", "driver_made_no_contact", "rider_location_missing"],
+      "outcome": "uphold",
+      "remedy": "fee_reversal",
+      "clauses": ["R-02", "D-02", "D-03"],
+      "reasoning": "The no-show threshold in the fare evidence had not been reached, and the driver made no attempt to contact the rider, so the charge was not supported."
+    },
+    {
+      "precedent_id": "PREC-NS-05",
+      "category": "no_show_charge",
+      "case_summary": "The rider said they were coming but never reached the pickup point. The driver stayed through the no-show threshold, messaged and called, and the rider gave no position.",
+      "tags": ["driver_at_pickup", "driver_on_time", "free_wait_over", "no_show_threshold_reached", "driver_contacted_rider", "rider_replied", "rider_location_missing"],
+      "outcome": "reject",
+      "remedy": "no_action",
+      "clauses": ["R-02", "R-06", "D-02", "D-03"],
+      "reasoning": "A reply that they were on the way did not stop the clock. The driver waited the full threshold and kept trying to make contact, so the fee stands."
+    },
+    {
+      "precedent_id": "PREC-NS-06",
+      "category": "no_show_charge",
+      "case_summary": "The driver reached the pickup point on time and waited the full threshold, with a message and a call to the rider, but the rider had been reachable by messages throughout.",
+      "tags": ["driver_at_pickup", "driver_on_time", "free_wait_over", "no_show_threshold_reached", "driver_contacted_rider", "rider_replied"],
+      "outcome": "reject",
+      "remedy": "no_action",
+      "clauses": ["R-02", "D-02", "D-03"],
+      "reasoning": "The wait thresholds were met and the driver made contact attempts. Nothing in the evidence showed the driver had left, so the claim was rejected."
+    },
+    {
+      "precedent_id": "PREC-RD-01",
+      "category": "route_deviation",
+      "case_summary": "The driven route was much longer than the expected route, with no stop or detour agreed in the conversation.",
+      "tags": ["route_longer_than_expected", "no_agreed_detour"],
+      "outcome": "partially_uphold",
+      "remedy": "partial_refund",
+      "clauses": ["R-03", "D-04"],
+      "reasoning": "The extra distance was not agreed, so part of the fare was refunded in proportion to the extra distance."
+    },
+    {
+      "precedent_id": "PREC-RD-02",
+      "category": "route_deviation",
+      "case_summary": "The driver took a longer route after the rider asked for a stop on the way, and the conversation confirmed it.",
+      "tags": ["route_longer_than_expected", "agreed_detour"],
+      "outcome": "reject",
+      "remedy": "no_action",
+      "clauses": ["R-04", "D-04"],
+      "reasoning": "The conversation showed the rider agreed to the change, so the longer route was not a deviation."
+    }
+  ]
+}

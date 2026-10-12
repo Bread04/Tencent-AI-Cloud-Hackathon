@@ -77,7 +77,11 @@ class Advocate(StrEnum):
 
 
 class PrecedentSource(StrEnum):
+    """Where a Precedent came from (ADR 0003). Only the last three are retrievable: an unreviewed `model` Ruling is not."""
+
     MODEL = "model"
+    SEEDED = "seeded"
+    HUMAN_CONFIRMED = "human_confirmed"
     HUMAN_OVERRIDE = "human_override"
 
 

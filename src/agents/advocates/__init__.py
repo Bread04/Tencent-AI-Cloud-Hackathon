@@ -10,7 +10,7 @@ loop is not built: both advocates argue from the one sealed evidence set.
 
 import json
 
-from src.agents.prompting import evidence_for_prompt, policy_for_prompt
+from src.agents.prompting import evidence_for_prompt, policy_for_prompt, precedents_for_prompt
 from src.config import CONFIG
 from src.contracts import Advocate, Case, Party, Submission, citation_errors
 from src.llm.adapter import ModelAdapter
@@ -46,6 +46,7 @@ def build_submission(advocate: Advocate, sealed_case: Case, model: ModelAdapter)
                     + json.dumps(sealed_case.dispute.model_dump(mode="json"), indent=2),
                     f"Evidence (sealed, version {sealed_case.evidence_version}):\n{evidence_for_prompt(sealed_case)}",
                     f"Policy clauses (cite by clause_id):\n{policy_for_prompt(sealed_case)}",
+                    *([precedents_for_prompt(sealed_case)] if sealed_case.switches.policy_precedent else []),
                 ]
             ),
         },

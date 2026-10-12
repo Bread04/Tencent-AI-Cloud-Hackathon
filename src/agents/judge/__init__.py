@@ -17,7 +17,7 @@ from src.agents.judge.arguments import Argument, arguments_in
 from src.agents.judge.draft import DraftAssessment, DraftRejected, JudgeDraft, draft_problems
 from src.agents.judge.numbers import amount_for, checklist_for, confidence_for
 from src.agents.judge.selfcheck import self_check
-from src.agents.prompting import evidence_for_prompt, policy_for_prompt
+from src.agents.prompting import evidence_for_prompt, policy_for_prompt, precedents_for_prompt
 from src.config import CONFIG
 from src.contracts import (
     ArgumentAssessment,
@@ -72,6 +72,7 @@ def judge(
                     f"Dispute:\n{case.dispute.model_dump_json(indent=2)}",
                     f"Evidence (sealed, version {case.evidence_version}):\n{evidence_for_prompt(case)}",
                     f"Policy clauses (cite by clause_id):\n{policy_for_prompt(case)}",
+                    *([precedents_for_prompt(case)] if case.switches.policy_precedent else []),
                     f"Arguments to assess, each exactly once, by ref:\n{_argument_list(arguments)}",
                     f"Rider Advocate Submission:\n{rider_submission.model_dump_json(indent=2)}",
                     f"Driver Advocate Submission:\n{driver_submission.model_dump_json(indent=2)}",
@@ -109,9 +110,10 @@ def _ruling_from(case: Case, arguments: list[Argument], draft: JudgeDraft) -> Ru
         policy_fit_reason=draft.policy_fit_reason,
         cited_evidence_ids=draft.cited_evidence_ids,
         cited_policy_clause_ids=draft.cited_policy_clause_ids,
+        cited_precedent_ids=draft.cited_precedent_ids,
         own_findings=draft.own_findings,
         policy_gap=draft.policy_gap,
-        reasoning_summary=draft.reasoning_summary,
+        reasoning_summary=_with_departure(draft),
         confidence=confidence,
         material_evidence=checklist,
         review_triggers=triggers,
@@ -198,3 +200,10 @@ def _review_triggers(draft: JudgeDraft, confidence: Confidence) -> list[ReviewTr
             )
         )
     return triggers
+
+
+def _with_departure(draft: JudgeDraft) -> str:
+    """The reasoning, with the stated reason for departing from a precedent where there is one."""
+    if draft.precedent_departure and draft.precedent_departure.strip():
+        return f"{draft.reasoning_summary} Departs from precedent: {draft.precedent_departure.strip()}"
+    return draft.reasoning_summary
