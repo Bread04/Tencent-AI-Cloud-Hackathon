@@ -130,3 +130,58 @@ def test_the_key_is_not_part_of_the_models_repr_so_it_cannot_leak_into_a_log():
     model = a_model(lambda request: httpx.Response(200, json=a_reply("x")))
 
     assert SECRET not in repr(model)
+
+
+def test_a_credential_or_key_inside_the_base_url_never_appears_in_an_error():
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("no route", request=request)
+
+    model = a_model(handler, base_url="https://user:hunter2@models.example/v1?key=hunter2")
+
+    with pytest.raises(ModelError) as error:
+        ask(model)
+
+    assert "hunter2" not in str(error.value)
+    assert "models.example" in str(error.value)
+    assert "hunter2" not in repr(model)
+
+
+def test_a_missing_image_file_is_a_model_error_not_a_crash(tmp_path):
+    model = a_model(lambda request: httpx.Response(200, json=a_reply("x")))
+
+    with pytest.raises(ModelError, match="image"):
+        ask(model, images=[str(tmp_path / "gone.jpg")])
+
+
+def test_a_local_image_file_is_sent_inline_as_a_data_url(tmp_path):
+    photo = tmp_path / "dent.png"
+    photo.write_bytes(b"\x89PNG")
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["body"] = json.loads(request.content)
+        return httpx.Response(200, json=a_reply("A dent."))
+
+    ask(a_model(handler), images=[str(photo)])
+
+    assert seen["body"]["messages"][-1]["content"][1]["image_url"]["url"].startswith("data:image/png;base64,")
+
+
+def test_invalid_output_is_sent_back_with_the_error_and_the_second_reply_is_accepted():
+    """The real client inside the shared repair loop: a bad reply is retried with the problem fed back."""
+    from src.llm.repair import complete_with_repair
+
+    bodies, replies = [], iter(['{"outcome": "reject"}', '{"outcome": "reject", "confidence": 0.8}'])
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json=a_reply(next(replies)))
+
+    verdict = complete_with_repair(
+        a_model(handler), [{"role": "user", "content": "Rule."}], case_id="CASE-0001", agent="judge", schema=Verdict,
+        check=lambda reply: [], attempts=2,
+    )
+
+    assert verdict.confidence == 0.8
+    assert len(bodies) == 2
+    assert "not accepted" in bodies[1]["messages"][-1]["content"]  # the validation problem was fed back

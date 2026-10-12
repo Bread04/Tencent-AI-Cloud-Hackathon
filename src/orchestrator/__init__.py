@@ -62,7 +62,7 @@ def run_dispute(dispute: Dispute, *, store: CaseStore, model: ModelAdapter, cata
             record=lambda kind, summary: store.log_event(case_id, "judge", kind, summary),
         )
     except (StageFailed, ModelError) as failure:
-        reason = ReviewTriggerRecord(trigger=ReviewTrigger.STAGE_FAILED, reason=_judge_failure(failure))
+        reason = ReviewTriggerRecord(trigger=ReviewTrigger.STAGE_FAILED, reason=_failure_reason("Judge", "Ruling", failure))
         _hold_for_review(store, case_id, [reason], pending_outcomes())
         return store.get_case(case_id)
 
@@ -89,22 +89,18 @@ def _build_submissions(sealed: Case, model: ModelAdapter) -> tuple[dict[Advocate
         results = dict(zip(Advocate, pool.map(attempt, Advocate)))
     submissions = {advocate: result for advocate, result in results.items() if isinstance(result, Submission)}
     failures = [
-        _advocate_failure(advocate, result) for advocate, result in results.items() if isinstance(result, (StageFailed, ModelError))
+        _failure_reason(advocate.value.replace("_", " "), "Submission", result)
+        for advocate, result in results.items()
+        if isinstance(result, (StageFailed, ModelError))
     ]
     return submissions, failures
 
 
-def _advocate_failure(advocate: Advocate, failure: Exception) -> str:
-    name = advocate.value.replace("_", " ")
+def _failure_reason(subject: str, noun: str, failure: Exception) -> str:
+    """Why a stage failed, worded for a person: the model itself failed, or its output stayed invalid."""
     if isinstance(failure, ModelError):
-        return f"The {name} could not run because the model failed: {failure}"
-    return f"The {name} could not produce a valid Submission: {failure}"
-
-
-def _judge_failure(failure: Exception) -> str:
-    if isinstance(failure, ModelError):
-        return f"The Judge could not run because the model failed: {failure}"
-    return f"The Judge could not produce a valid Ruling: {failure}"
+        return f"The {subject} could not run because the model failed: {failure}"
+    return f"The {subject} could not produce a valid {noun}: {failure}"
 
 
 def _rejection_reason(dispute: Dispute, catalog: Catalog) -> str | None:

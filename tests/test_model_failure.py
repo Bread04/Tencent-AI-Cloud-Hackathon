@@ -93,3 +93,14 @@ def test_a_judge_that_times_out_after_the_advocates_filed_still_ends_in_review_w
     assert case.status is CaseStatus.PENDING_REVIEW
     assert case.ruling is None
     assert len(case.submissions) == 2  # work already done is not thrown away
+
+
+def test_a_timeout_that_is_not_a_number_says_which_setting_is_wrong():
+    with pytest.raises(ModelNotConfigured, match="MODEL_TIMEOUT_SECONDS"):
+        model_from_environment({**REAL, "MODEL_TIMEOUT_SECONDS": "soon"}, stub=a_stub_for("CASE-0001"))
+
+
+@pytest.mark.parametrize("value", ["0", "-5"])
+def test_a_timeout_that_is_not_positive_is_refused(value):
+    with pytest.raises(ModelNotConfigured, match="MODEL_TIMEOUT_SECONDS"):
+        model_from_environment({**REAL, "MODEL_TIMEOUT_SECONDS": value}, stub=a_stub_for("CASE-0001"))

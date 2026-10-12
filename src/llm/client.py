@@ -35,16 +35,17 @@ class OpenAICompatibleModel:
         transport: httpx.BaseTransport | None = None,
     ):
         self._url = base_url.rstrip("/") + "/chat/completions"
+        self._where = _without_secrets(self._url)  # what messages and the repr may show
         self._headers = {"Authorization": f"Bearer {api_key}"}
         self._model = model
         self._timeout = timeout_seconds
         self._transport = transport
 
     def __repr__(self) -> str:
-        return f"OpenAICompatibleModel(url={self._url!r}, model={self._model!r})"
+        return f"OpenAICompatibleModel(url={self._where!r}, model={self._model!r})"
 
     def complete(self, messages: list[Message], *, case_id: str, agent: str, schema: type[T] | None = None, images: list[str] | None = None):
-        body: dict = {"model": self._model, "messages": _with_images(messages, images)}
+        body: dict = {"model": self._model, "messages": _with_images(messages, images, agent)}
         if schema is not None:
             body["response_format"] = {
                 "type": "json_schema",
@@ -62,7 +63,7 @@ class OpenAICompatibleModel:
         except httpx.TimeoutException as error:
             raise ModelError(f"The model timed out after {self._timeout:g} seconds (agent {agent}).") from error
         except httpx.HTTPError as error:
-            raise ModelError(f"The model could not be reached at {self._url} ({type(error).__name__}).") from error
+            raise ModelError(f"The model could not be reached at {self._where} ({type(error).__name__}).") from error
         if response.status_code >= 400:
             raise ModelError(f"The model returned HTTP {response.status_code} (agent {agent}).")
         try:
@@ -80,18 +81,28 @@ def _unfenced(content: str) -> str:
     return match.group(1) if match else content
 
 
-def _with_images(messages: list[Message], images: list[str] | None) -> list[dict]:
+def _without_secrets(url: str) -> str:
+    """The URL with any user:password and query string removed, so a key placed there cannot leak into a message."""
+    parsed = httpx.URL(url)
+    return f"{parsed.scheme}://{parsed.host}{':' + str(parsed.port) if parsed.port else ''}{parsed.path}"
+
+
+def _with_images(messages: list[Message], images: list[str] | None, agent: str) -> list[dict]:
     if not images:
         return [dict(message) for message in messages]
     *rest, last = messages
-    parts = [{"type": "text", "text": last["content"]}] + [{"type": "image_url", "image_url": {"url": _image_url(image)}} for image in images]
+    parts = [{"type": "text", "text": last["content"]}] + [{"type": "image_url", "image_url": {"url": _image_url(image, agent)}} for image in images]
     return [*(dict(message) for message in rest), {**last, "content": parts}]
 
 
-def _image_url(image: str) -> str:
+def _image_url(image: str, agent: str) -> str:
     """A URL passes through; a local file is sent inline as a data URL."""
     if image.startswith(("http://", "https://", "data:")):
         return image
     path = Path(image)
+    try:
+        data = path.read_bytes()
+    except OSError as error:
+        raise ModelError(f"The image {path.name} could not be read (agent {agent}).") from error
     mime = mimetypes.guess_type(path.name)[0] or "image/jpeg"
-    return f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}"
+    return f"data:{mime};base64,{base64.b64encode(data).decode()}"

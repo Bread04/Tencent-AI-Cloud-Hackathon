@@ -34,5 +34,18 @@ def model_from_environment(env: Mapping[str, str], *, stub: ModelAdapter) -> Mod
         base_url=env["MODEL_BASE_URL"],
         api_key=env["MODEL_API_KEY"],
         model=env["MODEL_NAME"],
-        timeout_seconds=float(env.get("MODEL_TIMEOUT_SECONDS", CONFIG.model.timeout_seconds)),
+        timeout_seconds=_timeout(env),
     )
+
+
+def _timeout(env: Mapping[str, str]) -> float:
+    raw = env.get("MODEL_TIMEOUT_SECONDS")
+    if raw is None:
+        return CONFIG.model.timeout_seconds
+    try:
+        seconds = float(raw)
+    except ValueError:
+        seconds = 0.0
+    if seconds <= 0:
+        raise ModelNotConfigured(f"MODEL_TIMEOUT_SECONDS must be a positive number of seconds, not '{raw}'.")
+    return seconds

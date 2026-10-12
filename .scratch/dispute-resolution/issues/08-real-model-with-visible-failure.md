@@ -20,3 +20,4 @@
 **Still open:** confirm the provider and model (and whether it accepts images), then run one mock case on it:
 `MODEL_PROVIDER=openai_compatible MODEL_BASE_URL=... MODEL_API_KEY=... MODEL_NAME=... uv run python -m scripts.try_model DISP-003`.
 Until a real key has been used, the client has only been tested against a fake HTTP server.
+Known gap: the timeout is per phase (connect, read, write), not a wall-clock cap, and one dispute can make about seven calls with no overall budget.
