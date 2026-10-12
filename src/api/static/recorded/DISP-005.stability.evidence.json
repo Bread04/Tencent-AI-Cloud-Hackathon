@@ -1,0 +1,61 @@
+{
+  "case": {
+    "case_id": "CASE-0001",
+    "dispute": {
+      "dispute_id": "DISP-005",
+      "trip_id": "TRIP-2026-09960",
+      "filed_by": "rider",
+      "category": "safety_incident",
+      "description": "The driver was speeding and braked hard at a red light. I asked him to slow down and he refused. I felt unsafe and ended the trip early.",
+      "requested_remedy": "Refund the fare and review the driver's conduct",
+      "filed_at": "2026-09-16T19:00:00+08:00",
+      "photos": [],
+      "driver_statement": "I was running late and the roads were clear. The rider asked me to slow down and I said it was fine."
+    },
+    "status": "rejected",
+    "priority": 0,
+    "priority_reason": null,
+    "switches": {
+      "evidence_agents": true,
+      "policy_precedent": false,
+      "image_analysis": false,
+      "escalation": true,
+      "stability_check": true,
+      "sla_routing": false,
+      "learning_loop": false
+    },
+    "evidence": [],
+    "evidence_version": null,
+    "policy_clauses": [],
+    "precedents": [],
+    "submissions": [],
+    "ruling": null,
+    "outcomes": [],
+    "review_record": null,
+    "created_at": "2026-10-12T09:17:51.868861Z",
+    "updated_at": "2026-10-12T09:17:51.868951Z"
+  },
+  "log": [
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T09:17:51.868861Z",
+      "agent": "intake",
+      "kind": "case_filed",
+      "summary": "Rider filed a safety_incident Dispute on trip TRIP-2026-09960.",
+      "references": [
+        "DISP-005",
+        "TRIP-2026-09960"
+      ]
+    },
+    {
+      "case_id": "CASE-0001",
+      "timestamp": "2026-10-12T09:17:51.868951Z",
+      "agent": "intake",
+      "kind": "case_rejected",
+      "summary": "Dispute rejected: safety_incident Disputes cannot be resolved yet; supported: no_show_charge.",
+      "references": []
+    }
+  ],
+  "calls": [],
+  "run_error": null
+}

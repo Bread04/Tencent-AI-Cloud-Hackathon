@@ -32,13 +32,13 @@
     "ruling": null,
     "outcomes": [],
     "review_record": null,
-    "created_at": "2026-10-12T08:04:42.780440Z",
-    "updated_at": "2026-10-12T08:04:42.780565Z"
+    "created_at": "2026-10-12T09:17:51.923808Z",
+    "updated_at": "2026-10-12T09:17:51.924174Z"
   },
   "log": [
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T08:04:42.780440Z",
+      "timestamp": "2026-10-12T09:17:51.923808Z",
       "agent": "intake",
       "kind": "case_filed",
       "summary": "Rider filed a safety_incident Dispute on trip TRIP-2026-09961.",
@@ -49,7 +49,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T08:04:42.780565Z",
+      "timestamp": "2026-10-12T09:17:51.924174Z",
       "agent": "intake",
       "kind": "case_rejected",
       "summary": "Dispute rejected: safety_incident Disputes cannot be resolved yet; supported: no_show_charge.",

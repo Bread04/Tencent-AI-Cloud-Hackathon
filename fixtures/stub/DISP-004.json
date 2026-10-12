@@ -110,5 +110,48 @@
   "judge_self_check": {
     "supported": true,
     "problems": []
+  },
+  "rider_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#2",
+        "quote": "I am at the booked bay but cannot see your car. Have you left?",
+        "fact": "The rider wrote in the chat at 09:03: \"I am at the booked bay but cannot see your car. Have you left?\""
+      },
+      {
+        "source_ref": "EV-CHAT-1#6",
+        "quote": "I still cannot find you. Please tell me exactly where you are.",
+        "fact": "The rider wrote in the chat at 09:06: \"I still cannot find you. Please tell me exactly where you are.\""
+      },
+      {
+        "source_ref": "DISPUTE#description",
+        "quote": "I went to the booked pickup bay at Tiong Bahru Plaza but could not find the car",
+        "fact": "In the filed report: I went to the booked pickup bay at Tiong Bahru Plaza but could not find the car. At 09:03 I messaged the driver, who said they were still waiting. I called at 09:05 but we did not connect. At 09:08 the trip was cancelled and I was charged $5.00. I believe the driver had left and want the fee reversed."
+      }
+    ]
+  },
+  "driver_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#1",
+        "quote": "I have arrived at the pickup bay.",
+        "fact": "The driver wrote in the chat at 09:00: \"I have arrived at the pickup bay.\""
+      },
+      {
+        "source_ref": "EV-CHAT-1#3",
+        "quote": "I am still at the pickup bay. My app location is not updating.",
+        "fact": "The driver wrote in the chat at 09:03: \"I am still at the pickup bay. My app location is not updating.\""
+      },
+      {
+        "source_ref": "EV-CHAT-1#7",
+        "quote": "I am waiting at the bay and will cancel when the timer reaches eight minutes.",
+        "fact": "The driver wrote in the chat at 09:07: \"I am waiting at the bay and will cancel when the timer reaches eight minutes.\""
+      },
+      {
+        "source_ref": "DISPUTE#driver_statement",
+        "quote": "I arrived at the booked pickup bay at 09:00 and stayed until 09:08",
+        "fact": "In the driver statement: I arrived at the booked pickup bay at 09:00 and stayed until 09:08. My app lost its location connection, but I did not leave. I tried to contact the rider and could not find them."
+      }
+    ]
   }
 }

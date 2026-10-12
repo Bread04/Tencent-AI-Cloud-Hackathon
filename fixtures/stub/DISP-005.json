@@ -99,5 +99,43 @@
   "judge_self_check": {
     "supported": true,
     "problems": []
+  },
+  "rider_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#2",
+        "quote": "Please slow down. You are going far too fast.",
+        "fact": "The rider wrote in the chat at 18:05: \"Please slow down. You are going far too fast.\""
+      },
+      {
+        "source_ref": "EV-CHAT-1#4",
+        "quote": "I am getting out at the next light. That was dangerous.",
+        "fact": "The rider wrote in the chat at 18:07: \"I am getting out at the next light. That was dangerous.\""
+      },
+      {
+        "source_ref": "DISPUTE#description",
+        "quote": "The driver was speeding and braked hard at a red light",
+        "fact": "In the filed report: The driver was speeding and braked hard at a red light. I asked him to slow down and he refused. I felt unsafe and ended the trip early."
+      }
+    ]
+  },
+  "driver_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#1",
+        "quote": "I have arrived.",
+        "fact": "The driver wrote in the chat at 18:00: \"I have arrived.\""
+      },
+      {
+        "source_ref": "EV-CHAT-1#3",
+        "quote": "I am in a hurry, it is fine.",
+        "fact": "The driver wrote in the chat at 18:06: \"I am in a hurry, it is fine.\""
+      },
+      {
+        "source_ref": "DISPUTE#driver_statement",
+        "quote": "I was running late and the roads were clear",
+        "fact": "In the driver statement: I was running late and the roads were clear. The rider asked me to slow down and I said it was fine."
+      }
+    ]
   }
 }

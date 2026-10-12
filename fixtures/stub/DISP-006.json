@@ -98,5 +98,28 @@
   "judge_self_check": {
     "supported": true,
     "problems": []
+  },
+  "rider_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "DISPUTE#description",
+        "quote": "I felt the driver was driving recklessly and changed lanes too often",
+        "fact": "In the filed report: I felt the driver was driving recklessly and changed lanes too often. I want to report him."
+      }
+    ]
+  },
+  "driver_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#1",
+        "quote": "I am at the pickup bay.",
+        "fact": "The driver wrote in the chat at 08:00: \"I am at the pickup bay.\""
+      },
+      {
+        "source_ref": "DISPUTE#driver_statement",
+        "quote": "I drove at the normal speed and changed lanes only when needed",
+        "fact": "In the driver statement: I drove at the normal speed and changed lanes only when needed. Nothing unusual happened."
+      }
+    ]
   }
 }

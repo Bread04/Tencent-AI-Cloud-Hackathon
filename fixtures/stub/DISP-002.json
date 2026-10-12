@@ -96,5 +96,38 @@
   "judge_self_check": {
     "supported": true,
     "problems": []
+  },
+  "rider_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "DISPUTE#description",
+        "quote": "I was at the pickup point at Tiong Bahru Plaza on time but the driver never showed up",
+        "fact": "In the filed report: I was at the pickup point at Tiong Bahru Plaza on time but the driver never showed up. I waited 10 minutes at the lobby and couldn't find the car. The app charged me a $5.00 cancellation fee for a 'no-show' which is completely unfair — I was there, the driver was not. I want the charge reversed immediately."
+      }
+    ]
+  },
+  "driver_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#1",
+        "quote": "I've arrived at the pickup point, I'm at the lobby area.",
+        "fact": "The driver wrote in the chat at 08:43: \"I've arrived at the pickup point, I'm at the lobby area.\""
+      },
+      {
+        "source_ref": "EV-CHAT-1#2",
+        "quote": "I'm waiting at the lobby area, white Honda HR-V plate SGP 4521 M.",
+        "fact": "The driver wrote in the chat at 08:45: \"I'm waiting at the lobby area, white Honda HR-V plate SGP 4521 M.\""
+      },
+      {
+        "source_ref": "EV-CHAT-1#4",
+        "quote": "Hi, are you coming down? I've been waiting a while.",
+        "fact": "The driver wrote in the chat at 08:49: \"Hi, are you coming down? I've been waiting a while.\""
+      },
+      {
+        "source_ref": "EV-CHAT-1#5",
+        "quote": "Please let me know, otherwise I'll have to cancel the trip.",
+        "fact": "The driver wrote in the chat at 08:50: \"Please let me know, otherwise I'll have to cancel the trip.\""
+      }
+    ]
   }
 }

@@ -23,6 +23,7 @@ DEMO_SWITCHES = (
     DemoSwitch("precedent", "policy_precedent", "Use precedent"),
     DemoSwitch("stability", "stability_check", "Stability check"),
     DemoSwitch("routing", "sla_routing", "SLA routing"),
+    DemoSwitch("evidence", "evidence_agents", "Evidence agents"),
 )
 TRUE = {"true", "1", "yes", "on"}
 

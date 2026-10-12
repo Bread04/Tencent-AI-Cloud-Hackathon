@@ -12,6 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from src.agents.advocates import build_submission
 from src.agents.escalation import apply_escalation
+from src.agents.evidence_agents import gather_evidence_safely, run_evidence_agent
 from src.agents.judge import judge
 from src.agents.judge.history import apply_history
 from src.agents.outcomes import outcomes_for, pending_outcomes
@@ -25,6 +26,7 @@ from src.contracts import (
     Dispute,
     DisputeCategory,
     LogEventKind,
+    Party,
     Precedent,
     ReviewTrigger,
     ReviewTriggerRecord,
@@ -68,7 +70,12 @@ def run_dispute(
         f"Requested GPS, chat, fare and History evidence for trip {dispute.trip_id}.",
         references=[dispute.trip_id],
     )
-    store.add_evidence(case_id, gather_evidence(dispute.trip_id, catalog), agent="evidence")
+    if case.switches.evidence_agents:  # the tools run first, then each side's agent reads the party text, all before sealing
+        store.add_evidence(case_id, gather_evidence_safely(dispute.trip_id, catalog), agent="evidence")
+        for party in Party:
+            store.add_evidence(case_id, run_evidence_agent(party, store.get_case(case_id), model), agent=f"{party.value}_evidence")
+    else:
+        store.add_evidence(case_id, gather_evidence(dispute.trip_id, catalog), agent="evidence")
     store.seal_evidence(case_id)
     store.add_policy_clauses(case_id, policy_for(dispute.category), agent="policy")
     if case.switches.policy_precedent:  # the same Precedents go to both advocates and the Judge; advisory only
