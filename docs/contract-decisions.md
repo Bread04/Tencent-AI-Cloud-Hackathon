@@ -18,7 +18,7 @@ Confidence is a number from 0 to 1, calculated by code, and equal to the lowest 
 | Stability (Tier 1) | 0.95 if both passes agree, 0.5 if not | `confidence.stability_agree`, `confidence.stability_disagree` |
 | Authenticity (Tier 3) | 0.5 on a failed or unknown check on a photo that matters | `confidence.authenticity_failed_or_unknown` |
 | Decisive Own Finding | caps Confidence at 0.75 | `confidence.decisive_own_finding_cap` |
-| History step | lowers Confidence by 0.1 per rule that fires, at most 0.2 | `confidence.history_step`, `confidence.history_max` |
+| History step | lowers Confidence by 0.05 per rule that fires, at most 0.2 | `confidence.history_step`, `confidence.history_max` |
 
 ### Escalation (architecture 5.7)
 

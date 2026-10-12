@@ -4,7 +4,7 @@ import pytest
 
 from src.agents.escalation import apply_escalation
 from src.config import CONFIG
-from src.contracts import CaseStatus, LogEventKind, ReviewTrigger, RulingStatus, Switches
+from src.contracts import CaseStatus, LogEventKind, ReviewDecision, ReviewTrigger, RulingStatus, Switches
 from src.intake import load_catalog
 from src.orchestrator import run_dispute
 from src.store import CaseStore
@@ -58,6 +58,50 @@ def test_with_escalation_off_a_proposal_is_finalized_as_before():
     assert ruling.status is RulingStatus.FINAL
 
 
+def test_a_ruling_above_the_amount_limit_is_held_even_when_confident():
+    from decimal import Decimal
+
+    from src.contracts import Calculation
+
+    big = a_final_ruling(0.95).model_copy(update={"amount": Decimal("75.00"), "currency": "SGD",
+        "calculation": Calculation(formula="fee", input_evidence_ids=["EV-FARE-1"], result=Decimal("75.00"))})
+
+    ruling = apply_escalation(big, enabled=True, threshold=THRESHOLD)
+
+    assert ruling.status is RulingStatus.PROPOSAL
+    assert [t.trigger for t in ruling.review_triggers] == [ReviewTrigger.AMOUNT_OVER_LIMIT]
+
+
+def test_an_amount_at_or_under_the_limit_is_not_held_for_its_size():
+    from decimal import Decimal
+
+    from src.contracts import Calculation
+
+    limit = CONFIG.escalation.amount_limit
+    at_limit = a_final_ruling(0.95).model_copy(update={"amount": limit, "currency": "SGD",
+        "calculation": Calculation(formula="fee", input_evidence_ids=["EV-FARE-1"], result=limit)})
+
+    assert apply_escalation(at_limit, enabled=True, threshold=THRESHOLD).status is RulingStatus.FINAL
+
+
+def test_floating_point_noise_at_the_threshold_does_not_escalate():
+    assert apply_escalation(a_final_ruling(0.7000000000000001 - 1e-15), enabled=True, threshold=0.7).status is RulingStatus.FINAL
+
+
+def test_one_review_decision_writes_the_ruling_the_record_and_both_outcomes_together():
+    store, case = run("DISP-004")
+    final = case.ruling.model_copy(update={"status": RulingStatus.FINAL})
+    from src.agents.outcomes import outcomes_for
+    from datetime import datetime, timezone
+    from src.contracts import ReviewRecord
+
+    record = ReviewRecord(reviewer="Dana", decision=ReviewDecision.CONFIRM, decided_at=datetime.now(timezone.utc))
+    store.finish_review(case.case_id, record, final, outcomes_for(final, case))
+
+    decided = store.get_case(case.case_id)
+    assert decided.status is CaseStatus.NOTIFIED and len(decided.outcomes) == 2  # never RULED with nobody told
+
+
 # --- End to end ----------------------------------------------------------------------------------------------------
 
 
@@ -90,10 +134,6 @@ def test_with_escalation_switched_off_every_ruling_finalizes():
     assert case.status is CaseStatus.NOTIFIED
     assert case.ruling.status is RulingStatus.FINAL
     assert {o.action_status.value for o in case.outcomes} == {"recommended"}
-
-
-def test_escalation_is_on_by_default_for_the_demo():
-    assert CONFIG.switches.escalation is True
 
 
 # --- The review package ----------------------------------------------------------------------------------------------

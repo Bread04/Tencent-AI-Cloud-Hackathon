@@ -212,20 +212,21 @@ class CaseStore:
             status=CaseStatus.PENDING_REVIEW,
         )
 
-    def finish_review(self, case_id: str, record: ReviewRecord, ruling: Ruling, agent: str = "escalation") -> None:
-        """Record a Human Reviewer's decision: the final Ruling replaces the proposal, and the parties' pending Outcomes are cleared."""
+    def finish_review(self, case_id: str, record: ReviewRecord, ruling: Ruling, outcomes: list[Outcome], agent: str = "escalation") -> None:
+        """Record a Human Reviewer's decision in one write: the final Ruling replaces the proposal and the parties' final Outcomes replace the pending ones."""
         self._require_status(case_id, CaseStatus.PENDING_REVIEW, "reviewed")
         verb = "confirmed" if record.decision is ReviewDecision.CONFIRM else "overrode"
         why = f" Reason: {record.reason}" if record.reason else ""
+        told = {o.party for o in outcomes if o.action_status is not ActionStatus.PENDING_REVIEW}
         self._write(
             case_id,
             agent,
             LogEventKind.REVIEW_DECISION,
             f"{record.reviewer} {verb} the proposed Ruling ({ruling.outcome.value}, {ruling.remedy.value}).{why}",
-            status=CaseStatus.RULED,
+            status=CaseStatus.NOTIFIED if told == set(Party) else CaseStatus.RULED,
             ruling=ruling,
             review_record=record,
-            outcomes=[],
+            outcomes=outcomes,
         )
 
     def add_outcome(self, case_id: str, outcome: Outcome, agent: str = "orchestrator") -> None:

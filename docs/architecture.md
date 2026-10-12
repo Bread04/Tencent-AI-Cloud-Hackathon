@@ -216,7 +216,7 @@ A single number from 0 to 1. It is **calculated by code, not self-reported by th
 | Stability (Tier 1) | 0.95 if both passes agree; 0.5 if not | code, comparing two Rulings |
 | Authenticity (Tier 3) | 0.5 on a failed or unknown check on a photo that matters | Image Analysis |
 | Decisive Own Finding | caps Confidence at 0.75 | code, from the Ruling |
-| History step | lowers Confidence by 0.1 per rule that fires, at most 0.2 | code, section 6.2 |
+| History step | lowers Confidence by 0.05 per rule that fires, at most 0.2 | code, section 6.2 |
 
 Default escalation threshold: **0.7**, configurable. All values are starting points to be tuned on the mock cases.
 

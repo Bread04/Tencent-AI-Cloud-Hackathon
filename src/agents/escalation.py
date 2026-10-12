@@ -44,12 +44,21 @@ def apply_escalation(ruling: Ruling, *, enabled: bool, threshold: float) -> Ruli
     if not enabled:
         return ruling.model_copy(update={"status": RulingStatus.FINAL})
     triggers = list(ruling.review_triggers)
-    below = ruling.confidence is not None and ruling.confidence.value < threshold
-    if below and ReviewTrigger.LOW_CONFIDENCE not in [record.trigger for record in triggers]:
+    held_for = {record.trigger for record in triggers}
+    # Rounded, so floating-point noise (0.7000000000000001) cannot decide a Case at exactly the threshold.
+    if ruling.confidence is not None and round(ruling.confidence.value, 2) < threshold and ReviewTrigger.LOW_CONFIDENCE not in held_for:
         triggers.append(
             ReviewTriggerRecord(
                 trigger=ReviewTrigger.LOW_CONFIDENCE,
                 reason=f"Calculated confidence {ruling.confidence.value} is below the configured threshold {threshold}.",
+            )
+        )
+    limit = CONFIG.escalation.amount_limit
+    if ruling.amount is not None and ruling.amount > limit and ReviewTrigger.AMOUNT_OVER_LIMIT not in held_for:
+        triggers.append(
+            ReviewTriggerRecord(
+                trigger=ReviewTrigger.AMOUNT_OVER_LIMIT,
+                reason=f"The amount {ruling.currency} {ruling.amount} is above the configured limit {limit}.",
             )
         )
     return ruling.model_copy(update={"status": RulingStatus.PROPOSAL if triggers else ruling.status, "review_triggers": triggers})
@@ -123,9 +132,7 @@ def decide_review(store: CaseStore, case_id: str, *, reviewer: str, decision: Re
 
     final = _confirmed(case.ruling) if decision is ReviewDecision.CONFIRM else _overridden(case, reviewer.strip(), reason.strip())
     record = ReviewRecord(reviewer=reviewer.strip(), decision=decision, reason=(reason or "").strip() or None, decided_at=datetime.now(timezone.utc))
-    store.finish_review(case_id, record, final)
-    for outcome in outcomes_for(final, store.get_case(case_id)):
-        store.add_outcome(case_id, outcome, agent="escalation")
+    store.finish_review(case_id, record, final, outcomes_for(final, case))  # one write: the Case is never ruled with nobody told
     return store.get_case(case_id)
 
 
