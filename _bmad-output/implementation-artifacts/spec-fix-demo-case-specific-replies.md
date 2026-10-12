@@ -79,6 +79,8 @@ Run focused demo/Judge/store/page tests, then `uv run --locked pytest -q tests`.
 
 ## Suggested Review Order
 
+Integration note (2026-10-12): before pushing, merged `origin/main` at `e697d7f`, which adds argument-reference validation, Judge self-checks, History processing and party notifications. Preserved the case-specific replay and provisional display while adapting fixtures and tests to those contracts. DISP-004 now uses main's named GPS policy gap, computed confidence 0.5, and balanced-evidence/policy-gap/low-confidence triggers. Final cases reach `notified`; review proposals send pending-review notices without authorizing payments. The combined suite passed **211 tests**, with **one preexisting expected failure** concerning DISP-002's post-History confidence. The original working folder and its pending changes were preserved using a separate integration checkout.
+
 **Case-specific replay**
 
 - Resolve each script from the stored dispute, independent of Case numbering.

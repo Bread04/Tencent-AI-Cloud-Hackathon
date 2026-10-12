@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from src.agents.citations import require_valid_citations
+from src.contracts import citation_errors
 from src.api import create_app
 from src.api.demo import ReplayModel, create_demo_app
 from src.intake import load_catalog
@@ -53,14 +53,16 @@ def test_mixed_demo_runs_keep_their_submissions_rulings_and_stored_pages_indepen
         assert case.ruling.reasoning_summary == replies["judge"]["reasoning_summary"]
         assert case.evidence_version == f"{case.case_id}-evidence-v1"
         for document in [*case.submissions, case.ruling]:
-            require_valid_citations(document, case)
+            assert citation_errors(document, case.evidence, case.policy_clauses, case.precedents) == []
         assert all(item.trip_id == case.dispute.trip_id for item in case.evidence)
         assert {event.case_id for event in store.log(case.case_id)} == {case.case_id}
-        assert not case.outcomes
+        assert {outcome.party.value for outcome in case.outcomes} == {"rider", "driver"}
+        expected_action = "pending_review" if dispute_id == "DISP-004" else "recommended"
+        assert all(outcome.action_status == expected_action for outcome in case.outcomes)
         assert "Simulated" in page.text
 
         if dispute_id == "DISP-003":
-            assert case.status == "ruled"
+            assert case.status == "notified"
             assert case.ruling.status == "final"
             assert case.ruling.outcome == "uphold"
             assert case.ruling.remedy == "fee_reversal"
@@ -74,9 +76,9 @@ def test_mixed_demo_runs_keep_their_submissions_rulings_and_stored_pages_indepen
             assert case.status == "pending_review"
             assert case.ruling.status == "proposal"
             assert case.ruling.balance_of_evidence == "balanced"
-            assert case.ruling.policy_fit == "arguable"
-            assert case.ruling.confidence.value == 0.75
-            assert [record.trigger for record in case.ruling.review_triggers] == ["balanced_evidence"]
+            assert case.ruling.policy_fit == "unclear"
+            assert case.ruling.confidence.value == 0.5
+            assert [record.trigger for record in case.ruling.review_triggers] == ["balanced_evidence", "policy_gap", "low_confidence"]
             assert all("09:02" in s.claim_restated for s in case.submissions)
             assert "no final decision" in page.text.lower()
             assert "No payment is authorized or executed" in page.text
@@ -84,17 +86,17 @@ def test_mixed_demo_runs_keep_their_submissions_rulings_and_stored_pages_indepen
             assert "Outcome:" not in page.text and "Amount:" not in page.text
             assert case.ruling.amount is None
         else:
-            assert case.status == "ruled"
+            assert case.status == "notified"
             assert case.ruling.status == "final"
             assert case.ruling.outcome == "reject"
             assert case.ruling.remedy == "no_action"
             assert not case.ruling.review_triggers
         pages.append((page.url.path, page.text))
 
-    assert len(model.calls) == 12
+    assert len(model.calls) == 16
     for path, original in pages:
         assert client.get(path).text == original
-    assert len(model.calls) == 12
+    assert len(model.calls) == 16
 
 
 def test_a_stored_dispute_without_a_prepared_script_has_a_clear_model_error():

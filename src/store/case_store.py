@@ -26,6 +26,7 @@ from src.contracts import (
     Outcome,
     Party,
     PolicyClause,
+    ReviewTriggerRecord,
     Ruling,
     RulingStatus,
     Submission,
@@ -195,6 +196,18 @@ class CaseStore:
             references=[*ruling.cited_evidence_ids, *ruling.cited_policy_clause_ids, *ruling.cited_precedent_ids],
             status=status,
             ruling=ruling,
+        )
+
+    def mark_pending_review(self, case_id: str, triggers: list[ReviewTriggerRecord], agent: str = "escalation") -> None:
+        """Hold the Case for a Human Reviewer and say why. The review queue and reviewer screen come with escalation (ticket 09)."""
+        reasons = "; ".join(record.reason for record in triggers)
+        self._write(
+            case_id,
+            agent,
+            LogEventKind.ESCALATED,
+            f"Sent to a Human Reviewer: {reasons}",
+            references=[record.trigger.value for record in triggers],
+            status=CaseStatus.PENDING_REVIEW,
         )
 
     def add_outcome(self, case_id: str, outcome: Outcome, agent: str = "orchestrator") -> None:

@@ -111,15 +111,9 @@ def test_proposal_page_tolerates_absent_confidence_and_escapes_review_text(store
     assert "<script>" not in page.text and "<img" not in page.text
 
 
-@pytest.mark.parametrize("balance, policy_fit, trigger", [
-    ("claimant", "unclear", "low_confidence"),
-    ("balanced", "arguable", "balanced_evidence"),
-])
-def test_fee_reversal_proposal_page_and_log_require_review_without_displaying_a_final_payment(
-    store, balance, policy_fit, trigger,
-):
+def test_fee_reversal_proposal_page_and_log_require_review_without_displaying_a_final_payment(store):
     replies = stub_replies("DISP-003")
-    replies["judge"].update(balance_of_evidence=balance, policy_fit=policy_fit)
+    replies["judge"].update(policy_fit="unclear", policy_gap="No clause covers the disputed telemetry gap.")
     model = ReplayModel(store, {"DISP-003": replies})
     client = TestClient(create_app(store=store, model=model, catalog=load_catalog()))
 
@@ -134,8 +128,9 @@ def test_fee_reversal_proposal_page_and_log_require_review_without_displaying_a_
     assert ruling.amount == Decimal(fare.derived["cancellation_fee"])
     assert ruling.calculation.result == ruling.amount
     assert ruling.calculation.input_evidence_ids == [fare.evidence_id]
-    assert [record.trigger for record in ruling.review_triggers] == [trigger]
-    assert not case.outcomes
+    assert [record.trigger for record in ruling.review_triggers] == ["policy_gap", "low_confidence"]
+    assert len(case.outcomes) == 2
+    assert all(outcome.action_status == "pending_review" for outcome in case.outcomes)
 
     review_list = page.text.split("<h3>Review reasons</h3><ul>", 1)[1].split("</ul>", 1)[0]
     for record in ruling.review_triggers:
@@ -146,8 +141,8 @@ def test_fee_reversal_proposal_page_and_log_require_review_without_displaying_a_
     assert "No payment is authorized or executed" in page.text
     assert "Outcome:" not in page.text and "Amount:" not in page.text
     assert "SGD 5.00" not in page.text
-    summary = store.log(case.case_id)[-1].summary
+    summary = next(event.summary for event in store.log(case.case_id) if event.kind == "ruling_drafted")
     assert "Pending review" in summary
     assert "no final decision or payment authorization" in summary
-    assert trigger in summary
+    assert "low_confidence" in summary and "policy_gap" in summary
     assert "fee_reversal" not in summary and "5.00" not in summary

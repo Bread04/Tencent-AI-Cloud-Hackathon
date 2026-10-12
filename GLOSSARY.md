@@ -136,8 +136,12 @@ _Avoid_: Case (reserved for the whole record), brief
 A single rule of company policy that a submission or ruling can cite.
 _Avoid_: Rule, guideline
 
+**Applicable Clauses**:
+The Policy Clauses a Dispute Category requires, always served in full and identically to both Advocates and the Judge. Anything else the Policy & Precedent Agent finds relevant is added on top, never in place of them.
+_Avoid_: Mandatory clauses, retrieved clauses, matched clauses
+
 **Precedent**:
-A past Ruling on a similar Case, offered to the Judge for consistency. It is advisory: evidence and policy take priority over it.
+A past Ruling on a similar Case, offered to the Judge for consistency. It is advisory: evidence and policy take priority over it, and a Ruling that differs from a Precedent it was shown must say why. Only seeded and human-confirmed or overridden Rulings qualify, and a Precedent never identifies the parties or draws on their History.
 _Avoid_: Case law, history (reserved for a party's past behaviour)
 
 **Authenticity Check**:

@@ -3,29 +3,47 @@
   "rider_advocate": {
     "author": "rider_advocate",
     "claim_restated": "The driver arrived at Bugis Junction at 10:00 and cancelled at 10:04 after a four-minute wait. The rider replied at 10:01 that they were coming to the pickup bay. The charged no-show fee should be reversed.",
-    "facts_relied_on": ["EV-GPS-1", "EV-CHAT-1", "EV-FARE-1"],
-    "missing_evidence_ids": ["EV-RIDERLOC-1"],
+    "facts_relied_on": [
+      "EV-GPS-1",
+      "EV-CHAT-1",
+      "EV-FARE-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
     "counter_arguments": [
       {
         "argument": "The driver was at the booked bay and had not seen the rider by 10:04.",
         "response": "GPS supports the driver's presence for four minutes, but the fare evidence shows neither the five-minute free wait nor the eight-minute no-show threshold had elapsed. Rider location is unavailable; it does not change those recorded timings."
       }
     ],
-    "policy_clause_ids": ["R-02", "R-03"],
+    "policy_clause_ids": [
+      "R-02",
+      "R-03"
+    ],
     "requested_outcome": "Reverse the no-show cancellation fee recorded in the fare evidence."
   },
   "driver_advocate": {
     "author": "driver_advocate",
     "claim_restated": "The driver arrived at the booked Bugis Junction pickup bay at 10:00, messaged the rider, and cancelled at 10:04 after a four-minute wait because they could not see the rider.",
-    "facts_relied_on": ["EV-GPS-1", "EV-CHAT-1", "EV-FARE-1"],
-    "missing_evidence_ids": ["EV-RIDERLOC-1"],
+    "facts_relied_on": [
+      "EV-GPS-1",
+      "EV-CHAT-1",
+      "EV-FARE-1"
+    ],
+    "missing_evidence_ids": [
+      "EV-RIDERLOC-1"
+    ],
     "counter_arguments": [
       {
         "argument": "The rider says the cancellation occurred before the trip's waiting thresholds.",
         "response": "The fare evidence confirms a four-minute wait against a five-minute free wait and eight-minute no-show threshold. The rider replied at 10:01. GPS supports arrival and presence, but these records do not support retaining the no-show fee."
       }
     ],
-    "policy_clause_ids": ["D-02", "D-03"],
+    "policy_clause_ids": [
+      "D-02",
+      "D-03"
+    ],
     "requested_outcome": "Recognise the recorded arrival and contact attempt, while accepting reversal of the prematurely applied no-show fee."
   },
   "judge": {
@@ -34,24 +52,64 @@
     "remedy": "fee_reversal",
     "argument_assessments": [
       {
-        "author": "rider_advocate",
-        "argument": "The driver cancelled after four minutes, before either waiting threshold was reached.",
         "verdict": "accepted",
         "reason": "GPS records arrival at 10:00 and cancellation at 10:04. Fare evidence computes four elapsed minutes, with neither the five-minute free wait nor the eight-minute no-show threshold reached.",
-        "evidence_ids": ["EV-GPS-1", "EV-FARE-1"]
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-FARE-1"
+        ],
+        "ref": "rider_advocate#claim"
       },
       {
-        "author": "driver_advocate",
-        "argument": "The driver arrived and contacted the rider but could not see them before cancellation.",
+        "ref": "rider_advocate#counter-1",
+        "verdict": "not_decisive",
+        "reason": "GPS supports arrival and four minutes at the bay, but the driver's inability to see the rider does not establish the required wait.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-FARE-1"
+        ]
+      },
+      {
         "verdict": "not_decisive",
         "reason": "GPS supports presence during the four-minute wait and chat records both the driver's messages and the rider's reply. Those facts do not establish that the trip's no-show threshold was reached.",
-        "evidence_ids": ["EV-GPS-1", "EV-CHAT-1", "EV-FARE-1"]
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-CHAT-1",
+          "EV-FARE-1"
+        ],
+        "ref": "driver_advocate#claim"
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "The rider correctly identifies a cancellation before either trip waiting threshold, which the driver acknowledges.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-FARE-1",
+          "EV-CHAT-1"
+        ]
       }
     ],
     "policy_fit": "clear",
     "policy_fit_reason": "R-02 and D-02 support reviewing pickup coordination and accurate trip status; R-03 and D-03 support charge review. The waiting thresholds come from the trip's fare evidence, not the shared policy text, and were not reached.",
-    "cited_evidence_ids": ["EV-GPS-1", "EV-CHAT-1", "EV-FARE-1"],
-    "cited_policy_clause_ids": ["R-02", "R-03", "D-02", "D-03"],
-    "reasoning_summary": "The four-minute wait ended before the trip's five-minute free wait and eight-minute no-show threshold. The rider replied that they were coming; their physical location is unknown. Arrival and contact do not justify the premature no-show charge. Uphold the claim and reverse the cancellation fee recorded in the fare evidence."
+    "cited_evidence_ids": [
+      "EV-GPS-1",
+      "EV-CHAT-1",
+      "EV-FARE-1"
+    ],
+    "cited_policy_clause_ids": [
+      "R-02",
+      "R-03",
+      "D-02",
+      "D-03"
+    ],
+    "reasoning_summary": "The four-minute wait ended before the trip's five-minute free wait and eight-minute no-show threshold. The rider replied that they were coming; their physical location is unknown. Arrival and contact do not justify the premature no-show charge. Uphold the claim and reverse the cancellation fee recorded in the fare evidence.",
+    "amount_input_evidence_ids": [
+      "EV-FARE-1"
+    ]
+  },
+  "judge_self_check": {
+    "supported": true,
+    "problems": []
   }
 }
