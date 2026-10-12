@@ -4,7 +4,10 @@
   "use strict";
 
   const params = new URLSearchParams(location.search);
-  const recorded = params.has("recorded"); // replay /static/recorded/<dispute>.json instead of calling the orchestrator
+  // "Replay a recording" plays back /static/recorded/<dispute>.json and calls no model; unticked, a run goes through the orchestrator.
+  const recordedBox = document.getElementById("useRecorded");
+  recordedBox.checked = params.has("recorded");
+  const isRecorded = () => recordedBox.checked;
   const POLL_MS = 400;
   // Every `input[data-switch]` is a demo switch (the table is in src/api/demo_switches.py). `?name=1` ticks it.
   const switchBoxes = [...document.querySelectorAll("input[data-switch]")];
@@ -85,9 +88,9 @@
     const disputeId = button.dataset.dispute;
     document.querySelectorAll("button.trip-choice").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
     reset(button);
-    setStatus(`Running ${disputeId}…`);
+    setStatus(isRecorded() ? `Replaying a recording of ${disputeId}. No model is called.` : `Running ${disputeId} on the model in the header…`);
     try {
-      const source = recorded ? await loadRecorded(disputeId) : await start(disputeId);
+      const source = isRecorded() ? await loadRecorded(disputeId) : await start(disputeId);
       await follow(source, mine, disputeId);
     } catch (error) {
       if (mine === runId) fail(`Could not run ${disputeId}: ${error.message}`);
@@ -121,10 +124,10 @@
       currentCase = body.case;
       if (shown < body.log.length) {
         appendEvent(body.log[shown++]);
-        setStatus(`Running ${disputeId}: ${shown} of ${body.log.length} events so far…`);
+        setStatus(`${isRecorded() ? "Replaying" : "Running"} ${disputeId}: ${shown} of ${body.log.length} events so far…`);
         const pace = Number(paceEl.value);
         if (pace) await sleep(pace);
-        if (!recorded && Date.now() - lastPoll > POLL_MS) { body = await fetchBody(); lastPoll = Date.now(); }
+        if (!isRecorded() && Date.now() - lastPoll > POLL_MS) { body = await fetchBody(); lastPoll = Date.now(); }
         continue;
       }
       if (body.case.outcomes.length > 0 || body.run_error || body.case.status === "rejected") break;
