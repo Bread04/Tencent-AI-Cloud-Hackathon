@@ -94,5 +94,28 @@
   "judge_self_check": {
     "supported": true,
     "problems": []
+  },
+  "rider_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#2",
+        "quote": "Sorry, I did spill my drink. I do not have anything to clean it with.",
+        "fact": "The rider wrote in the chat at 10:00: \"Sorry, I did spill my drink. I do not have anything to clean it with.\""
+      }
+    ]
+  },
+  "driver_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#1",
+        "quote": "Your drink has spilled on the rear seat. Please help me wipe it before you leave.",
+        "fact": "The driver wrote in the chat at 10:00: \"Your drink has spilled on the rear seat. Please help me wipe it before you leave.\""
+      },
+      {
+        "source_ref": "DISPUTE#description",
+        "quote": "The rider spilled a drink on the rear seat and left a stain on the fabric",
+        "fact": "In the filed report the driver says: The rider spilled a drink on the rear seat and left a stain on the fabric. I had to stop taking trips for about forty minutes to clean it. I am asking for the $40.00 cleaning fee."
+      }
+    ]
   }
 }

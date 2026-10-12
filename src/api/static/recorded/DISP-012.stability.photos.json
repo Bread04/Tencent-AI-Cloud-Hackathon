@@ -360,13 +360,13 @@
       }
     ],
     "review_record": null,
-    "created_at": "2026-10-12T18:03:53.476457Z",
-    "updated_at": "2026-10-12T18:03:53.485836Z"
+    "created_at": "2026-10-12T18:06:51.447455Z",
+    "updated_at": "2026-10-12T18:06:51.456869Z"
   },
   "log": [
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.476457Z",
+      "timestamp": "2026-10-12T18:06:51.447455Z",
       "agent": "intake",
       "kind": "case_filed",
       "summary": "Driver filed a property_damage Dispute on trip TRIP-2026-09971.",
@@ -377,7 +377,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.476639Z",
+      "timestamp": "2026-10-12T18:06:51.447621Z",
       "agent": "orchestrator",
       "kind": "evidence_requested",
       "summary": "Requested GPS, chat, fare and History evidence for trip TRIP-2026-09971.",
@@ -387,7 +387,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.476810Z",
+      "timestamp": "2026-10-12T18:06:51.447747Z",
       "agent": "evidence",
       "kind": "evidence_returned",
       "summary": "4 Evidence Item(s) returned, 0 marked missing.",
@@ -400,7 +400,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.477174Z",
+      "timestamp": "2026-10-12T18:06:51.448020Z",
       "agent": "image_analysis",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -408,7 +408,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.477579Z",
+      "timestamp": "2026-10-12T18:06:51.448457Z",
       "agent": "image_analysis",
       "kind": "evidence_returned",
       "summary": "3 Evidence Item(s) returned, 0 marked missing.",
@@ -420,7 +420,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.477729Z",
+      "timestamp": "2026-10-12T18:06:51.448630Z",
       "agent": "image_analysis",
       "kind": "photo_analysed",
       "summary": "Photo data/photos/seat-stain-old.png analysed: 3 finding(s).",
@@ -432,7 +432,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.477858Z",
+      "timestamp": "2026-10-12T18:06:51.449234Z",
       "agent": "orchestrator",
       "kind": "evidence_sealed",
       "summary": "Evidence set sealed as CASE-0001-evidence-v1 with 7 item(s).",
@@ -442,7 +442,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.478196Z",
+      "timestamp": "2026-10-12T18:06:51.450008Z",
       "agent": "policy",
       "kind": "policy_retrieved",
       "summary": "2 applicable Policy Clause(s) retrieved.",
@@ -453,7 +453,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.478982Z",
+      "timestamp": "2026-10-12T18:06:51.451453Z",
       "agent": "rider_advocate",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -461,7 +461,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.479436Z",
+      "timestamp": "2026-10-12T18:06:51.451925Z",
       "agent": "driver_advocate",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -469,7 +469,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.479776Z",
+      "timestamp": "2026-10-12T18:06:51.452560Z",
       "agent": "rider_advocate",
       "kind": "submission_filed",
       "summary": "Submission filed: Reject the cleaning fee claim.",
@@ -481,7 +481,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.479993Z",
+      "timestamp": "2026-10-12T18:06:51.452814Z",
       "agent": "driver_advocate",
       "kind": "submission_filed",
       "summary": "Submission filed: Charge the rider the cleaning fee claimed.",
@@ -493,7 +493,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.480553Z",
+      "timestamp": "2026-10-12T18:06:51.453487Z",
       "agent": "judge",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -501,7 +501,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.480945Z",
+      "timestamp": "2026-10-12T18:06:51.453997Z",
       "agent": "judge_self_check",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -509,7 +509,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.481116Z",
+      "timestamp": "2026-10-12T18:06:51.454195Z",
       "agent": "judge",
       "kind": "self_check_passed",
       "summary": "Self-check passed: each cited item supports the claim made about it.",
@@ -517,7 +517,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.481269Z",
+      "timestamp": "2026-10-12T18:06:51.454380Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "rider_advocate#claim: accepted. No damage on this trip is shown.",
@@ -527,7 +527,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.481421Z",
+      "timestamp": "2026-10-12T18:06:51.454612Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "rider_advocate#counter-1: accepted. A report alone does not establish who caused the stain.",
@@ -537,7 +537,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.481581Z",
+      "timestamp": "2026-10-12T18:06:51.454780Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "driver_advocate#claim: unproven. The rider denies causing the stain and nothing here shows it happened on this trip.",
@@ -548,7 +548,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.481722Z",
+      "timestamp": "2026-10-12T18:06:51.454954Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "driver_advocate#counter-1: accepted. The driver's report alone does not establish who caused the stain.",
@@ -558,7 +558,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.482196Z",
+      "timestamp": "2026-10-12T18:06:51.455320Z",
       "agent": "judge_second_pass",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies failed after 0.0s: StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.",
@@ -566,7 +566,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.482369Z",
+      "timestamp": "2026-10-12T18:06:51.455503Z",
       "agent": "judge",
       "kind": "stability_check",
       "summary": "Stability check: The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias.",
@@ -574,7 +574,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.482764Z",
+      "timestamp": "2026-10-12T18:06:51.455919Z",
       "agent": "judge",
       "kind": "ruling_drafted",
       "summary": "Proposal recorded: no final decision or payment authorization. Pending review: stability_disagreement: The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias.; low_confidence: Calculated confidence 0.5 is below the configured threshold 0.7.; authenticity_check: A photo check failed or is unknown, so Confidence is capped: EV-PHOTO-1-TIME: Captured 2026-08-30T21:15:00+08:00, outside the trip window 2026-09-14T09:40:00+08:00 to 2026-09-14T10:05:00+08:00.",
@@ -590,7 +590,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.483501Z",
+      "timestamp": "2026-10-12T18:06:51.456207Z",
       "agent": "escalation",
       "kind": "escalated",
       "summary": "Sent to a Human Reviewer: The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias.; Calculated confidence 0.5 is below the configured threshold 0.7.; A photo check failed or is unknown, so Confidence is capped: EV-PHOTO-1-TIME: Captured 2026-08-30T21:15:00+08:00, outside the trip window 2026-09-14T09:40:00+08:00 to 2026-09-14T10:05:00+08:00.",
@@ -602,7 +602,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.485408Z",
+      "timestamp": "2026-10-12T18:06:51.456650Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
       "summary": "Outcome sent to the rider (pending_review).",
@@ -610,7 +610,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.485836Z",
+      "timestamp": "2026-10-12T18:06:51.456869Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
       "summary": "Outcome sent to the driver (pending_review).",
@@ -623,7 +623,7 @@
       "agent": "image_analysis",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.477119Z",
+      "started_at": "2026-10-12T18:06:51.447979Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -645,7 +645,7 @@
       "agent": "rider_advocate",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.478923Z",
+      "started_at": "2026-10-12T18:06:51.451378Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -667,7 +667,7 @@
       "agent": "driver_advocate",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.479402Z",
+      "started_at": "2026-10-12T18:06:51.451840Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -689,7 +689,7 @@
       "agent": "judge",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.480485Z",
+      "started_at": "2026-10-12T18:06:51.453291Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -711,7 +711,7 @@
       "agent": "judge_self_check",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.480918Z",
+      "started_at": "2026-10-12T18:06:51.453966Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -733,7 +733,7 @@
       "agent": "judge_second_pass",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.482171Z",
+      "started_at": "2026-10-12T18:06:51.455292Z",
       "seconds": 0.0,
       "messages": [
         {

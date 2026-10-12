@@ -92,5 +92,28 @@
   "judge_self_check": {
     "supported": true,
     "problems": []
+  },
+  "rider_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#2",
+        "quote": "That stain was already on the seat when I got in. I did not spill anything.",
+        "fact": "The rider wrote in the chat at 10:00: \"That stain was already on the seat when I got in. I did not spill anything.\""
+      }
+    ]
+  },
+  "driver_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#1",
+        "quote": "There is a stain on the rear seat. I will have to charge a cleaning fee.",
+        "fact": "The driver wrote in the chat at 10:00: \"There is a stain on the rear seat. I will have to charge a cleaning fee.\""
+      },
+      {
+        "source_ref": "DISPUTE#description",
+        "quote": "There is a stain on the rear seat after this trip and it needs cleaning",
+        "fact": "In the filed report the driver says: There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee."
+      }
+    ]
   }
 }

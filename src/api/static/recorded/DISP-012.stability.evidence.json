@@ -123,25 +123,45 @@
         "conflicts_with": []
       },
       {
-        "evidence_id": "EV-FACTS-RIDER-1",
+        "evidence_id": "EV-FACT-RIDER-1",
         "source": "extracted_fact",
         "trip_id": "TRIP-2026-09971",
         "side": "rider",
         "timestamp": null,
-        "status": "missing",
-        "content": "The rider evidence agent could not read the messages: StubModel has no scripted reply for case CASE-0001, agent rider_evidence_agent.",
-        "derived": {},
+        "status": "available",
+        "content": "The rider wrote in the chat at 10:00: \"That stain was already on the seat when I got in. I did not spill anything.\"",
+        "derived": {
+          "message_ref": "EV-CHAT-1#2",
+          "quote": "That stain was already on the seat when I got in. I did not spill anything."
+        },
         "conflicts_with": []
       },
       {
-        "evidence_id": "EV-FACTS-DRIVER-1",
+        "evidence_id": "EV-FACT-DRIVER-1",
         "source": "extracted_fact",
         "trip_id": "TRIP-2026-09971",
         "side": "driver",
         "timestamp": null,
-        "status": "missing",
-        "content": "The driver evidence agent could not read the messages: StubModel has no scripted reply for case CASE-0001, agent driver_evidence_agent.",
-        "derived": {},
+        "status": "available",
+        "content": "The driver wrote in the chat at 10:00: \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"",
+        "derived": {
+          "message_ref": "EV-CHAT-1#1",
+          "quote": "There is a stain on the rear seat. I will have to charge a cleaning fee."
+        },
+        "conflicts_with": []
+      },
+      {
+        "evidence_id": "EV-FACT-DRIVER-2",
+        "source": "extracted_fact",
+        "trip_id": "TRIP-2026-09971",
+        "side": "driver",
+        "timestamp": null,
+        "status": "available",
+        "content": "In the filed report the driver says: There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.",
+        "derived": {
+          "message_ref": "DISPUTE#description",
+          "quote": "There is a stain on the rear seat after this trip and it needs cleaning"
+        },
         "conflicts_with": []
       }
     ],
@@ -324,13 +344,13 @@
       }
     ],
     "review_record": null,
-    "created_at": "2026-10-12T18:03:53.519184Z",
-    "updated_at": "2026-10-12T18:03:53.538826Z"
+    "created_at": "2026-10-12T18:06:51.459102Z",
+    "updated_at": "2026-10-12T18:06:51.466377Z"
   },
   "log": [
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.519184Z",
+      "timestamp": "2026-10-12T18:06:51.459102Z",
       "agent": "intake",
       "kind": "case_filed",
       "summary": "Driver filed a property_damage Dispute on trip TRIP-2026-09971.",
@@ -341,7 +361,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.519607Z",
+      "timestamp": "2026-10-12T18:06:51.459258Z",
       "agent": "orchestrator",
       "kind": "evidence_requested",
       "summary": "Requested GPS, chat, fare and History evidence for trip TRIP-2026-09971.",
@@ -351,7 +371,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.520108Z",
+      "timestamp": "2026-10-12T18:06:51.459383Z",
       "agent": "evidence",
       "kind": "evidence_returned",
       "summary": "4 Evidence Item(s) returned, 0 marked missing.",
@@ -364,53 +384,54 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.521749Z",
+      "timestamp": "2026-10-12T18:06:51.459651Z",
       "agent": "rider_evidence_agent",
       "kind": "model_call",
-      "summary": "Call 1 on scripted replies failed after 0.0s: StubModel has no scripted reply for case CASE-0001, agent rider_evidence_agent.",
+      "summary": "Call 1 on scripted replies replied in 0.0s",
       "references": []
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.522790Z",
+      "timestamp": "2026-10-12T18:06:51.459795Z",
       "agent": "rider_evidence",
       "kind": "evidence_returned",
-      "summary": "1 Evidence Item(s) returned, 1 marked missing.",
+      "summary": "1 Evidence Item(s) returned, 0 marked missing.",
       "references": [
-        "EV-FACTS-RIDER-1"
+        "EV-FACT-RIDER-1"
       ]
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.523684Z",
+      "timestamp": "2026-10-12T18:06:51.460028Z",
       "agent": "driver_evidence_agent",
       "kind": "model_call",
-      "summary": "Call 1 on scripted replies failed after 0.0s: StubModel has no scripted reply for case CASE-0001, agent driver_evidence_agent.",
+      "summary": "Call 1 on scripted replies replied in 0.0s",
       "references": []
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.524176Z",
+      "timestamp": "2026-10-12T18:06:51.460205Z",
       "agent": "driver_evidence",
       "kind": "evidence_returned",
-      "summary": "1 Evidence Item(s) returned, 1 marked missing.",
+      "summary": "2 Evidence Item(s) returned, 0 marked missing.",
       "references": [
-        "EV-FACTS-DRIVER-1"
+        "EV-FACT-DRIVER-1",
+        "EV-FACT-DRIVER-2"
       ]
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.524469Z",
+      "timestamp": "2026-10-12T18:06:51.460347Z",
       "agent": "orchestrator",
       "kind": "evidence_sealed",
-      "summary": "Evidence set sealed as CASE-0001-evidence-v1 with 6 item(s).",
+      "summary": "Evidence set sealed as CASE-0001-evidence-v1 with 7 item(s).",
       "references": [
         "CASE-0001-evidence-v1"
       ]
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.525531Z",
+      "timestamp": "2026-10-12T18:06:51.460738Z",
       "agent": "policy",
       "kind": "policy_retrieved",
       "summary": "2 applicable Policy Clause(s) retrieved.",
@@ -421,7 +442,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.526814Z",
+      "timestamp": "2026-10-12T18:06:51.461407Z",
       "agent": "rider_advocate",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -429,7 +450,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.527574Z",
+      "timestamp": "2026-10-12T18:06:51.461743Z",
       "agent": "driver_advocate",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -437,7 +458,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.528393Z",
+      "timestamp": "2026-10-12T18:06:51.462013Z",
       "agent": "rider_advocate",
       "kind": "submission_filed",
       "summary": "Submission filed: Reject the cleaning fee claim.",
@@ -449,7 +470,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.528866Z",
+      "timestamp": "2026-10-12T18:06:51.462175Z",
       "agent": "driver_advocate",
       "kind": "submission_filed",
       "summary": "Submission filed: Charge the rider the cleaning fee claimed.",
@@ -461,7 +482,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.529976Z",
+      "timestamp": "2026-10-12T18:06:51.462629Z",
       "agent": "judge",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -469,7 +490,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.531226Z",
+      "timestamp": "2026-10-12T18:06:51.462983Z",
       "agent": "judge_self_check",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -477,7 +498,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.531578Z",
+      "timestamp": "2026-10-12T18:06:51.463143Z",
       "agent": "judge",
       "kind": "self_check_passed",
       "summary": "Self-check passed: each cited item supports the claim made about it.",
@@ -485,7 +506,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.531933Z",
+      "timestamp": "2026-10-12T18:06:51.463291Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "rider_advocate#claim: accepted. No damage on this trip is shown.",
@@ -495,7 +516,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.532260Z",
+      "timestamp": "2026-10-12T18:06:51.463433Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "rider_advocate#counter-1: accepted. A report alone does not establish who caused the stain.",
@@ -505,7 +526,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.532524Z",
+      "timestamp": "2026-10-12T18:06:51.463571Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "driver_advocate#claim: unproven. The rider denies causing the stain and nothing here shows it happened on this trip.",
@@ -515,7 +536,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.532705Z",
+      "timestamp": "2026-10-12T18:06:51.463706Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "driver_advocate#counter-1: accepted. The driver's report alone does not establish who caused the stain.",
@@ -525,7 +546,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.534045Z",
+      "timestamp": "2026-10-12T18:06:51.463953Z",
       "agent": "judge_second_pass",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies failed after 0.0s: StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.",
@@ -533,7 +554,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.534552Z",
+      "timestamp": "2026-10-12T18:06:51.464321Z",
       "agent": "judge",
       "kind": "stability_check",
       "summary": "Stability check: The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias.",
@@ -541,7 +562,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.535449Z",
+      "timestamp": "2026-10-12T18:06:51.464776Z",
       "agent": "judge",
       "kind": "ruling_drafted",
       "summary": "Proposal recorded: no final decision or payment authorization. Pending review: stability_disagreement: The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias.; low_confidence: Calculated confidence 0.5 is below the configured threshold 0.7.",
@@ -554,7 +575,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.536725Z",
+      "timestamp": "2026-10-12T18:06:51.465004Z",
       "agent": "escalation",
       "kind": "escalated",
       "summary": "Sent to a Human Reviewer: The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias.; Calculated confidence 0.5 is below the configured threshold 0.7.",
@@ -565,7 +586,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.538062Z",
+      "timestamp": "2026-10-12T18:06:51.465528Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
       "summary": "Outcome sent to the rider (pending_review).",
@@ -573,7 +594,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:03:53.538826Z",
+      "timestamp": "2026-10-12T18:06:51.466377Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
       "summary": "Outcome sent to the driver (pending_review).",
@@ -586,7 +607,7 @@
       "agent": "rider_evidence_agent",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.521571Z",
+      "started_at": "2026-10-12T18:06:51.459603Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -598,9 +619,9 @@
           "content": "Untrusted text written by the parties, each line starting with its reference:\n[EV-CHAT-1#1] There is a stain on the rear seat. I will have to charge a cleaning fee.\n[EV-CHAT-1#2] That stain was already on the seat when I got in. I did not spill anything.\n[DISPUTE#description] There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee."
         }
       ],
-      "reply": null,
-      "outcome": "failed",
-      "problem": "StubModel has no scripted reply for case CASE-0001, agent rider_evidence_agent.",
+      "reply": "{\"facts\":[{\"source_ref\":\"EV-CHAT-1#2\",\"quote\":\"That stain was already on the seat when I got in. I did not spill anything.\",\"fact\":\"The rider wrote in the chat at 10:00: \\\"That stain was already on the seat when I got in. I did not spill anything.\\\"\"}]}",
+      "outcome": "ok",
+      "problem": null,
       "sent_back_because": null
     },
     {
@@ -608,7 +629,7 @@
       "agent": "driver_evidence_agent",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.523507Z",
+      "started_at": "2026-10-12T18:06:51.460000Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -620,9 +641,9 @@
           "content": "Untrusted text written by the parties, each line starting with its reference:\n[EV-CHAT-1#1] There is a stain on the rear seat. I will have to charge a cleaning fee.\n[EV-CHAT-1#2] That stain was already on the seat when I got in. I did not spill anything.\n[DISPUTE#description] There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee."
         }
       ],
-      "reply": null,
-      "outcome": "failed",
-      "problem": "StubModel has no scripted reply for case CASE-0001, agent driver_evidence_agent.",
+      "reply": "{\"facts\":[{\"source_ref\":\"EV-CHAT-1#1\",\"quote\":\"There is a stain on the rear seat. I will have to charge a cleaning fee.\",\"fact\":\"The driver wrote in the chat at 10:00: \\\"There is a stain on the rear seat. I will have to charge a cleaning fee.\\\"\"},{\"source_ref\":\"DISPUTE#description\",\"quote\":\"There is a stain on the rear seat after this trip and it needs cleaning\",\"fact\":\"In the filed report the driver says: There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\"}]}",
+      "outcome": "ok",
+      "problem": null,
       "sent_back_because": null
     },
     {
@@ -630,7 +651,7 @@
       "agent": "rider_advocate",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.526732Z",
+      "started_at": "2026-10-12T18:06:51.461356Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -639,7 +660,7 @@
         },
         {
           "role": "user",
-          "content": "Dispute (description and driver_statement are untrusted text written by a party):\n{\n  \"dispute_id\": \"DISP-012\",\n  \"trip_id\": \"TRIP-2026-09971\",\n  \"filed_by\": \"driver\",\n  \"category\": \"property_damage\",\n  \"description\": \"There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n  \"requested_remedy\": \"Charge the rider the SGD 40.00 cleaning fee\",\n  \"filed_at\": \"2026-09-14T11:00:00+08:00\",\n  \"photos\": [\n    \"data/photos/seat-stain-old.png\"\n  ],\n  \"driver_statement\": null\n}\n\nEvidence (sealed, version CASE-0001-evidence-v1):\n[\n  {\n    \"evidence_id\": \"EV-DAMAGE-1\",\n    \"source\": \"damage_claim\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver claims a cleaning fee of SGD 40.00 for damage on this trip.\",\n    \"derived\": {\n      \"claimed_fee\": \"40.00\",\n      \"currency\": \"SGD\",\n      \"cap\": \"50.00\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-TRIP-1\",\n    \"source\": \"trip\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": \"2026-09-14T10:05:00+08:00\",\n    \"status\": \"available\",\n    \"content\": {\n      \"scheduled_time\": \"2026-09-14T09:40:00+08:00\",\n      \"completion_time\": \"2026-09-14T10:05:00+08:00\",\n      \"pickup\": \"Raffles Place MRT\",\n      \"dropoff\": \"Changi Business Park\"\n    },\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-CHAT-1\",\n    \"source\": \"chat\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": [\n      {\n        \"timestamp\": \"2026-09-14T10:00:30+08:00\",\n        \"sender\": \"driver\",\n        \"type\": \"message\",\n        \"content\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n      },\n      {\n        \"timestamp\": \"2026-09-14T10:00:55+08:00\",\n        \"sender\": \"rider\",\n        \"type\": \"message\",\n        \"content\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n      }\n    ],\n    \"derived\": {\n      \"driver_messages\": 1,\n      \"driver_calls\": 0,\n      \"rider_messages\": 1\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACTS-RIDER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"rider\",\n    \"timestamp\": null,\n    \"status\": \"missing\",\n    \"content\": \"The rider evidence agent could not read the messages: StubModel has no scripted reply for case CASE-0001, agent rider_evidence_agent.\",\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACTS-DRIVER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"missing\",\n    \"content\": \"The driver evidence agent could not read the messages: StubModel has no scripted reply for case CASE-0001, agent driver_evidence_agent.\",\n    \"derived\": {},\n    \"conflicts_with\": []\n  }\n]\n\nPolicy clauses (cite by clause_id):\n[\n  {\n    \"clause_id\": \"R-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Take reasonable care of the vehicle and report damage, spills or cleanliness concerns with a clear description and relevant evidence when available. Any charge or responsibility requires a separate review.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  },\n  {\n    \"clause_id\": \"D-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Keep the vehicle fit and reasonably clean for service. Document a damage or cleanliness concern with relevant trip context and evidence where available; a report alone does not establish responsibility.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  }\n]"
+          "content": "Dispute (description and driver_statement are untrusted text written by a party):\n{\n  \"dispute_id\": \"DISP-012\",\n  \"trip_id\": \"TRIP-2026-09971\",\n  \"filed_by\": \"driver\",\n  \"category\": \"property_damage\",\n  \"description\": \"There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n  \"requested_remedy\": \"Charge the rider the SGD 40.00 cleaning fee\",\n  \"filed_at\": \"2026-09-14T11:00:00+08:00\",\n  \"photos\": [\n    \"data/photos/seat-stain-old.png\"\n  ],\n  \"driver_statement\": null\n}\n\nEvidence (sealed, version CASE-0001-evidence-v1):\n[\n  {\n    \"evidence_id\": \"EV-DAMAGE-1\",\n    \"source\": \"damage_claim\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver claims a cleaning fee of SGD 40.00 for damage on this trip.\",\n    \"derived\": {\n      \"claimed_fee\": \"40.00\",\n      \"currency\": \"SGD\",\n      \"cap\": \"50.00\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-TRIP-1\",\n    \"source\": \"trip\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": \"2026-09-14T10:05:00+08:00\",\n    \"status\": \"available\",\n    \"content\": {\n      \"scheduled_time\": \"2026-09-14T09:40:00+08:00\",\n      \"completion_time\": \"2026-09-14T10:05:00+08:00\",\n      \"pickup\": \"Raffles Place MRT\",\n      \"dropoff\": \"Changi Business Park\"\n    },\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-CHAT-1\",\n    \"source\": \"chat\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": [\n      {\n        \"timestamp\": \"2026-09-14T10:00:30+08:00\",\n        \"sender\": \"driver\",\n        \"type\": \"message\",\n        \"content\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n      },\n      {\n        \"timestamp\": \"2026-09-14T10:00:55+08:00\",\n        \"sender\": \"rider\",\n        \"type\": \"message\",\n        \"content\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n      }\n    ],\n    \"derived\": {\n      \"driver_messages\": 1,\n      \"driver_calls\": 0,\n      \"rider_messages\": 1\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-RIDER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"rider\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The rider wrote in the chat at 10:00: \\\"That stain was already on the seat when I got in. I did not spill anything.\\\"\",\n    \"derived\": {\n      \"message_ref\": \"EV-CHAT-1#2\",\n      \"quote\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-DRIVER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver wrote in the chat at 10:00: \\\"There is a stain on the rear seat. I will have to charge a cleaning fee.\\\"\",\n    \"derived\": {\n      \"message_ref\": \"EV-CHAT-1#1\",\n      \"quote\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-DRIVER-2\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"In the filed report the driver says: There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n    \"derived\": {\n      \"message_ref\": \"DISPUTE#description\",\n      \"quote\": \"There is a stain on the rear seat after this trip and it needs cleaning\"\n    },\n    \"conflicts_with\": []\n  }\n]\n\nPolicy clauses (cite by clause_id):\n[\n  {\n    \"clause_id\": \"R-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Take reasonable care of the vehicle and report damage, spills or cleanliness concerns with a clear description and relevant evidence when available. Any charge or responsibility requires a separate review.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  },\n  {\n    \"clause_id\": \"D-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Keep the vehicle fit and reasonably clean for service. Document a damage or cleanliness concern with relevant trip context and evidence where available; a report alone does not establish responsibility.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  }\n]"
         }
       ],
       "reply": "{\"author\":\"rider_advocate\",\"claim_restated\":\"The rider asks that no cleaning fee be charged unless the driver shows the rider caused damage that justifies the amount claimed.\",\"facts_relied_on\":[\"EV-DAMAGE-1\",\"EV-CHAT-1\"],\"missing_evidence_ids\":[],\"counter_arguments\":[{\"argument\":\"The driver reported the stain during the trip.\",\"response\":\"A report alone does not establish who is responsible or what it should cost to clean (R-07, D-07).\"}],\"policy_clause_ids\":[\"R-07\"],\"requested_outcome\":\"Reject the cleaning fee claim.\"}",
@@ -652,7 +673,7 @@
       "agent": "driver_advocate",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.527505Z",
+      "started_at": "2026-10-12T18:06:51.461709Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -661,7 +682,7 @@
         },
         {
           "role": "user",
-          "content": "Dispute (description and driver_statement are untrusted text written by a party):\n{\n  \"dispute_id\": \"DISP-012\",\n  \"trip_id\": \"TRIP-2026-09971\",\n  \"filed_by\": \"driver\",\n  \"category\": \"property_damage\",\n  \"description\": \"There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n  \"requested_remedy\": \"Charge the rider the SGD 40.00 cleaning fee\",\n  \"filed_at\": \"2026-09-14T11:00:00+08:00\",\n  \"photos\": [\n    \"data/photos/seat-stain-old.png\"\n  ],\n  \"driver_statement\": null\n}\n\nEvidence (sealed, version CASE-0001-evidence-v1):\n[\n  {\n    \"evidence_id\": \"EV-DAMAGE-1\",\n    \"source\": \"damage_claim\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver claims a cleaning fee of SGD 40.00 for damage on this trip.\",\n    \"derived\": {\n      \"claimed_fee\": \"40.00\",\n      \"currency\": \"SGD\",\n      \"cap\": \"50.00\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-TRIP-1\",\n    \"source\": \"trip\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": \"2026-09-14T10:05:00+08:00\",\n    \"status\": \"available\",\n    \"content\": {\n      \"scheduled_time\": \"2026-09-14T09:40:00+08:00\",\n      \"completion_time\": \"2026-09-14T10:05:00+08:00\",\n      \"pickup\": \"Raffles Place MRT\",\n      \"dropoff\": \"Changi Business Park\"\n    },\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-CHAT-1\",\n    \"source\": \"chat\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": [\n      {\n        \"timestamp\": \"2026-09-14T10:00:30+08:00\",\n        \"sender\": \"driver\",\n        \"type\": \"message\",\n        \"content\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n      },\n      {\n        \"timestamp\": \"2026-09-14T10:00:55+08:00\",\n        \"sender\": \"rider\",\n        \"type\": \"message\",\n        \"content\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n      }\n    ],\n    \"derived\": {\n      \"driver_messages\": 1,\n      \"driver_calls\": 0,\n      \"rider_messages\": 1\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACTS-RIDER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"rider\",\n    \"timestamp\": null,\n    \"status\": \"missing\",\n    \"content\": \"The rider evidence agent could not read the messages: StubModel has no scripted reply for case CASE-0001, agent rider_evidence_agent.\",\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACTS-DRIVER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"missing\",\n    \"content\": \"The driver evidence agent could not read the messages: StubModel has no scripted reply for case CASE-0001, agent driver_evidence_agent.\",\n    \"derived\": {},\n    \"conflicts_with\": []\n  }\n]\n\nPolicy clauses (cite by clause_id):\n[\n  {\n    \"clause_id\": \"R-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Take reasonable care of the vehicle and report damage, spills or cleanliness concerns with a clear description and relevant evidence when available. Any charge or responsibility requires a separate review.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  },\n  {\n    \"clause_id\": \"D-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Keep the vehicle fit and reasonably clean for service. Document a damage or cleanliness concern with relevant trip context and evidence where available; a report alone does not establish responsibility.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  }\n]"
+          "content": "Dispute (description and driver_statement are untrusted text written by a party):\n{\n  \"dispute_id\": \"DISP-012\",\n  \"trip_id\": \"TRIP-2026-09971\",\n  \"filed_by\": \"driver\",\n  \"category\": \"property_damage\",\n  \"description\": \"There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n  \"requested_remedy\": \"Charge the rider the SGD 40.00 cleaning fee\",\n  \"filed_at\": \"2026-09-14T11:00:00+08:00\",\n  \"photos\": [\n    \"data/photos/seat-stain-old.png\"\n  ],\n  \"driver_statement\": null\n}\n\nEvidence (sealed, version CASE-0001-evidence-v1):\n[\n  {\n    \"evidence_id\": \"EV-DAMAGE-1\",\n    \"source\": \"damage_claim\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver claims a cleaning fee of SGD 40.00 for damage on this trip.\",\n    \"derived\": {\n      \"claimed_fee\": \"40.00\",\n      \"currency\": \"SGD\",\n      \"cap\": \"50.00\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-TRIP-1\",\n    \"source\": \"trip\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": \"2026-09-14T10:05:00+08:00\",\n    \"status\": \"available\",\n    \"content\": {\n      \"scheduled_time\": \"2026-09-14T09:40:00+08:00\",\n      \"completion_time\": \"2026-09-14T10:05:00+08:00\",\n      \"pickup\": \"Raffles Place MRT\",\n      \"dropoff\": \"Changi Business Park\"\n    },\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-CHAT-1\",\n    \"source\": \"chat\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": [\n      {\n        \"timestamp\": \"2026-09-14T10:00:30+08:00\",\n        \"sender\": \"driver\",\n        \"type\": \"message\",\n        \"content\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n      },\n      {\n        \"timestamp\": \"2026-09-14T10:00:55+08:00\",\n        \"sender\": \"rider\",\n        \"type\": \"message\",\n        \"content\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n      }\n    ],\n    \"derived\": {\n      \"driver_messages\": 1,\n      \"driver_calls\": 0,\n      \"rider_messages\": 1\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-RIDER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"rider\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The rider wrote in the chat at 10:00: \\\"That stain was already on the seat when I got in. I did not spill anything.\\\"\",\n    \"derived\": {\n      \"message_ref\": \"EV-CHAT-1#2\",\n      \"quote\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-DRIVER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver wrote in the chat at 10:00: \\\"There is a stain on the rear seat. I will have to charge a cleaning fee.\\\"\",\n    \"derived\": {\n      \"message_ref\": \"EV-CHAT-1#1\",\n      \"quote\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-DRIVER-2\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"In the filed report the driver says: There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n    \"derived\": {\n      \"message_ref\": \"DISPUTE#description\",\n      \"quote\": \"There is a stain on the rear seat after this trip and it needs cleaning\"\n    },\n    \"conflicts_with\": []\n  }\n]\n\nPolicy clauses (cite by clause_id):\n[\n  {\n    \"clause_id\": \"R-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Take reasonable care of the vehicle and report damage, spills or cleanliness concerns with a clear description and relevant evidence when available. Any charge or responsibility requires a separate review.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  },\n  {\n    \"clause_id\": \"D-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Keep the vehicle fit and reasonably clean for service. Document a damage or cleanliness concern with relevant trip context and evidence where available; a report alone does not establish responsibility.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  }\n]"
         }
       ],
       "reply": "{\"author\":\"driver_advocate\",\"claim_restated\":\"The driver reports a stain on the rear seat left by the rider and asks for the SGD 40.00 cleaning fee. The photo supports a stain on the seat.\",\"facts_relied_on\":[\"EV-DAMAGE-1\",\"EV-CHAT-1\"],\"missing_evidence_ids\":[],\"counter_arguments\":[{\"argument\":\"The rider says they did not cause the damage or that it was small.\",\"response\":\"The chat shows the driver raised the stain during the trip and asked for it to be cleaned.\"}],\"policy_clause_ids\":[\"D-07\"],\"requested_outcome\":\"Charge the rider the cleaning fee claimed.\"}",
@@ -674,7 +695,7 @@
       "agent": "judge",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.529757Z",
+      "started_at": "2026-10-12T18:06:51.462569Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -683,7 +704,7 @@
         },
         {
           "role": "user",
-          "content": "Dispute:\n{\n  \"dispute_id\": \"DISP-012\",\n  \"trip_id\": \"TRIP-2026-09971\",\n  \"filed_by\": \"driver\",\n  \"category\": \"property_damage\",\n  \"description\": \"There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n  \"requested_remedy\": \"Charge the rider the SGD 40.00 cleaning fee\",\n  \"filed_at\": \"2026-09-14T11:00:00+08:00\",\n  \"photos\": [\n    \"data/photos/seat-stain-old.png\"\n  ],\n  \"driver_statement\": null\n}\n\nEvidence (sealed, version CASE-0001-evidence-v1):\n[\n  {\n    \"evidence_id\": \"EV-DAMAGE-1\",\n    \"source\": \"damage_claim\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver claims a cleaning fee of SGD 40.00 for damage on this trip.\",\n    \"derived\": {\n      \"claimed_fee\": \"40.00\",\n      \"currency\": \"SGD\",\n      \"cap\": \"50.00\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-TRIP-1\",\n    \"source\": \"trip\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": \"2026-09-14T10:05:00+08:00\",\n    \"status\": \"available\",\n    \"content\": {\n      \"scheduled_time\": \"2026-09-14T09:40:00+08:00\",\n      \"completion_time\": \"2026-09-14T10:05:00+08:00\",\n      \"pickup\": \"Raffles Place MRT\",\n      \"dropoff\": \"Changi Business Park\"\n    },\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-CHAT-1\",\n    \"source\": \"chat\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": [\n      {\n        \"timestamp\": \"2026-09-14T10:00:30+08:00\",\n        \"sender\": \"driver\",\n        \"type\": \"message\",\n        \"content\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n      },\n      {\n        \"timestamp\": \"2026-09-14T10:00:55+08:00\",\n        \"sender\": \"rider\",\n        \"type\": \"message\",\n        \"content\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n      }\n    ],\n    \"derived\": {\n      \"driver_messages\": 1,\n      \"driver_calls\": 0,\n      \"rider_messages\": 1\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACTS-RIDER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"rider\",\n    \"timestamp\": null,\n    \"status\": \"missing\",\n    \"content\": \"The rider evidence agent could not read the messages: StubModel has no scripted reply for case CASE-0001, agent rider_evidence_agent.\",\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACTS-DRIVER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"missing\",\n    \"content\": \"The driver evidence agent could not read the messages: StubModel has no scripted reply for case CASE-0001, agent driver_evidence_agent.\",\n    \"derived\": {},\n    \"conflicts_with\": []\n  }\n]\n\nPolicy clauses (cite by clause_id):\n[\n  {\n    \"clause_id\": \"R-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Take reasonable care of the vehicle and report damage, spills or cleanliness concerns with a clear description and relevant evidence when available. Any charge or responsibility requires a separate review.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  },\n  {\n    \"clause_id\": \"D-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Keep the vehicle fit and reasonably clean for service. Document a damage or cleanliness concern with relevant trip context and evidence where available; a report alone does not establish responsibility.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  }\n]\n\nArguments to assess, each exactly once, by ref:\n- rider_advocate#claim (rider_advocate): The rider asks that no cleaning fee be charged unless the driver shows the rider caused damage that justifies the amount claimed.\n- rider_advocate#counter-1 (rider_advocate): The driver reported the stain during the trip.\n- driver_advocate#claim (driver_advocate): The driver reports a stain on the rear seat left by the rider and asks for the SGD 40.00 cleaning fee. The photo supports a stain on the seat.\n- driver_advocate#counter-1 (driver_advocate): The rider says they did not cause the damage or that it was small.\n\nSubmission A:\n{\n  \"author\": \"rider_advocate\",\n  \"claim_restated\": \"The rider asks that no cleaning fee be charged unless the driver shows the rider caused damage that justifies the amount claimed.\",\n  \"facts_relied_on\": [\n    \"EV-DAMAGE-1\",\n    \"EV-CHAT-1\"\n  ],\n  \"missing_evidence_ids\": [],\n  \"counter_arguments\": [\n    {\n      \"argument\": \"The driver reported the stain during the trip.\",\n      \"response\": \"A report alone does not establish who is responsible or what it should cost to clean (R-07, D-07).\"\n    }\n  ],\n  \"policy_clause_ids\": [\n    \"R-07\"\n  ],\n  \"requested_outcome\": \"Reject the cleaning fee claim.\"\n}\n\nSubmission B:\n{\n  \"author\": \"driver_advocate\",\n  \"claim_restated\": \"The driver reports a stain on the rear seat left by the rider and asks for the SGD 40.00 cleaning fee. The photo supports a stain on the seat.\",\n  \"facts_relied_on\": [\n    \"EV-DAMAGE-1\",\n    \"EV-CHAT-1\"\n  ],\n  \"missing_evidence_ids\": [],\n  \"counter_arguments\": [\n    {\n      \"argument\": \"The rider says they did not cause the damage or that it was small.\",\n      \"response\": \"The chat shows the driver raised the stain during the trip and asked for it to be cleaned.\"\n    }\n  ],\n  \"policy_clause_ids\": [\n    \"D-07\"\n  ],\n  \"requested_outcome\": \"Charge the rider the cleaning fee claimed.\"\n}"
+          "content": "Dispute:\n{\n  \"dispute_id\": \"DISP-012\",\n  \"trip_id\": \"TRIP-2026-09971\",\n  \"filed_by\": \"driver\",\n  \"category\": \"property_damage\",\n  \"description\": \"There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n  \"requested_remedy\": \"Charge the rider the SGD 40.00 cleaning fee\",\n  \"filed_at\": \"2026-09-14T11:00:00+08:00\",\n  \"photos\": [\n    \"data/photos/seat-stain-old.png\"\n  ],\n  \"driver_statement\": null\n}\n\nEvidence (sealed, version CASE-0001-evidence-v1):\n[\n  {\n    \"evidence_id\": \"EV-DAMAGE-1\",\n    \"source\": \"damage_claim\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver claims a cleaning fee of SGD 40.00 for damage on this trip.\",\n    \"derived\": {\n      \"claimed_fee\": \"40.00\",\n      \"currency\": \"SGD\",\n      \"cap\": \"50.00\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-TRIP-1\",\n    \"source\": \"trip\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": \"2026-09-14T10:05:00+08:00\",\n    \"status\": \"available\",\n    \"content\": {\n      \"scheduled_time\": \"2026-09-14T09:40:00+08:00\",\n      \"completion_time\": \"2026-09-14T10:05:00+08:00\",\n      \"pickup\": \"Raffles Place MRT\",\n      \"dropoff\": \"Changi Business Park\"\n    },\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-CHAT-1\",\n    \"source\": \"chat\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": [\n      {\n        \"timestamp\": \"2026-09-14T10:00:30+08:00\",\n        \"sender\": \"driver\",\n        \"type\": \"message\",\n        \"content\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n      },\n      {\n        \"timestamp\": \"2026-09-14T10:00:55+08:00\",\n        \"sender\": \"rider\",\n        \"type\": \"message\",\n        \"content\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n      }\n    ],\n    \"derived\": {\n      \"driver_messages\": 1,\n      \"driver_calls\": 0,\n      \"rider_messages\": 1\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-RIDER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"rider\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The rider wrote in the chat at 10:00: \\\"That stain was already on the seat when I got in. I did not spill anything.\\\"\",\n    \"derived\": {\n      \"message_ref\": \"EV-CHAT-1#2\",\n      \"quote\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-DRIVER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver wrote in the chat at 10:00: \\\"There is a stain on the rear seat. I will have to charge a cleaning fee.\\\"\",\n    \"derived\": {\n      \"message_ref\": \"EV-CHAT-1#1\",\n      \"quote\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-DRIVER-2\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"In the filed report the driver says: There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n    \"derived\": {\n      \"message_ref\": \"DISPUTE#description\",\n      \"quote\": \"There is a stain on the rear seat after this trip and it needs cleaning\"\n    },\n    \"conflicts_with\": []\n  }\n]\n\nPolicy clauses (cite by clause_id):\n[\n  {\n    \"clause_id\": \"R-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Take reasonable care of the vehicle and report damage, spills or cleanliness concerns with a clear description and relevant evidence when available. Any charge or responsibility requires a separate review.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  },\n  {\n    \"clause_id\": \"D-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Keep the vehicle fit and reasonably clean for service. Document a damage or cleanliness concern with relevant trip context and evidence where available; a report alone does not establish responsibility.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  }\n]\n\nArguments to assess, each exactly once, by ref:\n- rider_advocate#claim (rider_advocate): The rider asks that no cleaning fee be charged unless the driver shows the rider caused damage that justifies the amount claimed.\n- rider_advocate#counter-1 (rider_advocate): The driver reported the stain during the trip.\n- driver_advocate#claim (driver_advocate): The driver reports a stain on the rear seat left by the rider and asks for the SGD 40.00 cleaning fee. The photo supports a stain on the seat.\n- driver_advocate#counter-1 (driver_advocate): The rider says they did not cause the damage or that it was small.\n\nSubmission A:\n{\n  \"author\": \"rider_advocate\",\n  \"claim_restated\": \"The rider asks that no cleaning fee be charged unless the driver shows the rider caused damage that justifies the amount claimed.\",\n  \"facts_relied_on\": [\n    \"EV-DAMAGE-1\",\n    \"EV-CHAT-1\"\n  ],\n  \"missing_evidence_ids\": [],\n  \"counter_arguments\": [\n    {\n      \"argument\": \"The driver reported the stain during the trip.\",\n      \"response\": \"A report alone does not establish who is responsible or what it should cost to clean (R-07, D-07).\"\n    }\n  ],\n  \"policy_clause_ids\": [\n    \"R-07\"\n  ],\n  \"requested_outcome\": \"Reject the cleaning fee claim.\"\n}\n\nSubmission B:\n{\n  \"author\": \"driver_advocate\",\n  \"claim_restated\": \"The driver reports a stain on the rear seat left by the rider and asks for the SGD 40.00 cleaning fee. The photo supports a stain on the seat.\",\n  \"facts_relied_on\": [\n    \"EV-DAMAGE-1\",\n    \"EV-CHAT-1\"\n  ],\n  \"missing_evidence_ids\": [],\n  \"counter_arguments\": [\n    {\n      \"argument\": \"The rider says they did not cause the damage or that it was small.\",\n      \"response\": \"The chat shows the driver raised the stain during the trip and asked for it to be cleaned.\"\n    }\n  ],\n  \"policy_clause_ids\": [\n    \"D-07\"\n  ],\n  \"requested_outcome\": \"Charge the rider the cleaning fee claimed.\"\n}"
         }
       ],
       "reply": "{\"outcome\":\"reject\",\"balance_of_evidence\":\"respondent\",\"remedy\":\"no_action\",\"argument_assessments\":[{\"ref\":\"rider_advocate#claim\",\"verdict\":\"accepted\",\"reason\":\"No damage on this trip is shown.\",\"evidence_ids\":[\"EV-CHAT-1\"]},{\"ref\":\"rider_advocate#counter-1\",\"verdict\":\"accepted\",\"reason\":\"A report alone does not establish who caused the stain.\",\"evidence_ids\":[\"EV-CHAT-1\"]},{\"ref\":\"driver_advocate#claim\",\"verdict\":\"unproven\",\"reason\":\"The rider denies causing the stain and nothing here shows it happened on this trip.\",\"evidence_ids\":[\"EV-CHAT-1\"]},{\"ref\":\"driver_advocate#counter-1\",\"verdict\":\"accepted\",\"reason\":\"The driver's report alone does not establish who caused the stain.\",\"evidence_ids\":[\"EV-CHAT-1\"]}],\"policy_fit\":\"arguable\",\"policy_fit_reason\":\"R-07 and D-07 say a report alone does not establish responsibility and that a charge needs review; they set no amount, so the cleaning fee uses the code rule in ADR 0005.\",\"cited_evidence_ids\":[\"EV-DAMAGE-1\",\"EV-CHAT-1\"],\"cited_policy_clause_ids\":[\"R-07\",\"D-07\"],\"cited_precedent_ids\":[],\"precedent_departure\":null,\"amount_input_evidence_ids\":[],\"own_findings\":[],\"policy_gap\":null,\"reasoning_summary\":\"The rider says the stain was already there, and a driver's report alone does not establish who caused it (R-07, D-07). The claim is not made out.\"}",
@@ -696,7 +717,7 @@
       "agent": "judge_self_check",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.531162Z",
+      "started_at": "2026-10-12T18:06:51.462957Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -705,7 +726,7 @@
         },
         {
           "role": "user",
-          "content": "Evidence (sealed):\n[\n  {\n    \"evidence_id\": \"EV-DAMAGE-1\",\n    \"source\": \"damage_claim\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver claims a cleaning fee of SGD 40.00 for damage on this trip.\",\n    \"derived\": {\n      \"claimed_fee\": \"40.00\",\n      \"currency\": \"SGD\",\n      \"cap\": \"50.00\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-TRIP-1\",\n    \"source\": \"trip\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": \"2026-09-14T10:05:00+08:00\",\n    \"status\": \"available\",\n    \"content\": {\n      \"scheduled_time\": \"2026-09-14T09:40:00+08:00\",\n      \"completion_time\": \"2026-09-14T10:05:00+08:00\",\n      \"pickup\": \"Raffles Place MRT\",\n      \"dropoff\": \"Changi Business Park\"\n    },\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-CHAT-1\",\n    \"source\": \"chat\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": [\n      {\n        \"timestamp\": \"2026-09-14T10:00:30+08:00\",\n        \"sender\": \"driver\",\n        \"type\": \"message\",\n        \"content\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n      },\n      {\n        \"timestamp\": \"2026-09-14T10:00:55+08:00\",\n        \"sender\": \"rider\",\n        \"type\": \"message\",\n        \"content\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n      }\n    ],\n    \"derived\": {\n      \"driver_messages\": 1,\n      \"driver_calls\": 0,\n      \"rider_messages\": 1\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACTS-RIDER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"rider\",\n    \"timestamp\": null,\n    \"status\": \"missing\",\n    \"content\": \"The rider evidence agent could not read the messages: StubModel has no scripted reply for case CASE-0001, agent rider_evidence_agent.\",\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACTS-DRIVER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"missing\",\n    \"content\": \"The driver evidence agent could not read the messages: StubModel has no scripted reply for case CASE-0001, agent driver_evidence_agent.\",\n    \"derived\": {},\n    \"conflicts_with\": []\n  }\n]\n\nDraft claims:\n{\n  \"reasoning_summary\": \"The rider says the stain was already there, and a driver's report alone does not establish who caused it (R-07, D-07). The claim is not made out.\",\n  \"cited_evidence_ids\": [\n    \"EV-DAMAGE-1\",\n    \"EV-CHAT-1\"\n  ],\n  \"argument_assessments\": [\n    {\n      \"ref\": \"rider_advocate#claim\",\n      \"verdict\": \"accepted\",\n      \"reason\": \"No damage on this trip is shown.\",\n      \"evidence_ids\": [\n        \"EV-CHAT-1\"\n      ]\n    },\n    {\n      \"ref\": \"rider_advocate#counter-1\",\n      \"verdict\": \"accepted\",\n      \"reason\": \"A report alone does not establish who caused the stain.\",\n      \"evidence_ids\": [\n        \"EV-CHAT-1\"\n      ]\n    },\n    {\n      \"ref\": \"driver_advocate#claim\",\n      \"verdict\": \"unproven\",\n      \"reason\": \"The rider denies causing the stain and nothing here shows it happened on this trip.\",\n      \"evidence_ids\": [\n        \"EV-CHAT-1\"\n      ]\n    },\n    {\n      \"ref\": \"driver_advocate#counter-1\",\n      \"verdict\": \"accepted\",\n      \"reason\": \"The driver's report alone does not establish who caused the stain.\",\n      \"evidence_ids\": [\n        \"EV-CHAT-1\"\n      ]\n    }\n  ],\n  \"own_findings\": []\n}"
+          "content": "Evidence (sealed):\n[\n  {\n    \"evidence_id\": \"EV-DAMAGE-1\",\n    \"source\": \"damage_claim\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver claims a cleaning fee of SGD 40.00 for damage on this trip.\",\n    \"derived\": {\n      \"claimed_fee\": \"40.00\",\n      \"currency\": \"SGD\",\n      \"cap\": \"50.00\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-TRIP-1\",\n    \"source\": \"trip\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": \"2026-09-14T10:05:00+08:00\",\n    \"status\": \"available\",\n    \"content\": {\n      \"scheduled_time\": \"2026-09-14T09:40:00+08:00\",\n      \"completion_time\": \"2026-09-14T10:05:00+08:00\",\n      \"pickup\": \"Raffles Place MRT\",\n      \"dropoff\": \"Changi Business Park\"\n    },\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-CHAT-1\",\n    \"source\": \"chat\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": [\n      {\n        \"timestamp\": \"2026-09-14T10:00:30+08:00\",\n        \"sender\": \"driver\",\n        \"type\": \"message\",\n        \"content\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n      },\n      {\n        \"timestamp\": \"2026-09-14T10:00:55+08:00\",\n        \"sender\": \"rider\",\n        \"type\": \"message\",\n        \"content\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n      }\n    ],\n    \"derived\": {\n      \"driver_messages\": 1,\n      \"driver_calls\": 0,\n      \"rider_messages\": 1\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-RIDER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"rider\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The rider wrote in the chat at 10:00: \\\"That stain was already on the seat when I got in. I did not spill anything.\\\"\",\n    \"derived\": {\n      \"message_ref\": \"EV-CHAT-1#2\",\n      \"quote\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-DRIVER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver wrote in the chat at 10:00: \\\"There is a stain on the rear seat. I will have to charge a cleaning fee.\\\"\",\n    \"derived\": {\n      \"message_ref\": \"EV-CHAT-1#1\",\n      \"quote\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-DRIVER-2\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"In the filed report the driver says: There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n    \"derived\": {\n      \"message_ref\": \"DISPUTE#description\",\n      \"quote\": \"There is a stain on the rear seat after this trip and it needs cleaning\"\n    },\n    \"conflicts_with\": []\n  }\n]\n\nDraft claims:\n{\n  \"reasoning_summary\": \"The rider says the stain was already there, and a driver's report alone does not establish who caused it (R-07, D-07). The claim is not made out.\",\n  \"cited_evidence_ids\": [\n    \"EV-DAMAGE-1\",\n    \"EV-CHAT-1\"\n  ],\n  \"argument_assessments\": [\n    {\n      \"ref\": \"rider_advocate#claim\",\n      \"verdict\": \"accepted\",\n      \"reason\": \"No damage on this trip is shown.\",\n      \"evidence_ids\": [\n        \"EV-CHAT-1\"\n      ]\n    },\n    {\n      \"ref\": \"rider_advocate#counter-1\",\n      \"verdict\": \"accepted\",\n      \"reason\": \"A report alone does not establish who caused the stain.\",\n      \"evidence_ids\": [\n        \"EV-CHAT-1\"\n      ]\n    },\n    {\n      \"ref\": \"driver_advocate#claim\",\n      \"verdict\": \"unproven\",\n      \"reason\": \"The rider denies causing the stain and nothing here shows it happened on this trip.\",\n      \"evidence_ids\": [\n        \"EV-CHAT-1\"\n      ]\n    },\n    {\n      \"ref\": \"driver_advocate#counter-1\",\n      \"verdict\": \"accepted\",\n      \"reason\": \"The driver's report alone does not establish who caused the stain.\",\n      \"evidence_ids\": [\n        \"EV-CHAT-1\"\n      ]\n    }\n  ],\n  \"own_findings\": []\n}"
         }
       ],
       "reply": "{\"supported\":true,\"problems\":[]}",
@@ -718,7 +739,7 @@
       "agent": "judge_second_pass",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:03:53.533879Z",
+      "started_at": "2026-10-12T18:06:51.463932Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -727,7 +748,7 @@
         },
         {
           "role": "user",
-          "content": "Dispute:\n{\n  \"dispute_id\": \"DISP-012\",\n  \"trip_id\": \"TRIP-2026-09971\",\n  \"filed_by\": \"driver\",\n  \"category\": \"property_damage\",\n  \"description\": \"There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n  \"requested_remedy\": \"Charge the rider the SGD 40.00 cleaning fee\",\n  \"filed_at\": \"2026-09-14T11:00:00+08:00\",\n  \"photos\": [\n    \"data/photos/seat-stain-old.png\"\n  ],\n  \"driver_statement\": null\n}\n\nEvidence (sealed, version CASE-0001-evidence-v1):\n[\n  {\n    \"evidence_id\": \"EV-DAMAGE-1\",\n    \"source\": \"damage_claim\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver claims a cleaning fee of SGD 40.00 for damage on this trip.\",\n    \"derived\": {\n      \"claimed_fee\": \"40.00\",\n      \"currency\": \"SGD\",\n      \"cap\": \"50.00\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-TRIP-1\",\n    \"source\": \"trip\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": \"2026-09-14T10:05:00+08:00\",\n    \"status\": \"available\",\n    \"content\": {\n      \"scheduled_time\": \"2026-09-14T09:40:00+08:00\",\n      \"completion_time\": \"2026-09-14T10:05:00+08:00\",\n      \"pickup\": \"Raffles Place MRT\",\n      \"dropoff\": \"Changi Business Park\"\n    },\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-CHAT-1\",\n    \"source\": \"chat\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": [\n      {\n        \"timestamp\": \"2026-09-14T10:00:30+08:00\",\n        \"sender\": \"driver\",\n        \"type\": \"message\",\n        \"content\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n      },\n      {\n        \"timestamp\": \"2026-09-14T10:00:55+08:00\",\n        \"sender\": \"rider\",\n        \"type\": \"message\",\n        \"content\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n      }\n    ],\n    \"derived\": {\n      \"driver_messages\": 1,\n      \"driver_calls\": 0,\n      \"rider_messages\": 1\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACTS-RIDER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"rider\",\n    \"timestamp\": null,\n    \"status\": \"missing\",\n    \"content\": \"The rider evidence agent could not read the messages: StubModel has no scripted reply for case CASE-0001, agent rider_evidence_agent.\",\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACTS-DRIVER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"missing\",\n    \"content\": \"The driver evidence agent could not read the messages: StubModel has no scripted reply for case CASE-0001, agent driver_evidence_agent.\",\n    \"derived\": {},\n    \"conflicts_with\": []\n  }\n]\n\nPolicy clauses (cite by clause_id):\n[\n  {\n    \"clause_id\": \"R-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Take reasonable care of the vehicle and report damage, spills or cleanliness concerns with a clear description and relevant evidence when available. Any charge or responsibility requires a separate review.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  },\n  {\n    \"clause_id\": \"D-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Keep the vehicle fit and reasonably clean for service. Document a damage or cleanliness concern with relevant trip context and evidence where available; a report alone does not establish responsibility.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  }\n]\n\nArguments to assess, each exactly once, by ref:\n- driver_advocate#claim (driver_advocate): The driver reports a stain on the rear seat left by the rider and asks for the SGD 40.00 cleaning fee. The photo supports a stain on the seat.\n- driver_advocate#counter-1 (driver_advocate): The rider says they did not cause the damage or that it was small.\n- rider_advocate#claim (rider_advocate): The rider asks that no cleaning fee be charged unless the driver shows the rider caused damage that justifies the amount claimed.\n- rider_advocate#counter-1 (rider_advocate): The driver reported the stain during the trip.\n\nSubmission A:\n{\n  \"author\": \"driver_advocate\",\n  \"claim_restated\": \"The driver reports a stain on the rear seat left by the rider and asks for the SGD 40.00 cleaning fee. The photo supports a stain on the seat.\",\n  \"facts_relied_on\": [\n    \"EV-DAMAGE-1\",\n    \"EV-CHAT-1\"\n  ],\n  \"missing_evidence_ids\": [],\n  \"counter_arguments\": [\n    {\n      \"argument\": \"The rider says they did not cause the damage or that it was small.\",\n      \"response\": \"The chat shows the driver raised the stain during the trip and asked for it to be cleaned.\"\n    }\n  ],\n  \"policy_clause_ids\": [\n    \"D-07\"\n  ],\n  \"requested_outcome\": \"Charge the rider the cleaning fee claimed.\"\n}\n\nSubmission B:\n{\n  \"author\": \"rider_advocate\",\n  \"claim_restated\": \"The rider asks that no cleaning fee be charged unless the driver shows the rider caused damage that justifies the amount claimed.\",\n  \"facts_relied_on\": [\n    \"EV-DAMAGE-1\",\n    \"EV-CHAT-1\"\n  ],\n  \"missing_evidence_ids\": [],\n  \"counter_arguments\": [\n    {\n      \"argument\": \"The driver reported the stain during the trip.\",\n      \"response\": \"A report alone does not establish who is responsible or what it should cost to clean (R-07, D-07).\"\n    }\n  ],\n  \"policy_clause_ids\": [\n    \"R-07\"\n  ],\n  \"requested_outcome\": \"Reject the cleaning fee claim.\"\n}"
+          "content": "Dispute:\n{\n  \"dispute_id\": \"DISP-012\",\n  \"trip_id\": \"TRIP-2026-09971\",\n  \"filed_by\": \"driver\",\n  \"category\": \"property_damage\",\n  \"description\": \"There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n  \"requested_remedy\": \"Charge the rider the SGD 40.00 cleaning fee\",\n  \"filed_at\": \"2026-09-14T11:00:00+08:00\",\n  \"photos\": [\n    \"data/photos/seat-stain-old.png\"\n  ],\n  \"driver_statement\": null\n}\n\nEvidence (sealed, version CASE-0001-evidence-v1):\n[\n  {\n    \"evidence_id\": \"EV-DAMAGE-1\",\n    \"source\": \"damage_claim\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver claims a cleaning fee of SGD 40.00 for damage on this trip.\",\n    \"derived\": {\n      \"claimed_fee\": \"40.00\",\n      \"currency\": \"SGD\",\n      \"cap\": \"50.00\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-TRIP-1\",\n    \"source\": \"trip\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": \"2026-09-14T10:05:00+08:00\",\n    \"status\": \"available\",\n    \"content\": {\n      \"scheduled_time\": \"2026-09-14T09:40:00+08:00\",\n      \"completion_time\": \"2026-09-14T10:05:00+08:00\",\n      \"pickup\": \"Raffles Place MRT\",\n      \"dropoff\": \"Changi Business Park\"\n    },\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-CHAT-1\",\n    \"source\": \"chat\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"shared\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": [\n      {\n        \"timestamp\": \"2026-09-14T10:00:30+08:00\",\n        \"sender\": \"driver\",\n        \"type\": \"message\",\n        \"content\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n      },\n      {\n        \"timestamp\": \"2026-09-14T10:00:55+08:00\",\n        \"sender\": \"rider\",\n        \"type\": \"message\",\n        \"content\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n      }\n    ],\n    \"derived\": {\n      \"driver_messages\": 1,\n      \"driver_calls\": 0,\n      \"rider_messages\": 1\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-RIDER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"rider\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The rider wrote in the chat at 10:00: \\\"That stain was already on the seat when I got in. I did not spill anything.\\\"\",\n    \"derived\": {\n      \"message_ref\": \"EV-CHAT-1#2\",\n      \"quote\": \"That stain was already on the seat when I got in. I did not spill anything.\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-DRIVER-1\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver wrote in the chat at 10:00: \\\"There is a stain on the rear seat. I will have to charge a cleaning fee.\\\"\",\n    \"derived\": {\n      \"message_ref\": \"EV-CHAT-1#1\",\n      \"quote\": \"There is a stain on the rear seat. I will have to charge a cleaning fee.\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-FACT-DRIVER-2\",\n    \"source\": \"extracted_fact\",\n    \"trip_id\": \"TRIP-2026-09971\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"In the filed report the driver says: There is a stain on the rear seat after this trip and it needs cleaning. I am asking for the $40.00 cleaning fee.\",\n    \"derived\": {\n      \"message_ref\": \"DISPUTE#description\",\n      \"quote\": \"There is a stain on the rear seat after this trip and it needs cleaning\"\n    },\n    \"conflicts_with\": []\n  }\n]\n\nPolicy clauses (cite by clause_id):\n[\n  {\n    \"clause_id\": \"R-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Take reasonable care of the vehicle and report damage, spills or cleanliness concerns with a clear description and relevant evidence when available. Any charge or responsibility requires a separate review.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  },\n  {\n    \"clause_id\": \"D-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Keep the vehicle fit and reasonably clean for service. Document a damage or cleanliness concern with relevant trip context and evidence where available; a report alone does not establish responsibility.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  }\n]\n\nArguments to assess, each exactly once, by ref:\n- driver_advocate#claim (driver_advocate): The driver reports a stain on the rear seat left by the rider and asks for the SGD 40.00 cleaning fee. The photo supports a stain on the seat.\n- driver_advocate#counter-1 (driver_advocate): The rider says they did not cause the damage or that it was small.\n- rider_advocate#claim (rider_advocate): The rider asks that no cleaning fee be charged unless the driver shows the rider caused damage that justifies the amount claimed.\n- rider_advocate#counter-1 (rider_advocate): The driver reported the stain during the trip.\n\nSubmission A:\n{\n  \"author\": \"driver_advocate\",\n  \"claim_restated\": \"The driver reports a stain on the rear seat left by the rider and asks for the SGD 40.00 cleaning fee. The photo supports a stain on the seat.\",\n  \"facts_relied_on\": [\n    \"EV-DAMAGE-1\",\n    \"EV-CHAT-1\"\n  ],\n  \"missing_evidence_ids\": [],\n  \"counter_arguments\": [\n    {\n      \"argument\": \"The rider says they did not cause the damage or that it was small.\",\n      \"response\": \"The chat shows the driver raised the stain during the trip and asked for it to be cleaned.\"\n    }\n  ],\n  \"policy_clause_ids\": [\n    \"D-07\"\n  ],\n  \"requested_outcome\": \"Charge the rider the cleaning fee claimed.\"\n}\n\nSubmission B:\n{\n  \"author\": \"rider_advocate\",\n  \"claim_restated\": \"The rider asks that no cleaning fee be charged unless the driver shows the rider caused damage that justifies the amount claimed.\",\n  \"facts_relied_on\": [\n    \"EV-DAMAGE-1\",\n    \"EV-CHAT-1\"\n  ],\n  \"missing_evidence_ids\": [],\n  \"counter_arguments\": [\n    {\n      \"argument\": \"The driver reported the stain during the trip.\",\n      \"response\": \"A report alone does not establish who is responsible or what it should cost to clean (R-07, D-07).\"\n    }\n  ],\n  \"policy_clause_ids\": [\n    \"R-07\"\n  ],\n  \"requested_outcome\": \"Reject the cleaning fee claim.\"\n}"
         }
       ],
       "reply": null,

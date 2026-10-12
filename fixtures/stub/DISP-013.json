@@ -94,5 +94,28 @@
   "judge_self_check": {
     "supported": true,
     "problems": []
+  },
+  "rider_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#2",
+        "quote": "A few drops of coffee spilled and I wiped most of it. It was not a big stain.",
+        "fact": "The rider wrote in the chat at 10:00: \"A few drops of coffee spilled and I wiped most of it. It was not a big stain.\""
+      }
+    ]
+  },
+  "driver_evidence_agent": {
+    "facts": [
+      {
+        "source_ref": "EV-CHAT-1#1",
+        "quote": "There is a stain on the rear seat from your drink.",
+        "fact": "The driver wrote in the chat at 10:00: \"There is a stain on the rear seat from your drink.\""
+      },
+      {
+        "source_ref": "DISPUTE#description",
+        "quote": "The rider left a large stain across the whole rear seat",
+        "fact": "In the filed report the driver says: The rider left a large stain across the whole rear seat. I am asking for the $40.00 cleaning fee."
+      }
+    ]
   }
 }
