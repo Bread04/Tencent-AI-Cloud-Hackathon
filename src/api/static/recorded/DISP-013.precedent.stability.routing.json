@@ -14,7 +14,7 @@
       ],
       "driver_statement": null
     },
-    "status": "pending_review",
+    "status": "notified",
     "priority": 44,
     "priority_reason": "property damage (+40); amount 40.00 (+4)",
     "switches": {
@@ -180,7 +180,7 @@
       }
     ],
     "ruling": {
-      "status": "proposal",
+      "status": "final",
       "outcome": "partially_uphold",
       "balance_of_evidence": "claimant",
       "remedy": "compensation_to_driver",
@@ -247,12 +247,12 @@
       "cited_precedent_ids": [],
       "reasoning_summary": "The rider admits a small spill, so some cleaning was needed, but the extent claimed is not shown. Partly uphold at half the fee.",
       "confidence": {
-        "value": 0.5,
+        "value": 0.75,
         "components": {
           "policy_fit": 0.75,
           "evidence_completeness": 0.75,
           "consistency": 0.95,
-          "stability": 0.5
+          "stability": 0.95
         }
       },
       "history_adjustments": [],
@@ -284,37 +284,28 @@
           ]
         }
       ],
-      "review_triggers": [
-        {
-          "trigger": "stability_disagreement",
-          "reason": "The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias."
-        },
-        {
-          "trigger": "low_confidence",
-          "reason": "Calculated confidence 0.5 is below the configured threshold 0.7."
-        }
-      ]
+      "review_triggers": []
     },
     "outcomes": [
       {
         "party": "rider",
-        "ruling_summary": "Your dispute is under review by a person. A decision is pending, and you will be told the outcome when the review is complete.",
-        "action_status": "pending_review"
+        "ruling_summary": "The driver's claim was partly upheld. A cleaning fee of SGD 20.00 is recommended, not charged by this system. Reason: The rider admits a small spill, so some cleaning was needed, but the extent claimed is not shown. Partly uphold at half the fee.",
+        "action_status": "recommended"
       },
       {
         "party": "driver",
-        "ruling_summary": "Your dispute is under review by a person. A decision is pending, and you will be told the outcome when the review is complete.",
-        "action_status": "pending_review"
+        "ruling_summary": "Your claim was partly upheld. A cleaning fee of SGD 20.00 is recommended, not charged by this system. Reason: The rider admits a small spill, so some cleaning was needed, but the extent claimed is not shown. Partly uphold at half the fee.",
+        "action_status": "recommended"
       }
     ],
     "review_record": null,
-    "created_at": "2026-10-12T18:06:52.124162Z",
-    "updated_at": "2026-10-12T18:06:52.130217Z"
+    "created_at": "2026-10-13T05:16:25.845080Z",
+    "updated_at": "2026-10-13T05:16:25.850664Z"
   },
   "log": [
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.124162Z",
+      "timestamp": "2026-10-13T05:16:25.845080Z",
       "agent": "intake",
       "kind": "case_filed",
       "summary": "Driver filed a property_damage Dispute on trip TRIP-2026-09972.",
@@ -325,7 +316,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.124329Z",
+      "timestamp": "2026-10-13T05:16:25.845224Z",
       "agent": "intake",
       "kind": "priority_set",
       "summary": "Priority set to 44: property damage (+40); amount 40.00 (+4)",
@@ -333,7 +324,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.124402Z",
+      "timestamp": "2026-10-13T05:16:25.845298Z",
       "agent": "orchestrator",
       "kind": "evidence_requested",
       "summary": "Requested GPS, chat, fare and History evidence for trip TRIP-2026-09972.",
@@ -343,7 +334,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.124511Z",
+      "timestamp": "2026-10-13T05:16:25.845388Z",
       "agent": "evidence",
       "kind": "evidence_returned",
       "summary": "4 Evidence Item(s) returned, 0 marked missing.",
@@ -356,7 +347,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.124623Z",
+      "timestamp": "2026-10-13T05:16:25.845493Z",
       "agent": "orchestrator",
       "kind": "evidence_sealed",
       "summary": "Evidence set sealed as CASE-0001-evidence-v1 with 4 item(s).",
@@ -366,7 +357,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.124962Z",
+      "timestamp": "2026-10-13T05:16:25.845810Z",
       "agent": "policy",
       "kind": "policy_retrieved",
       "summary": "2 applicable Policy Clause(s) retrieved.",
@@ -377,7 +368,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.125635Z",
+      "timestamp": "2026-10-13T05:16:25.846376Z",
       "agent": "policy",
       "kind": "precedent_retrieved",
       "summary": "No precedent found for this Case.",
@@ -385,7 +376,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.126288Z",
+      "timestamp": "2026-10-13T05:16:25.847582Z",
       "agent": "rider_advocate",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -393,7 +384,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.126646Z",
+      "timestamp": "2026-10-13T05:16:25.847832Z",
       "agent": "driver_advocate",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -401,7 +392,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.127057Z",
+      "timestamp": "2026-10-13T05:16:25.848166Z",
       "agent": "rider_advocate",
       "kind": "submission_filed",
       "summary": "Submission filed: Reject the cleaning fee claim.",
@@ -413,7 +404,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.127202Z",
+      "timestamp": "2026-10-13T05:16:25.848289Z",
       "agent": "driver_advocate",
       "kind": "submission_filed",
       "summary": "Submission filed: Charge the rider the cleaning fee claimed.",
@@ -425,7 +416,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.127601Z",
+      "timestamp": "2026-10-13T05:16:25.848726Z",
       "agent": "judge",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -433,7 +424,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.127924Z",
+      "timestamp": "2026-10-13T05:16:25.849064Z",
       "agent": "judge_self_check",
       "kind": "model_call",
       "summary": "Call 1 on scripted replies replied in 0.0s",
@@ -441,7 +432,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.128062Z",
+      "timestamp": "2026-10-13T05:16:25.849157Z",
       "agent": "judge",
       "kind": "self_check_passed",
       "summary": "Self-check passed: each cited item supports the claim made about it.",
@@ -449,7 +440,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.128191Z",
+      "timestamp": "2026-10-13T05:16:25.849251Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "rider_advocate#claim: accepted. Only a small spill is admitted.",
@@ -459,7 +450,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.128311Z",
+      "timestamp": "2026-10-13T05:16:25.849331Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "rider_advocate#counter-1: accepted. The rider is right that the extent of the damage is not shown by the chat.",
@@ -469,7 +460,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.128428Z",
+      "timestamp": "2026-10-13T05:16:25.849409Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "driver_advocate#claim: accepted. The rider admits some spill.",
@@ -479,7 +470,7 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.128547Z",
+      "timestamp": "2026-10-13T05:16:25.849491Z",
       "agent": "judge",
       "kind": "argument_assessed",
       "summary": "driver_advocate#counter-1: accepted. The extent claimed is not shown.",
@@ -489,26 +480,26 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.129017Z",
+      "timestamp": "2026-10-13T05:16:25.849738Z",
       "agent": "judge_second_pass",
       "kind": "model_call",
-      "summary": "Call 1 on scripted replies failed after 0.0s: StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.",
+      "summary": "Call 1 on scripted replies replied in 0.0s",
       "references": []
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.129161Z",
+      "timestamp": "2026-10-13T05:16:25.849964Z",
       "agent": "judge",
       "kind": "stability_check",
-      "summary": "Stability check: The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias.",
+      "summary": "Stability check: Both passes agree: partially_uphold at 0.75, then partially_uphold at 0.75 with the Submissions in the other order (margin 0.1).",
       "references": []
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.129493Z",
+      "timestamp": "2026-10-13T05:16:25.850246Z",
       "agent": "judge",
       "kind": "ruling_drafted",
-      "summary": "Proposal recorded: no final decision or payment authorization. Pending review: stability_disagreement: The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias.; low_confidence: Calculated confidence 0.5 is below the configured threshold 0.7.",
+      "summary": "Ruling (final): partially_uphold, compensation_to_driver SGD 20.00.",
       "references": [
         "EV-DAMAGE-1",
         "EV-CHAT-1",
@@ -518,29 +509,18 @@
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.129682Z",
-      "agent": "escalation",
-      "kind": "escalated",
-      "summary": "Sent to a Human Reviewer: The second pass could not be completed (StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.), so the ruling was not checked for order bias.; Calculated confidence 0.5 is below the configured threshold 0.7.",
-      "references": [
-        "stability_disagreement",
-        "low_confidence"
-      ]
-    },
-    {
-      "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.130029Z",
+      "timestamp": "2026-10-13T05:16:25.850520Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
-      "summary": "Outcome sent to the rider (pending_review).",
+      "summary": "Outcome sent to the rider (recommended).",
       "references": []
     },
     {
       "case_id": "CASE-0001",
-      "timestamp": "2026-10-12T18:06:52.130217Z",
+      "timestamp": "2026-10-13T05:16:25.850664Z",
       "agent": "orchestrator",
       "kind": "outcome_sent",
-      "summary": "Outcome sent to the driver (pending_review).",
+      "summary": "Outcome sent to the driver (recommended).",
       "references": []
     }
   ],
@@ -550,8 +530,8 @@
       "agent": "rider_advocate",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:06:52.126230Z",
-      "seconds": 0.0,
+      "started_at": "2026-10-13T05:16:25.846843Z",
+      "seconds": 0.001,
       "messages": [
         {
           "role": "system",
@@ -568,12 +548,12 @@
       "sent_back_because": null
     },
     {
-      "index": 2,
+      "index": 1,
       "agent": "driver_advocate",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:06:52.126607Z",
-      "seconds": 0.0,
+      "started_at": "2026-10-13T05:16:25.847170Z",
+      "seconds": 0.001,
       "messages": [
         {
           "role": "system",
@@ -594,7 +574,7 @@
       "agent": "judge",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:06:52.127545Z",
+      "started_at": "2026-10-13T05:16:25.848571Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -616,7 +596,7 @@
       "agent": "judge_self_check",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:06:52.127900Z",
+      "started_at": "2026-10-13T05:16:25.848958Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -638,7 +618,7 @@
       "agent": "judge_second_pass",
       "attempt": 1,
       "model": "scripted replies",
-      "started_at": "2026-10-12T18:06:52.128991Z",
+      "started_at": "2026-10-13T05:16:25.849623Z",
       "seconds": 0.0,
       "messages": [
         {
@@ -650,9 +630,9 @@
           "content": "Dispute:\n{\n  \"dispute_id\": \"DISP-013\",\n  \"trip_id\": \"TRIP-2026-09972\",\n  \"filed_by\": \"driver\",\n  \"category\": \"property_damage\",\n  \"description\": \"The rider left a large stain across the whole rear seat. I am asking for the $40.00 cleaning fee.\",\n  \"requested_remedy\": \"Charge the rider the SGD 40.00 cleaning fee\",\n  \"filed_at\": \"2026-09-14T11:00:00+08:00\",\n  \"photos\": [\n    \"data/photos/seat-stain-synthetic.png\"\n  ],\n  \"driver_statement\": null\n}\n\nEvidence (sealed, version CASE-0001-evidence-v1):\n[\n  {\n    \"evidence_id\": \"EV-DAMAGE-1\",\n    \"source\": \"damage_claim\",\n    \"trip_id\": \"TRIP-2026-09972\",\n    \"side\": \"driver\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": \"The driver claims a cleaning fee of SGD 40.00 for damage on this trip.\",\n    \"derived\": {\n      \"claimed_fee\": \"40.00\",\n      \"currency\": \"SGD\",\n      \"cap\": \"50.00\"\n    },\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-TRIP-1\",\n    \"source\": \"trip\",\n    \"trip_id\": \"TRIP-2026-09972\",\n    \"side\": \"shared\",\n    \"timestamp\": \"2026-09-14T10:05:00+08:00\",\n    \"status\": \"available\",\n    \"content\": {\n      \"scheduled_time\": \"2026-09-14T09:40:00+08:00\",\n      \"completion_time\": \"2026-09-14T10:05:00+08:00\",\n      \"pickup\": \"Raffles Place MRT\",\n      \"dropoff\": \"Changi Business Park\"\n    },\n    \"derived\": {},\n    \"conflicts_with\": []\n  },\n  {\n    \"evidence_id\": \"EV-CHAT-1\",\n    \"source\": \"chat\",\n    \"trip_id\": \"TRIP-2026-09972\",\n    \"side\": \"shared\",\n    \"timestamp\": null,\n    \"status\": \"available\",\n    \"content\": [\n      {\n        \"timestamp\": \"2026-09-14T10:00:25+08:00\",\n        \"sender\": \"driver\",\n        \"type\": \"message\",\n        \"content\": \"There is a stain on the rear seat from your drink.\"\n      },\n      {\n        \"timestamp\": \"2026-09-14T10:00:50+08:00\",\n        \"sender\": \"rider\",\n        \"type\": \"message\",\n        \"content\": \"A few drops of coffee spilled and I wiped most of it. It was not a big stain.\"\n      }\n    ],\n    \"derived\": {\n      \"driver_messages\": 1,\n      \"driver_calls\": 0,\n      \"rider_messages\": 1\n    },\n    \"conflicts_with\": []\n  }\n]\n\nPolicy clauses (cite by clause_id):\n[\n  {\n    \"clause_id\": \"R-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Take reasonable care of the vehicle and report damage, spills or cleanliness concerns with a clear description and relevant evidence when available. Any charge or responsibility requires a separate review.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  },\n  {\n    \"clause_id\": \"D-07\",\n    \"category\": \"property_damage\",\n    \"text\": \"Keep the vehicle fit and reasonably clean for service. Document a damage or cleanliness concern with relevant trip context and evidence where available; a report alone does not establish responsibility.\",\n    \"version\": \"waypoint-singapore-draft-2026-10\"\n  }\n]\n\nPrecedents (advisory: evidence and policy come first. A Judge cites one by ID in cited_precedent_ids only if it relied on it, and explains in precedent_departure why its Remedy differs from a precedent shown here):\nNo precedent found for this Case.\n\nArguments to assess, each exactly once, by ref:\n- driver_advocate#claim (driver_advocate): The driver reports a stain on the rear seat left by the rider and asks for the SGD 40.00 cleaning fee. The photo shows a large stain.\n- driver_advocate#counter-1 (driver_advocate): The rider says they did not cause the damage or that it was small.\n- rider_advocate#claim (rider_advocate): The rider asks that no cleaning fee be charged unless the driver shows the rider caused damage that justifies the amount claimed.\n- rider_advocate#counter-1 (rider_advocate): The driver reported the stain during the trip.\n\nSubmission A:\n{\n  \"author\": \"driver_advocate\",\n  \"claim_restated\": \"The driver reports a stain on the rear seat left by the rider and asks for the SGD 40.00 cleaning fee. The photo shows a large stain.\",\n  \"facts_relied_on\": [\n    \"EV-DAMAGE-1\",\n    \"EV-CHAT-1\"\n  ],\n  \"missing_evidence_ids\": [],\n  \"counter_arguments\": [\n    {\n      \"argument\": \"The rider says they did not cause the damage or that it was small.\",\n      \"response\": \"The chat shows the driver raised the stain during the trip and asked for it to be cleaned.\"\n    }\n  ],\n  \"policy_clause_ids\": [\n    \"D-07\"\n  ],\n  \"requested_outcome\": \"Charge the rider the cleaning fee claimed.\"\n}\n\nSubmission B:\n{\n  \"author\": \"rider_advocate\",\n  \"claim_restated\": \"The rider asks that no cleaning fee be charged unless the driver shows the rider caused damage that justifies the amount claimed.\",\n  \"facts_relied_on\": [\n    \"EV-DAMAGE-1\",\n    \"EV-CHAT-1\"\n  ],\n  \"missing_evidence_ids\": [],\n  \"counter_arguments\": [\n    {\n      \"argument\": \"The driver reported the stain during the trip.\",\n      \"response\": \"A report alone does not establish who is responsible or what it should cost to clean (R-07, D-07).\"\n    }\n  ],\n  \"policy_clause_ids\": [\n    \"R-07\"\n  ],\n  \"requested_outcome\": \"Reject the cleaning fee claim.\"\n}"
         }
       ],
-      "reply": null,
-      "outcome": "failed",
-      "problem": "StubModel has no scripted reply for case CASE-0001, agent judge_second_pass.",
+      "reply": "{\"outcome\":\"partially_uphold\",\"balance_of_evidence\":\"claimant\",\"remedy\":\"compensation_to_driver\",\"argument_assessments\":[{\"ref\":\"rider_advocate#claim\",\"verdict\":\"accepted\",\"reason\":\"Only a small spill is admitted.\",\"evidence_ids\":[\"EV-CHAT-1\"]},{\"ref\":\"rider_advocate#counter-1\",\"verdict\":\"accepted\",\"reason\":\"The rider is right that the extent of the damage is not shown by the chat.\",\"evidence_ids\":[\"EV-CHAT-1\"]},{\"ref\":\"driver_advocate#claim\",\"verdict\":\"accepted\",\"reason\":\"The rider admits some spill.\",\"evidence_ids\":[\"EV-CHAT-1\"]},{\"ref\":\"driver_advocate#counter-1\",\"verdict\":\"accepted\",\"reason\":\"The extent claimed is not shown.\",\"evidence_ids\":[\"EV-CHAT-1\"]}],\"policy_fit\":\"arguable\",\"policy_fit_reason\":\"R-07 and D-07 say a report alone does not establish responsibility and that a charge needs review; they set no amount, so the cleaning fee uses the code rule in ADR 0005.\",\"cited_evidence_ids\":[\"EV-DAMAGE-1\",\"EV-CHAT-1\"],\"cited_policy_clause_ids\":[\"R-07\",\"D-07\"],\"cited_precedent_ids\":[],\"precedent_departure\":null,\"amount_input_evidence_ids\":[\"EV-DAMAGE-1\"],\"own_findings\":[],\"policy_gap\":null,\"reasoning_summary\":\"The rider admits a small spill, so some cleaning was needed, but the extent claimed is not shown. Partly uphold at half the fee.\"}",
+      "outcome": "ok",
+      "problem": null,
       "sent_back_because": null
     }
   ],

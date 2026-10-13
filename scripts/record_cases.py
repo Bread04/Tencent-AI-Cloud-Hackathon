@@ -11,9 +11,9 @@ import json
 from pathlib import Path
 
 from src.intake import load_catalog
+from src.api.demo import ReplayModel
 from src.api.demo_switches import DEMO_SWITCHES, applicable_switches
 from src.config import CONFIG
-from src.llm.stub import StubModel, load_replies
 from src.orchestrator import run_dispute
 from src.store import CaseStore
 
@@ -30,7 +30,7 @@ def main(dispute_ids: list[str] | None = None) -> None:
         for flags in itertools.product([False, True], repeat=len(applicable)):  # every combination of the switches that can change this Dispute
             variants = tuple(s.name for s, on in zip(applicable, flags) if on)
             store = CaseStore()
-            model = StubModel({("CASE-0001", agent): reply for agent, reply in load_replies(dispute_id, *variants).items()})
+            model = ReplayModel(store)  # the demo's own stub, so a recording is what a live scripted run shows (it reuses the Judge's reply for the stability check's second pass)
             on = {s.field: s.name in variants for s in DEMO_SWITCHES}
             case = run_dispute(dispute, store=store, model=model, catalog=catalog, switches=CONFIG.switches.model_copy(update=on) if variants else None)
             body = {

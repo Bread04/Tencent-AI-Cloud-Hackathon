@@ -64,3 +64,10 @@ def test_photo_analysis_is_offered_only_for_a_dispute_with_photos():
 
     assert "photos" in [s.name for s in applicable_switches(catalog.dispute("DISP-011"))]
     assert "photos" not in [s.name for s in applicable_switches(catalog.dispute("DISP-003"))]
+
+
+@pytest.mark.parametrize("dispute_id", sorted(load_catalog().disputes))
+def test_no_recorded_stream_holds_a_run_that_failed_for_want_of_a_scripted_reply(dispute_id):
+    for names in combinations(dispute_id):
+        path = RECORDED / (".".join([dispute_id, *names]) + ".json")
+        assert "no scripted reply" not in path.read_text(encoding="utf-8"), path.name
