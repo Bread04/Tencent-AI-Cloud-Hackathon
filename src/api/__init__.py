@@ -39,7 +39,7 @@ from src.store import CaseNotFound, CaseStore
 SIMULATED = "Simulated: all trips, evidence, policy and payments on this page are mock data."
 HERE = Path(__file__).resolve().parent
 PROTOTYPES = HERE.parents[1] / "prototypes"
-DIAGRAM = HERE.parents[1] / "docs" / "architecture-diagram.svg"
+DIAGRAM = HERE.parents[1] / "docs" / "diagrams" / "architecture.html"
 START_TIMEOUT_SECONDS = 5  # how long a run may take to create its Case before the start request gives up
 
 
@@ -205,9 +205,8 @@ def create_app(
 
     @app.get("/architecture", response_class=HTMLResponse)
     def architecture():
-        """The architecture diagram (`docs/architecture-diagram.svg`, the one copy) inside the console's frame."""
-        template = (HERE / "architecture.html").read_text(encoding="utf-8")
-        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{DIAGRAM}}", DIAGRAM.read_text(encoding="utf-8"))
+        """The architecture diagram: the standalone page Archify renders (`docs/diagrams/`, the one copy)."""
+        return DIAGRAM.read_text(encoding="utf-8")
 
     add_review_routes(app, store=store, simulated=SIMULATED, model_label=model_label)
     if model_for is not None:  # the evaluation runs every case on fresh stores, so it needs a way to make a model for each

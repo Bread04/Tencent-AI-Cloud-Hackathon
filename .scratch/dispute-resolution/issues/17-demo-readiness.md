@@ -8,7 +8,7 @@
 
 **Tier:** wrap-up · **Owner:** Braedon
 
-- [x] The architecture diagram exists and marks simulated components (`docs/architecture-diagram.svg`, also at `/architecture` in the app)
+- [x] The architecture diagram exists and marks simulated components (`docs/diagrams/architecture.html`, made with Archify, also at `/architecture` in the app; `docs/diagrams/demo-walkthrough.html` shows the walkthrough the same way)
 - [x] The demo script names the Ryde case study at the start (`docs/demo-script.md`, the first spoken line)
 - [x] The script shows one case ruled for the Claimant and one for the Respondent (DISP-003 and DISP-002, with every switch off)
 - [x] Supporting Agents can be switched on and off from the UI (console checkboxes, table in `src/api/demo_switches.py`)

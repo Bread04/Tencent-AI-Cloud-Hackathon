@@ -139,11 +139,15 @@ Rider cases keep their original report and public case content in browser sessio
 
 ## Architecture diagram and demo script
 
-![Architecture: a Dispute passes intake and routing, an orchestrator in code runs each stage through one Case store, the Rider Advocate, Driver Advocate and Judge are the Core Agents, the Supporting Agents are switchable layers, low-Confidence Rulings go to a human reviewer, and simulated parts are tagged](docs/architecture-diagram.svg)
+[![Architecture: the demo console starts the orchestrator, which runs each stage through one Case store in the middle; the Rider Advocate, Driver Advocate and Judge are the Core Agents; each Supporting Agent names the console switch that turns it on; low-Confidence Rulings go to a Human Reviewer; simulated parts are marked](docs/diagrams/architecture.png)](docs/diagrams/architecture.html)
 
-The three Core Agents are green, each Supporting Agent is a dashed box naming the console switch that turns it on, and everything tagged SIMULATED stands in for Ryde's systems. The running app shows the same diagram at `/architecture`. The design behind it is in [docs/architecture.md](docs/architecture.md).
+The three Core Agents are green, each Supporting Agent is amber and names the console switch that turns it on, and the grey boxes marked simulated stand in for Ryde's systems. The picture is a capture of [docs/diagrams/architecture.html](docs/diagrams/architecture.html), an explorable page (click a box for the source lines behind it, switch light and dark, export an image). The running app serves it at `/architecture`. The design behind it is in [docs/architecture.md](docs/architecture.md).
 
-The Demo Day walkthrough is [docs/demo-script.md](docs/demo-script.md): it opens by naming the Ryde case study, runs the Core Agents alone (one Case ruled for the Claimant, one for the Respondent), then ticks each Supporting Agent's switch in turn. `uv run python -m scripts.rehearse` runs every step of it on the scripted replies and checks how each ends.
+The Demo Day walkthrough is [docs/demo-script.md](docs/demo-script.md): it opens by naming the Ryde case study, runs the Core Agents alone (one Case ruled for the Claimant, one for the Respondent), then ticks each Supporting Agent's switch in turn. `uv run python -m scripts.rehearse` runs every step of it on the scripted replies and checks how each ends. The same steps at a glance:
+
+[![Demo walkthrough: three runs with the Core Agents alone, six with one more switch ticked each time, then a reviewer's Override and a later Case that cites it](docs/diagrams/demo-walkthrough.png)](docs/diagrams/demo-walkthrough.html)
+
+Both diagrams were made with [Archify](https://github.com/tt-a1i/archify) from the typed descriptions beside them (`docs/diagrams/*.archify.json`). To change one, edit its description and render it again with Archify's `finalize` command.
 
 ## Route Deviation demo
 

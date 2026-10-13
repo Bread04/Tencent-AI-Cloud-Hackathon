@@ -7,7 +7,7 @@ The docs are the source of truth for the team and for agents. Start here.
 | [../GLOSSARY.md](../GLOSSARY.md) | Any term you don't know. Read it first. |
 | [spec.md](spec.md) | What the system should do. |
 | [architecture.md](architecture.md) | How it is built: contract (section 4), agents (section 5), failure handling (section 8). |
-| [architecture-diagram.svg](architecture-diagram.svg) | The architecture diagram deliverable, with simulated parts marked. Also at `/architecture` in the app. |
+| [diagrams/](diagrams/) | The architecture diagram deliverable, with simulated parts marked (also at `/architecture` in the app), and the demo walkthrough at a glance. Made with Archify. |
 | [demo-script.md](demo-script.md) | Presenting: the Demo Day walkthrough, step by step, and how to rehearse it. |
 | [contract-decisions.md](contract-decisions.md) | The shared contract's decisions, and which are still to be confirmed. |
 | [adr/](adr/) | Hard-to-reverse decisions (History withheld from the Judge; thresholds from trip data). |

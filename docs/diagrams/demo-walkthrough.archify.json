@@ -1,0 +1,459 @@
+{
+ "schema_version": 2,
+ "diagram_type": "workflow",
+ "meta": {
+  "title": "Demo Day walkthrough: Core Agents alone, then one switch at a time",
+  "output": ".archify/workflow-demo-walkthrough-20261013-132443/demo-walkthrough.html",
+  "quality_profile": "showcase",
+  "locale": "en",
+  "repository": {
+   "url": "https://github.com/Bread04/Tencent-AI-Cloud-Hackathon.git",
+   "provider": "github",
+   "link_mode": "local-only",
+   "revision": "9c67ae3b0f391179d8db12141369c24237950123"
+  },
+  "legend": {
+   "mode": "auto",
+   "entries": {
+    "frontend": {
+     "label": "Page shown"
+    },
+    "backend": {
+     "label": "Core Agents alone"
+    },
+    "cloud": {
+     "label": "A Supporting Agent switched on"
+    },
+    "security": {
+     "label": "Human Reviewer"
+    }
+   }
+  }
+ },
+ "lanes": [
+  {
+   "id": "core",
+   "label": "Part 1: the three Core Agents alone, every switch off"
+  },
+  {
+   "id": "layers",
+   "label": "Part 2: the Supporting Agents, one switch at a time (switches stay on)"
+  },
+  {
+   "id": "review",
+   "label": "A person overrides, and the next Case learns from it"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "opening",
+   "lane": "core",
+   "col": 0,
+   "type": "frontend",
+   "label": "Opening",
+   "sublabel": "name the Ryde case study",
+   "tag": "show /architecture",
+   "width": 150,
+   "sources": [
+    {
+     "path": "docs/demo-script.md",
+     "line": 30,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "s1",
+   "lane": "core",
+   "col": 1,
+   "type": "backend",
+   "label": "1. DISP-003",
+   "sublabel": "for the Claimant",
+   "tag": "No-Show: uphold, SGD 5.00",
+   "width": 150,
+   "sources": [
+    {
+     "path": "src/api/walkthrough.py",
+     "line": 48,
+     "label": "step table"
+    },
+    {
+     "path": "docs/demo-script.md",
+     "line": 42,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "lane": "core",
+   "col": 2,
+   "type": "backend",
+   "label": "2. DISP-002",
+   "sublabel": "for the Respondent",
+   "tag": "No-Show: reject",
+   "width": 150,
+   "sources": [
+    {
+     "path": "src/api/walkthrough.py",
+     "line": 49,
+     "label": "step table"
+    },
+    {
+     "path": "docs/demo-script.md",
+     "line": 55,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "lane": "core",
+   "col": 3,
+   "type": "backend",
+   "label": "3. DISP-008",
+   "sublabel": "Route Deviation",
+   "tag": "partial refund, SGD 5.39",
+   "width": 150,
+   "sources": [
+    {
+     "path": "src/api/walkthrough.py",
+     "line": 50,
+     "label": "step table"
+    },
+    {
+     "path": "docs/demo-script.md",
+     "line": 64,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "lane": "layers",
+   "col": 0,
+   "type": "cloud",
+   "label": "4. DISP-003",
+   "sublabel": "tick Use precedent",
+   "tag": "cites PREC-NS-02",
+   "width": 132,
+   "sources": [
+    {
+     "path": "src/api/walkthrough.py",
+     "line": 52,
+     "label": "step table"
+    },
+    {
+     "path": "docs/demo-script.md",
+     "line": 78,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "lane": "layers",
+   "col": 1,
+   "type": "cloud",
+   "label": "5. DISP-003",
+   "sublabel": "tick Stability check",
+   "tag": "held: passes disagree",
+   "width": 132,
+   "sources": [
+    {
+     "path": "src/api/walkthrough.py",
+     "line": 54,
+     "label": "step table"
+    },
+    {
+     "path": "docs/demo-script.md",
+     "line": 87,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "lane": "layers",
+   "col": 2,
+   "type": "cloud",
+   "label": "6. DISP-005",
+   "sublabel": "tick SLA routing",
+   "tag": "Priority 130, held",
+   "width": 132,
+   "sources": [
+    {
+     "path": "src/api/walkthrough.py",
+     "line": 56,
+     "label": "step table"
+    },
+    {
+     "path": "docs/demo-script.md",
+     "line": 96,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "s7",
+   "lane": "layers",
+   "col": 3,
+   "type": "cloud",
+   "label": "7. DISP-011",
+   "sublabel": "tick Evidence agents",
+   "tag": "chat quoted as facts",
+   "width": 132,
+   "sources": [
+    {
+     "path": "src/api/walkthrough.py",
+     "line": 58,
+     "label": "step table"
+    },
+    {
+     "path": "docs/demo-script.md",
+     "line": 107,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "s8",
+   "lane": "layers",
+   "col": 4,
+   "type": "cloud",
+   "label": "8. DISP-011",
+   "sublabel": "tick Photo analysis",
+   "tag": "uphold, SGD 40.00",
+   "width": 132,
+   "sources": [
+    {
+     "path": "src/api/walkthrough.py",
+     "line": 60,
+     "label": "step table"
+    },
+    {
+     "path": "docs/demo-script.md",
+     "line": 116,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "s9",
+   "lane": "layers",
+   "col": 5,
+   "type": "cloud",
+   "label": "9. DISP-012",
+   "sublabel": "photo fails its check",
+   "tag": "held: authenticity",
+   "width": 132,
+   "sources": [
+    {
+     "path": "src/api/walkthrough.py",
+     "line": 62,
+     "label": "step table"
+    },
+    {
+     "path": "docs/demo-script.md",
+     "line": 125,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "s10",
+   "lane": "review",
+   "col": 0,
+   "type": "cloud",
+   "label": "10. DISP-004",
+   "sublabel": "tick Learn from overrides",
+   "tag": "held: low Confidence",
+   "width": 150,
+   "sources": [
+    {
+     "path": "src/api/walkthrough.py",
+     "line": 64,
+     "label": "step table"
+    },
+    {
+     "path": "docs/demo-script.md",
+     "line": 133,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "override",
+   "lane": "review",
+   "col": 1,
+   "type": "security",
+   "label": "Reviewer overrides",
+   "sublabel": "at /review, with a reason",
+   "tag": "reject becomes uphold",
+   "width": 150,
+   "sources": [
+    {
+     "path": "src/api/walkthrough.py",
+     "line": 64,
+     "label": "step table"
+    },
+    {
+     "path": "docs/demo-script.md",
+     "line": 139,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "s11",
+   "lane": "review",
+   "col": 2,
+   "type": "cloud",
+   "label": "11. DISP-007",
+   "sublabel": "shown the Override",
+   "tag": "cites it, says why not",
+   "width": 150,
+   "sources": [
+    {
+     "path": "src/api/walkthrough.py",
+     "line": 67,
+     "label": "step table"
+    },
+    {
+     "path": "docs/demo-script.md",
+     "line": 150,
+     "label": "script"
+    }
+   ]
+  },
+  {
+   "id": "closing",
+   "lane": "review",
+   "col": 3,
+   "type": "frontend",
+   "label": "Closing",
+   "sublabel": "run /evaluation",
+   "tag": "12 of 12 prepared cases",
+   "width": 150,
+   "sources": [
+    {
+     "path": "docs/demo-script.md",
+     "line": 161,
+     "label": "script"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "id": "open-1",
+   "from": "opening",
+   "to": "s1",
+   "variant": "emphasis"
+  },
+  {
+   "id": "one-two",
+   "from": "s1",
+   "to": "s2",
+   "variant": "emphasis"
+  },
+  {
+   "id": "two-three",
+   "from": "s2",
+   "to": "s3",
+   "variant": "emphasis"
+  },
+  {
+   "id": "to-switches",
+   "from": "s3",
+   "to": "s4",
+   "label": "now the switches",
+   "role": "return"
+  },
+  {
+   "id": "four-five",
+   "from": "s4",
+   "to": "s5"
+  },
+  {
+   "id": "five-six",
+   "from": "s5",
+   "to": "s6"
+  },
+  {
+   "id": "six-seven",
+   "from": "s6",
+   "to": "s7"
+  },
+  {
+   "id": "seven-eight",
+   "from": "s7",
+   "to": "s8"
+  },
+  {
+   "id": "eight-nine",
+   "from": "s8",
+   "to": "s9"
+  },
+  {
+   "id": "to-review",
+   "from": "s9",
+   "to": "s10",
+   "label": "last switch",
+   "role": "return"
+  },
+  {
+   "id": "held",
+   "from": "s10",
+   "to": "override",
+   "label": "held",
+   "variant": "security"
+  },
+  {
+   "id": "learned",
+   "from": "override",
+   "to": "s11",
+   "label": "learned",
+   "variant": "dashed"
+  },
+  {
+   "id": "close",
+   "from": "s11",
+   "to": "closing"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "emerald",
+   "title": "Both ways, two categories",
+   "items": [
+    "DISP-003 is ruled for the Claimant and DISP-002 for the Respondent, with every switch off",
+    "DISP-008 adds Route Deviation, with a refund computed in code"
+   ]
+  },
+  {
+   "dot": "violet",
+   "title": "Short version",
+   "items": [
+    "Steps 5, 7 and 9 can be skipped to finish in about five minutes",
+    "Then Stability check and Evidence agents are named on the diagram, not shown"
+   ]
+  },
+  {
+   "dot": "amber",
+   "title": "Scripted and simulated",
+   "items": [
+    "Run on scripted replies so every outcome is the same each time",
+    "All trips, evidence, policy and payments are mock data"
+   ]
+  },
+  {
+   "dot": "rose",
+   "title": "After step 10",
+   "items": [
+    "Do not run DISP-002 or DISP-004 again: restart the server instead",
+    "Keep the console tab open; its ticked boxes are not saved"
+   ]
+  }
+ ]
+}

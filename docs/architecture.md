@@ -1,32 +1,26 @@
 # Architecture and Agent Design
 
-How the multi-agent dispute resolution system is built. Vocabulary is in [GLOSSARY.md](../GLOSSARY.md), behaviour in [spec.md](spec.md), the process in [workflow.md](../workflow.md), and ownership and dates in [dev-guide.md](dev-guide.md). This document is the design layer between them: what each agent is, what it receives and returns, and how they are wired.
+How the multi-agent dispute resolution system is built. Vocabulary is in [GLOSSARY.md](../GLOSSARY.md); behaviour in [spec.md](spec.md); process in [workflow.md](../workflow.md); ownership and dates in [dev-guide.md](dev-guide.md). This document is the design layer between them: what each agent is, what it receives and returns, and how they are wired.
 
 _Status: proposal. Items marked **[confirm]** are to be settled in the contract session before tickets are cut._
 
 ## 1. Design principles, and where they come from
 
-These come from published work by well-known agent designers. They are cited from memory, not fetched, so check the wording before quoting any of them on stage.
+These come from published work by well-known agent designers. They are cited from memory, not fetched — check the wording before quoting any on stage. The five that directly shaped a non-obvious design decision:
 
 | Principle | Source | How we apply it |
 | --- | --- | --- |
 | **Prefer the simplest thing that works; use workflows before open-ended agents.** Add agentic autonomy only where the path cannot be fixed in advance. | Anthropic, "Building Effective Agents" (Schluntz and Zhang) | The pipeline is a fixed, code-driven sequence. Models make judgements inside it; they do not decide what runs next. This is also why we use no framework. |
-| **Named workflow patterns:** prompt chaining, routing, parallelization, orchestrator-workers, evaluator-optimizer. | Same | Chaining: intake → evidence → cases → ruling. Routing: SLA & Routing Manager. Parallelization: both advocates run at once. Orchestrator-workers: the orchestrator calls the supporting agents. Evaluator-optimizer: the Judge's self-check pass. |
-| **Invest in the agent-computer interface: tools get as much design care as prompts.** Clear names, unambiguous parameters, errors that tell the model what to do next. | Same | Tools return typed Evidence Items with explicit `missing` status, not raw dumps. |
-| **Keep transparency: show the agent's planning steps.** | Same | The Communication Log, built from structured events rather than free-text reasoning. |
-| **Four agentic patterns: reflection, tool use, planning, multi-agent collaboration.** | Andrew Ng | Reflection = Judge self-check. Tool use = evidence and policy tools. Collaboration = advocates plus Judge. We deliberately skip open-ended planning. |
-| **Agent = planning + memory + tool use.** | Lilian Weng, "LLM Powered Autonomous Agents" | Memory is the Case record (short-term) and the precedent store (long-term). |
-| **ReAct: interleave reasoning with tool calls.** | Yao et al. | Advocates may call evidence tools in a bounded loop and cite what they find. |
-| **Reflexion: learn from feedback stored in memory, not by retraining.** | Shinn et al. | The Learning Feedback Loop stores human overrides as precedent. |
-| **Multi-agent debate can improve factuality.** | Du et al. | The two advocates argue opposing sides. We keep it to one independent round, not an open debate, for cost and predictability. |
 | **LLM-as-judge has biases (position, verbosity, self-preference) that you must mitigate.** | Zheng et al., MT-Bench / Chatbot Arena | The Judge sees Submissions in a randomised order and is told to ignore length. A second pass with the order swapped checks stability (section 6.7). |
 | **Multi-agent systems fail when agents hold inconsistent context; share context, and remember that actions carry implicit decisions.** | Cognition, "Don't Build Multi-Agents" (Yan) | Both advocates read the same evidence set from one store. The Judge reads that evidence directly and does not rely on the advocates' summaries alone. |
-| **Orchestrator-worker systems work when workers get separate context and a precise task description.** | Anthropic, multi-agent research system write-up | Each agent gets a narrow, self-contained brief. Nothing is passed by "see above". |
+| **Reflexion: learn from feedback stored in memory, not by retraining.** | Shinn et al. | The Learning Feedback Loop stores human overrides as precedent. |
 | **Evals first; write evaluations before you trust prompts.** | Hamel Husain and others | Every mock case carries an expected outcome label for regression runs (spec, Testing Decisions). |
 
-**Consequence of these principles.** Only three kinds of work use a model: reading messy text (chat, photos), arguing a position, and weighing arguments. Everything that is arithmetic or lookup (route distance, wait time, fare maths, clause retrieval, queue ordering) is plain code.
+Further reading: Andrew Ng (four agentic patterns); Lilian Weng, "LLM Powered Autonomous Agents"; Yao et al. (ReAct); Du et al. (multi-agent debate); Anthropic, multi-agent research system write-up.
 
 ## 2. System overview
+
+Only three kinds of work use a model: reading messy text (chat, photos), arguing a position, and weighing arguments. Everything that is arithmetic or lookup (route distance, wait time, fare maths, clause retrieval, queue ordering) is plain code.
 
 ```mermaid
 flowchart TB
@@ -59,9 +53,11 @@ flowchart TB
     STORE -.-> LOG(["Communication Log<br/>UI and API"])
 ```
 
-The **Case store** is the one shared state: a blackboard that every agent reads from and writes to through typed operations. Agents never message each other directly; they read and write the store, and the orchestrator decides what runs next. This makes the Communication Log a by-product (every write is an event) and keeps agents' contexts consistent.
+The **Case store** is the one shared state: a blackboard that every agent reads from and writes to through typed operations. Agents never message each other directly; they read and write the store, and the orchestrator decides what runs next. This makes the Communication Log a by-product — every write is an event — and keeps agents' contexts consistent.
 
 ## 3. Control flow
+
+The orchestrator drives Cases through a fixed sequence of states, governed by these rules.
 
 ### 3.1 Case lifecycle
 
@@ -119,7 +115,7 @@ For each agent: purpose, how it runs, what goes in and out, and what happens on 
 ### 5.1 Intake and SLA & Routing Manager (Tier 2 for the full manager; basic intake is Tier 0)
 
 - **Purpose:** validate the Dispute and assign a priority.
-- **Runs as:** code. Priority is a scoring function over category, disputed amount and keywords flagged as safety-related (a model may classify an ambiguous free-text description into a category when no category is chosen).
+- **Runs as:** code. Priority is a scoring function over category, disputed amount, and keywords flagged as safety-related. A model may classify an ambiguous free-text description into a category when none is chosen.
 - **In:** Dispute. **Out:** validated Case with a priority and a reason for the priority.
 - **Failure:** invalid trip or category produces a clear rejection, with no interactive loop.
 - **Switch:** the priority scoring is optional; without it all cases share one priority.
@@ -127,7 +123,7 @@ For each agent: purpose, how it runs, what goes in and out, and what happens on 
 ### 5.2 Rider Evidence Agent and Driver Evidence Agent (Tier 1; before that, the advocates call the same tools directly)
 
 - **Purpose:** gather and organise the evidence relevant to one side's position.
-- **Runs as:** code first. A deterministic tool layer fetches GPS, telemetry, chat, fares and history and computes derived values: actual versus optimal route distance, unexpected stops, expected versus actual duration, free-wait and no-show timers against the scheduled time. A model reads **only the unstructured text** (chat messages and the optional driver statement) to extract facts such as "driver asked to stop for a passenger" or "rider requested a detour", each as an Evidence Item pointing at the message.
+- **Runs as:** code first. A deterministic tool layer fetches GPS, telemetry, chat, fares, and history, and computes derived values: actual versus optimal route distance, unexpected stops, expected versus actual duration, and free-wait and no-show timers against the scheduled time. A model reads **only the unstructured text** (chat messages and the optional driver statement) to extract facts such as "driver asked to stop for a passenger" or "rider requested a detour", each as an Evidence Item pointing at the message.
 - **In:** Case, side. **Out:** Evidence Items for that side.
 - **Tools:** `get_gps`, `get_chat`, `get_fare`, `get_history`, `get_trip`. All return Evidence Items. Missing data comes back as an item with status `missing`, never an empty list or an error.
 - **Neutrality:** both agents use the same tools and the same derived-value code. The only difference is relevance filtering for their side. Anything either side finds is written to the one store, and both advocates can read all of it.
@@ -135,15 +131,13 @@ For each agent: purpose, how it runs, what goes in and out, and what happens on 
 
 ### 5.3 Policy & Precedent Agent (Tier 1)
 
-- **Purpose:** serve the applicable rules and relevant past rulings, consistently, to everyone.
+- **Purpose:** serve the applicable rules and relevant past rulings, consistently, to everyone. The whiteboard's rider-side, driver-side and both-sides policy agents are a `role` parameter on this one agent; all three get the same policy version.
 - **Runs as:** code for retrieval, optionally a model to summarise. Policy is a small versioned set of clauses with stable IDs (about a dozen, so no retrieval step can add value over serving them directly); precedent is a store of past Rulings.
-- **Clauses are not retrieved.** Each Dispute Category has a fixed set of **Applicable Clauses**, always served in full and identically to both advocates and the Judge. Keyword matching may add further relevant clauses on top, never in place of them.
+- Each Dispute Category has a fixed set of **Applicable Clauses**, always served in full and identically to both advocates and the Judge. (Clauses are not retrieved.) Keyword matching may add further relevant clauses on top, never in place of them.
 - **Precedents are retrieved in layers:** filter by category, rank by tag overlap, then optionally rerank by embedding similarity of the Case summary. A switch (`precedent_retrieval = tags | embeddings`) chooses the last step, so a failed or missing embedding model falls back to tags and the eval harness can compare the two. Embeddings come from a small open-source model run locally (see [ADR 0003](adr/0003-precedents-are-anonymised-and-human-verified.md) for the model choice), behind an interface so another provider can replace it.
-- **Eligibility:** only seeded Precedents and human-confirmed or overridden Rulings are retrievable. An unreviewed model Ruling is not, so one wrong Ruling cannot become authority for the next. Each Precedent served carries its source.
+- **Eligibility:** only seeded Precedents and human-confirmed or overridden Rulings are retrievable. An unreviewed model Ruling is not, so one wrong Ruling cannot become authority for the next. Each Precedent served carries its source. The Judge may cite precedent but evidence and policy take priority; a Ruling whose Remedy differs from a Precedent it was shown, without an explanation, fails the self-check once and then goes to review.
 - **Anonymised:** a Precedent holds category, key facts, Ruling, Remedy, clauses cited and reasoning, and never party identifiers, trip IDs or History-derived facts ([ADR 0001](adr/0001-history-withheld-from-judge.md)).
 - **In:** category, Case facts. **Out:** Applicable Clauses, plus up to a few similar Precedents with why they are similar.
-- **One source, three roles:** the whiteboard's rider-side, driver-side and both-sides policy agents are a `role` parameter on this one agent. All three get the same policy version.
-- **Precedent is advisory.** The Judge may cite it but evidence and policy take priority. A Ruling whose Remedy differs from a Precedent it was shown, without an explanation, fails the self-check once and then goes to review.
 - **Failure:** if retrieval returns nothing, the Judge is told "no precedent found" explicitly.
 
 ### 5.4 Image Analysis and Authenticity (Tier 3)
@@ -300,11 +294,11 @@ The two seams in the spec: end-to-end resolution with the model stubbed, and the
 
 ## 11. Diagram deliverable
 
-The hackathon requires an architecture diagram. It is [architecture-diagram.svg](architecture-diagram.svg), drawn from the Mermaid chart in section 2 and served by the app at `/architecture`:
+The hackathon requires an architecture diagram. It is [diagrams/architecture.html](diagrams/architecture.html), built from the Mermaid chart in section 2 and the orchestrator's code, and served by the app at `/architecture`:
 
-![Architecture diagram](architecture-diagram.svg)
+[![Architecture diagram](diagrams/architecture.png)](diagrams/architecture.html)
 
-It shows the Case store in the middle, the three Core Agents highlighted, each Supporting Agent as a dashed layer naming the console switch that turns it on, the human review path and the Communication Log, with every simulated component tagged. The SVG is edited by hand; `tests/test_architecture_diagram.py` checks it still shows those things and still names every switch in `src/api/demo_switches.py`. Two things in it are newer than section 2: the Judge's stability check (section 6.7) and the History step (section 6.2).
+It shows the Case store in the middle, the three Core Agents highlighted, each Supporting Agent naming the console switch that turns it on, the human review path and the Communication Log, with every simulated component marked. It was made with Archify from `diagrams/architecture.archify.json`, which cites the source lines behind each box at the commit it was drawn from; Archify validates the layout, and `tests/test_architecture_diagram.py` checks the description still names every switch in `src/api/demo_switches.py`. Two things in it are newer than section 2: the Judge's stability check (section 6.7) and the History step (section 6.2). Intake is drawn inside the Orchestrator, where the code has it.
 
 ## 12. Open decisions for the contract session
 

@@ -215,7 +215,3 @@ details.call .call-meta { margin-left: auto; margin-right: 12px; font: 11px var(
 .photo-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 16px; }
 .evidence-photo { width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line, #ddd); }
 .uncertainty { font-style: italic; margin: 4px 0 8px; }
-
-/* The architecture page: the diagram is drawn on white for a projector, and scrolls sideways on a narrow screen. */
-.diagram-panel { background: #fff; padding: 12px; overflow-x: auto; }
-.diagram-panel svg { display: block; width: 100%; min-width: 1100px; height: auto; }

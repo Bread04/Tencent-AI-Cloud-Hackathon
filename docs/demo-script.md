@@ -2,7 +2,7 @@
 
 The Demo Day walkthrough: what to click, what the audience sees, and what to say. Lines in a quote block are spoken. It runs about eight minutes; three steps are marked as ones you can skip to bring it to about five. The short version never ticks Stability check or Evidence agents, so name them on the diagram instead of showing them.
 
-The steps here are the same rows as `STEPS` in [`src/api/walkthrough.py`](../src/api/walkthrough.py). A test checks each step here against that table: the Dispute, the switches ticked, the outcome, the amount, the Confidence and Priority figures quoted, the review reasons and the Override's wording. The rehearsal below runs the table end to end.
+The whole walkthrough at a glance is [diagrams/demo-walkthrough.html](diagrams/demo-walkthrough.html). The steps here are the same rows as `STEPS` in [`src/api/walkthrough.py`](../src/api/walkthrough.py). A test checks each step here against that table: the Dispute, the switches ticked, the outcome, the amount, the Confidence and Priority figures quoted, the review reasons and the Override's wording. The rehearsal below runs the table end to end.
 
 ## Before you present
 
@@ -29,11 +29,11 @@ If runs start failing on the day (for example the header names a live model and 
 
 ## Opening
 
-Show the architecture page (`/architecture`).
+Show the architecture page (`/architecture`). Clicking a box shows the source lines behind it; the browser's back button returns to the console.
 
 > We chose the Ryde case study from the Digital Native Track: the Multi-Agent Autonomous Dispute Resolution System. A rider or a driver files a dispute, two advocate agents argue each side from the same evidence, and a Judge agent rules, with its reasoning and a confidence score.
 
-> Three things to notice in this diagram. Every agent reads and writes one Case store, so no agent messages another, and every write is a line in the Communication Log. The three green boxes are the required agents. The dashed purple boxes are the Supporting Agents, each behind a switch, and we will turn them on one at a time. Everything tagged SIMULATED stands in for Ryde's systems: the trips, the policy, the photos and the payments are mock data.
+> Three things to notice in this diagram. Every agent reads and writes one Case store, so no agent messages another, and every write is a line in the Communication Log. The three green boxes are the required agents. The amber boxes are the Supporting Agents, each naming the switch that turns it on, and we will turn them on one at a time. The grey boxes marked simulated stand in for Ryde's systems: the trips, the policy, the photos and the payments are mock data.
 
 ## Part 1: the three Core Agents alone
 

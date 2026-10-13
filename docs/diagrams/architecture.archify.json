@@ -1,0 +1,779 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Ryde case study: multi-agent dispute resolution",
+  "output": ".archify/architecture-ryde-dispute-resolution-20261013-132130/ryde-dispute-resolution.html",
+  "quality_profile": "showcase",
+  "locale": "en",
+  "repository": {
+   "url": "https://github.com/Bread04/Tencent-AI-Cloud-Hackathon.git",
+   "provider": "github",
+   "link_mode": "local-only",
+   "revision": "9c67ae3b0f391179d8db12141369c24237950123"
+  },
+  "legend": {
+   "mode": "auto",
+   "entries": {
+    "backend": {
+     "label": "Core Agent"
+    },
+    "cloud": {
+     "label": "Supporting Agent, behind a switch"
+    },
+    "messagebus": {
+     "label": "Code, not a model"
+    },
+    "database": {
+     "label": "Case store"
+    },
+    "frontend": {
+     "label": "Console and log view"
+    },
+    "security": {
+     "label": "Person"
+    },
+    "external": {
+     "label": "Simulated"
+    }
+   }
+  }
+ },
+ "components": [
+  {
+   "id": "console",
+   "type": "frontend",
+   "label": "Demo console",
+   "sublabel": "pick a Dispute, tick switches",
+   "pos": [
+    40,
+    320
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/api/__init__.py",
+     "line": 164,
+     "end_line": 176,
+     "label": "start a run"
+    },
+    {
+     "path": "src/api/demo_switches.py",
+     "line": 25,
+     "end_line": 32,
+     "label": "switch table"
+    }
+   ]
+  },
+  {
+   "id": "orchestrator",
+   "type": "messagebus",
+   "label": "Orchestrator",
+   "sublabel": "intake, then stages in order",
+   "pos": [
+    260,
+    320
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 51,
+     "end_line": 63,
+     "label": "run_dispute, intake"
+    }
+   ]
+  },
+  {
+   "id": "routing",
+   "type": "cloud",
+   "label": "SLA & Routing Manager",
+   "sublabel": "switch: SLA routing",
+   "pos": [
+    260,
+    170
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 65,
+     "end_line": 69
+    },
+    {
+     "path": "src/agents/routing.py",
+     "line": 35
+    }
+   ],
+   "tag": "priority; safety first"
+  },
+  {
+   "id": "trips",
+   "type": "external",
+   "label": "Trip records",
+   "sublabel": "simulated: GPS, chat, fare",
+   "pos": [
+    480,
+    40
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "data/cases/disp-002.json"
+    }
+   ],
+   "tag": "stands in for Ryde APIs"
+  },
+  {
+   "id": "tools",
+   "type": "messagebus",
+   "label": "Evidence tools",
+   "sublabel": "route, wait, fare maths in code",
+   "pos": [
+    480,
+    170
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 82,
+     "end_line": 83
+    },
+    {
+     "path": "src/tools/evidence/__init__.py",
+     "line": 16
+    }
+   ]
+  },
+  {
+   "id": "evidence-agents",
+   "type": "cloud",
+   "label": "Evidence Agents",
+   "sublabel": "switch: Evidence agents",
+   "pos": [
+    700,
+    170
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 78,
+     "end_line": 81
+    },
+    {
+     "path": "src/agents/evidence_agents.py",
+     "line": 63,
+     "end_line": 74
+    }
+   ],
+   "tag": "one per side; quote the chat"
+  },
+  {
+   "id": "photos",
+   "type": "external",
+   "label": "Photos",
+   "sublabel": "simulated: mess, damage",
+   "pos": [
+    920,
+    40
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "data/photos/seat-stain.png.json"
+    }
+   ],
+   "tag": "mock photos"
+  },
+  {
+   "id": "image",
+   "type": "cloud",
+   "label": "Image Analysis",
+   "sublabel": "switch: Photo analysis",
+   "pos": [
+    920,
+    170
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 84,
+     "end_line": 92
+    },
+    {
+     "path": "src/agents/image_analysis.py",
+     "line": 39
+    }
+   ],
+   "tag": "content, time, AI signs"
+  },
+  {
+   "id": "store",
+   "type": "database",
+   "label": "Case store",
+   "sublabel": "one shared state per Case",
+   "pos": [
+    700,
+    266
+   ],
+   "size": [
+    390,
+    172
+   ],
+   "sources": [
+    {
+     "path": "src/store/case_store.py",
+     "line": 54
+    },
+    {
+     "path": "src/store/case_store.py",
+     "line": 145,
+     "label": "seal evidence"
+    },
+    {
+     "path": "src/store/case_store.py",
+     "line": 298,
+     "label": "log every write"
+    }
+   ]
+  },
+  {
+   "id": "rider-advocate",
+   "type": "backend",
+   "label": "Rider Advocate",
+   "sublabel": "Core Agent: the rider's side",
+   "pos": [
+    1140,
+    266
+   ],
+   "size": [
+    170,
+    60
+   ],
+   "sources": [
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 139,
+     "end_line": 149,
+     "label": "both run at once"
+    },
+    {
+     "path": "src/agents/advocates/__init__.py",
+     "line": 41
+    }
+   ]
+  },
+  {
+   "id": "driver-advocate",
+   "type": "backend",
+   "label": "Driver Advocate",
+   "sublabel": "Core Agent: the driver's side",
+   "pos": [
+    1140,
+    378
+   ],
+   "size": [
+    170,
+    60
+   ],
+   "sources": [
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 139,
+     "end_line": 149,
+     "label": "both run at once"
+    },
+    {
+     "path": "src/agents/advocates/__init__.py",
+     "line": 41
+    }
+   ]
+  },
+  {
+   "id": "judge",
+   "type": "backend",
+   "label": "Judge",
+   "sublabel": "Core Agent: rules and cites",
+   "pos": [
+    1360,
+    320
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 113,
+     "end_line": 120
+    },
+    {
+     "path": "src/agents/judge/__init__.py",
+     "line": 68,
+     "end_line": 90
+    }
+   ]
+  },
+  {
+   "id": "stability",
+   "type": "cloud",
+   "label": "Stability check",
+   "sublabel": "switch: Stability check",
+   "pos": [
+    1360,
+    170
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/agents/judge/__init__.py",
+     "line": 121,
+     "end_line": 141
+    }
+   ],
+   "tag": "second pass, order swapped"
+  },
+  {
+   "id": "confidence",
+   "type": "messagebus",
+   "label": "History and Confidence",
+   "sublabel": "code; can only lower it",
+   "pos": [
+    1360,
+    480
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 126,
+     "end_line": 128
+    },
+    {
+     "path": "src/agents/judge/history.py",
+     "line": 24
+    }
+   ]
+  },
+  {
+   "id": "escalation",
+   "type": "cloud",
+   "label": "Escalation Protocol",
+   "sublabel": "always on in the demo",
+   "pos": [
+    1140,
+    480
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 128,
+     "end_line": 133
+    },
+    {
+     "path": "src/agents/escalation.py",
+     "line": 41
+    }
+   ],
+   "tag": "holds a Ruling for a person"
+  },
+  {
+   "id": "reviewer",
+   "type": "security",
+   "label": "Human Reviewer",
+   "sublabel": "queue; confirm or override",
+   "pos": [
+    1140,
+    610
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/api/review.py",
+     "line": 30,
+     "end_line": 33,
+     "label": "queue by priority"
+    },
+    {
+     "path": "src/agents/escalation.py",
+     "line": 134,
+     "end_line": 154,
+     "label": "decide_review"
+    }
+   ]
+  },
+  {
+   "id": "outcome",
+   "type": "messagebus",
+   "label": "Outcome to each party",
+   "sublabel": "shown on screen, not sent",
+   "pos": [
+    1360,
+    610
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 134,
+     "end_line": 135
+    },
+    {
+     "path": "src/agents/outcomes.py",
+     "line": 11
+    }
+   ]
+  },
+  {
+   "id": "payment",
+   "type": "external",
+   "label": "Payment action",
+   "sublabel": "simulated: never executed",
+   "pos": [
+    1360,
+    740
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/agents/outcomes.py",
+     "line": 4
+    },
+    {
+     "path": "src/contracts.py",
+     "line": 145
+    }
+   ],
+   "tag": "recommended only"
+  },
+  {
+   "id": "policy-data",
+   "type": "external",
+   "label": "Policy, past Rulings",
+   "sublabel": "simulated: mock, seeded",
+   "pos": [
+    260,
+    480
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "data/policy/waypoint-singapore-draft-2026-10.json"
+    },
+    {
+     "path": "data/precedents/seed.json"
+    }
+   ],
+   "tag": "clauses and Precedents"
+  },
+  {
+   "id": "precedent",
+   "type": "cloud",
+   "label": "Policy & Precedent",
+   "sublabel": "switch: Use precedent",
+   "pos": [
+    480,
+    480
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 94,
+     "end_line": 101
+    },
+    {
+     "path": "src/agents/policy/precedents.py",
+     "line": 162
+    }
+   ],
+   "tag": "clauses are always served"
+  },
+  {
+   "id": "log",
+   "type": "frontend",
+   "label": "Communication Log",
+   "sublabel": "what was asked, found, ruled",
+   "pos": [
+    700,
+    480
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/store/case_store.py",
+     "line": 298
+    },
+    {
+     "path": "src/api/__init__.py",
+     "line": 194,
+     "end_line": 205,
+     "label": "case JSON and log"
+    }
+   ]
+  },
+  {
+   "id": "learning",
+   "type": "cloud",
+   "label": "Learning Feedback Loop",
+   "sublabel": "switch: Learn from overrides",
+   "pos": [
+    480,
+    610
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/agents/escalation.py",
+     "line": 152,
+     "end_line": 153
+    },
+    {
+     "path": "src/agents/learning.py",
+     "line": 13
+    }
+   ],
+   "tag": "Override becomes Precedent"
+  }
+ ],
+ "connections": [
+  {
+   "id": "run",
+   "from": "console",
+   "to": "orchestrator",
+   "label": "run",
+   "variant": "emphasis"
+  },
+  {
+   "id": "stages",
+   "from": "orchestrator",
+   "to": "store",
+   "label": "runs each stage, in order",
+   "variant": "emphasis"
+  },
+  {
+   "id": "prioritise",
+   "from": "orchestrator",
+   "to": "routing",
+   "label": "priority"
+  },
+  {
+   "id": "trip-data",
+   "from": "trips",
+   "to": "tools"
+  },
+  {
+   "id": "tool-evidence",
+   "from": "tools",
+   "to": "store",
+   "fromSide": "bottom",
+   "toSide": "left"
+  },
+  {
+   "id": "extracted-facts",
+   "from": "evidence-agents",
+   "to": "store"
+  },
+  {
+   "id": "photo-data",
+   "from": "photos",
+   "to": "image"
+  },
+  {
+   "id": "photo-findings",
+   "from": "image",
+   "to": "store"
+  },
+  {
+   "id": "policy-source",
+   "from": "policy-data",
+   "to": "precedent"
+  },
+  {
+   "id": "clauses",
+   "from": "precedent",
+   "to": "store",
+   "fromSide": "top",
+   "toSide": "left"
+  },
+  {
+   "id": "rider-case",
+   "from": "store",
+   "to": "rider-advocate",
+   "variant": "emphasis"
+  },
+  {
+   "id": "driver-case",
+   "from": "store",
+   "to": "driver-advocate",
+   "variant": "emphasis"
+  },
+  {
+   "id": "judging",
+   "from": "store",
+   "to": "judge",
+   "variant": "emphasis"
+  },
+  {
+   "id": "second-pass",
+   "from": "judge",
+   "to": "stability",
+   "label": "rule twice"
+  },
+  {
+   "id": "proposed",
+   "from": "judge",
+   "to": "confidence",
+   "label": "proposed Ruling"
+  },
+  {
+   "id": "sufficient",
+   "from": "confidence",
+   "to": "outcome",
+   "label": "sufficient"
+  },
+  {
+   "id": "held",
+   "from": "confidence",
+   "to": "escalation",
+   "label": "low"
+  },
+  {
+   "id": "package",
+   "from": "escalation",
+   "to": "reviewer",
+   "label": "review package"
+  },
+  {
+   "id": "decision",
+   "from": "reviewer",
+   "to": "outcome"
+  },
+  {
+   "id": "override",
+   "from": "reviewer",
+   "to": "learning",
+   "label": "override, with a reason",
+   "variant": "dashed"
+  },
+  {
+   "id": "new-precedent",
+   "from": "learning",
+   "to": "precedent",
+   "label": "new Precedent",
+   "variant": "dashed"
+  },
+  {
+   "id": "events",
+   "from": "store",
+   "to": "log",
+   "label": "every write is an event",
+   "variant": "dashed",
+   "fromSide": "bottom",
+   "toSide": "top"
+  },
+  {
+   "id": "recommend",
+   "from": "outcome",
+   "to": "payment",
+   "label": "recommend"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "emerald",
+   "title": "Core Agents",
+   "items": [
+    "Rider Advocate and Driver Advocate build Submissions in parallel; neither sees the other's",
+    "The Judge accepts or rejects each argument and cites evidence and Policy Clauses",
+    "The Judge never sees History; a code step applies it after the outcome is fixed"
+   ]
+  },
+  {
+   "dot": "violet",
+   "title": "Supporting Agents",
+   "items": [
+    "Each is a layer behind a console switch; all off is the three Core Agents alone",
+    "Escalation has no checkbox: it is on for every run",
+    "A Ruling below 0.7 Confidence, or with a review trigger, goes to a Human Reviewer"
+   ]
+  },
+  {
+   "dot": "amber",
+   "title": "Simulated",
+   "items": [
+    "Trips, chat, fares, photos, policy and past Rulings are mock data",
+    "Outcomes are shown on screen, not sent to anyone",
+    "A payment is only ever recommended, never executed"
+   ]
+  },
+  {
+   "dot": "slate",
+   "title": "One store, one log",
+   "items": [
+    "Agents read and write the Case store; none messages another",
+    "Evidence is sealed before either advocate argues",
+    "Every write is an event in the Communication Log"
+   ]
+  }
+ ]
+}

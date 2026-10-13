@@ -25,3 +25,6 @@ Thumbs.db
 
 # Claude Code agent worktrees
 .claude/worktrees/
+
+# Archify working folders (candidates and browser evidence); the delivered diagrams are in docs/diagrams/
+.archify/
