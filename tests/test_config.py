@@ -92,6 +92,14 @@ def test_no_show_charge_has_its_five_item_material_evidence_checklist():
     ]
 
 
+def test_every_material_evidence_line_has_a_checklist_source():
+    from src.agents.judge.numbers import CHECKLIST_SOURCES
+
+    for category, checklist in CONFIG.material_evidence.items():
+        missing = [key for key in checklist if key not in CHECKLIST_SOURCES]
+        assert not missing, f"{category.value} has material-evidence keys with no CHECKLIST_SOURCES entry: {missing}"
+
+
 def test_history_rules_can_only_lower_confidence_or_ask_for_review():
     assert CONFIG.history_rules, "the History rule table must not be empty"
     for rule in CONFIG.history_rules:

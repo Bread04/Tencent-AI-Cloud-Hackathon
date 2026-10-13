@@ -4,7 +4,7 @@
 the model, so a send-back can name all of them at once.
 """
 
-from src.agents.judge.arguments import Argument, assessment_problems
+from src.agents.judge.arguments import Argument, assessment_problems, claim_ref
 from src.agents.judge.numbers import failed_authenticity_ids
 from src.agents.policy import ALLOWED_REMEDIES
 from src.llm.repair import StageFailed
@@ -92,8 +92,8 @@ def claimant_advocate(case: Case) -> Advocate:
 def _burden_problems(case: Case, draft: JudgeDraft) -> list[str]:
     """The Claimant must show the claim is more likely than not; an unproven claim is rejected."""
     problems = []
-    claim_ref = f"{claimant_advocate(case).value}#claim"
-    claim_verdict = next((a.verdict for a in draft.argument_assessments if a.ref == claim_ref), None)
+    claim_reference = claim_ref(claimant_advocate(case))
+    claim_verdict = next((a.verdict for a in draft.argument_assessments if a.ref == claim_reference), None)
     if draft.outcome in (RulingOutcome.UPHOLD, RulingOutcome.PARTIALLY_UPHOLD):
         if draft.balance_of_evidence is not BalanceOfEvidence.CLAIMANT:
             problems.append(

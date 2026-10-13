@@ -8,6 +8,7 @@ from src.contracts import (
     Case,
     Confidence,
     DisputeCategory,
+    EvidenceSource,
     EvidenceStatus,
     MaterialEvidenceEntry,
     OwnFinding,
@@ -16,21 +17,23 @@ from src.contracts import (
     RulingOutcome,
 )
 
-# Which evidence source answers each line of the material-evidence checklist.
-CHECKLIST_SOURCES = {
-    "route_comparison": "route",
-    "fare_calculation": "fare",
-    "route_conversation": "chat",
-    "driver_at_pickup": "gps",
-    "arrival_vs_scheduled": "gps",
-    "wait_timers": "fare",
-    "contact_attempts": "chat",
-    "rider_position": "rider_location",
-    "trip_route": "gps",
-    "conversation": "chat",
-    "damage_claim": "damage_claim",
-    "damage_photos": "photo_finding",
-    "trip_record": "trip",
+# Which evidence source answers each line of the material-evidence checklist. The keys must stay in step with
+# `CONFIG.material_evidence` (src/config.py); a test asserts the two agree. Typed against the closed EvidenceSource
+# so a misspelled source fails loudly instead of silently producing an empty checklist line.
+CHECKLIST_SOURCES: dict[str, EvidenceSource] = {
+    "route_comparison": EvidenceSource.ROUTE,
+    "fare_calculation": EvidenceSource.FARE,
+    "route_conversation": EvidenceSource.CHAT,
+    "driver_at_pickup": EvidenceSource.GPS,
+    "arrival_vs_scheduled": EvidenceSource.GPS,
+    "wait_timers": EvidenceSource.FARE,
+    "contact_attempts": EvidenceSource.CHAT,
+    "rider_position": EvidenceSource.RIDER_LOCATION,
+    "trip_route": EvidenceSource.GPS,
+    "conversation": EvidenceSource.CHAT,
+    "damage_claim": EvidenceSource.DAMAGE_CLAIM,
+    "damage_photos": EvidenceSource.PHOTO_FINDING,
+    "trip_record": EvidenceSource.TRIP,
 }
 
 

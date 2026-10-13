@@ -17,13 +17,21 @@ class Argument:
     text: str
 
 
+def claim_ref(author: Advocate) -> str:
+    return f"{author.value}#claim"
+
+
+def counter_ref(author: Advocate, number: int) -> str:
+    return f"{author.value}#counter-{number}"
+
+
 def arguments_in(*submissions: Submission) -> list[Argument]:
     found = []
     for submission in submissions:
         author = submission.author
-        found.append(Argument(f"{author.value}#claim", author, submission.claim_restated))
+        found.append(Argument(claim_ref(author), author, submission.claim_restated))
         for number, counter in enumerate(submission.counter_arguments, start=1):
-            found.append(Argument(f"{author.value}#counter-{number}", author, counter.argument))
+            found.append(Argument(counter_ref(author, number), author, counter.argument))
     return found
 
 
