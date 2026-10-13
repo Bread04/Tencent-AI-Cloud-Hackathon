@@ -4,22 +4,20 @@
   "use strict";
 
   const params = new URLSearchParams(location.search);
-  // "Replay a recording" plays back /static/recorded/<dispute>.json and calls no model; unticked, a run goes through the orchestrator.
-  const recordedBox = document.getElementById("useRecorded");
-  recordedBox.checked = params.has("recorded");
-  const isRecorded = () => recordedBox.checked;
+  // The console has no on-page controls. Presenters use the URL: ?recorded=1 replays /static/recorded/<dispute>.json (no model is
+  // called), ?pace=<ms> sets the replay speed, and ?<switch>=1 turns on a demo switch (the table is in src/api/demo_switches.py).
+  const isRecorded = () => params.has("recorded");
   const POLL_MS = 400;
-  // Every `input[data-switch]` is a demo switch (the table is in src/api/demo_switches.py). `?name=1` ticks it.
-  const switchBoxes = [...document.querySelectorAll("input[data-switch]")];
-  switchBoxes.forEach((box) => { box.checked = params.has(box.dataset.switch); });
-  const ticked = () => switchBoxes.filter((box) => box.checked && !box.disabled).map((box) => box.dataset.switch);
-  const liveOnly = (name) => switchBoxes.some((box) => box.dataset.switch === name && box.dataset.liveOnly); // Learn from overrides: needs earlier live Cases, so never in a recording
-  const variantSuffix = () => ticked().filter((name) => !liveOnly(name)).map((name) => `.${name}`).join(""); // the recorded stream for this setting
+  const SWITCHES = JSON.parse(document.body.dataset.switches); // [{name, needsPhotos, liveOnly}], from the table
+  let photosOnHand = false; // photo analysis only means something for a Dispute that has photos
+  const ticked = () => SWITCHES.filter((s) => params.has(s.name) && (!s.needsPhotos || photosOnHand)).map((s) => s.name);
+  const variantSuffix = () => ticked().filter((name) => !SWITCHES.find((s) => s.name === name).liveOnly).map((name) => `.${name}`).join(""); // the recorded stream for this setting
   const switchQuery = () => ticked().map((name) => `${name}=true`).join("&"); // the live API
 
   const $ = (id) => document.getElementById(id);
-  const paceEl = $("pace");
-  if (params.get("pace") !== null && [...paceEl.options].some((o) => o.value === params.get("pace"))) paceEl.value = params.get("pace");
+  $("modeBadge").textContent = isRecorded() ? "Replay" : "Live";
+  $("modeBadge").classList.toggle("replay", isRecorded());
+  const PACE_MS = params.has("pace") && Number.isFinite(Number(params.get("pace"))) ? Number(params.get("pace")) : 600;
 
   const THRESHOLD = Number(document.body.dataset.threshold) || 0.7; // below this a Ruling goes to a person
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -55,9 +53,7 @@
 
   // --- Running a dispute ----------------------------------------------------------------------------
 
-  // Photo analysis only means something for a Dispute that has photos, so it is offered only then.
-  const syncPhotoSwitch = (button) => switchBoxes.filter((box) => box.dataset.needs === "photos").forEach((box) => { box.disabled = !button.dataset.photos; });
-  syncPhotoSwitch({ dataset: {} });
+  const syncPhotoSwitch = (button) => { photosOnHand = Boolean(button.dataset.photos); };
   document.querySelectorAll("button.trip-choice").forEach((button) => button.addEventListener("click", () => { syncPhotoSwitch(button); run(button); }));
 
   // /?run=DISP-003 opens the console already running that dispute (a deep link for the demo).
@@ -76,10 +72,12 @@
     $("fareLabel").textContent = d.category === 'route_deviation' ? 'Paid fare in dispute' : 'Fee in dispute';
     $("disputeNote").textContent = `Dispute: ${d.description}`;
     $("log").replaceChildren();
+    renderRoster();
     setProgress(-1);
     $("outcomes").hidden = true;
     $("outcomePair").replaceChildren();
-    $("summaryCard").replaceChildren(el("span", { class: "support-symbol", "aria-hidden": "true" }, "…"), el("h3", {}, "Running"), el("p", {}, "The ruling will appear here as soon as the Judge has made it."));
+    $("summaryCard").replaceChildren();
+    $("summaryCard").hidden = true;
     $("ruling").replaceChildren(el("p", { class: "muted" }, "No ruling yet."));
     $("evidence").replaceChildren(el("p", { class: "muted" }, "The sealed evidence will appear once the run finishes."));
     $("submissions").replaceChildren(el("p", { class: "muted" }, "The submissions will appear once the run finishes."));
@@ -130,7 +128,7 @@
       if (shown < body.log.length) {
         appendEvent(body.log[shown++]);
         setStatus(`${isRecorded() ? "Replaying" : "Running"} ${disputeId}: ${shown} of ${body.log.length} events so far…`);
-        const pace = Number(paceEl.value);
+        const pace = PACE_MS;
         if (pace) await sleep(pace);
         if (!isRecorded() && Date.now() - lastPoll > POLL_MS) { body = await fetchBody(); lastPoll = Date.now(); }
         continue;
@@ -172,17 +170,34 @@
   // --- Communication log (the rider app's .timeline) ------------------------------------------------
 
   function appendEvent(event) {
-    const item = el("li", { class: `kind-${event.kind}` },
-      el("strong", {}, cap(words(event.kind))),
-      el("p", {}, event.summary),
-      el("span", { class: "agent" }, `${words(event.agent)} · `),
-      el("time", { dateTime: event.timestamp }, `${clock(event.timestamp)} SGT`),
-      event.references.length ? el("div", { class: "refs" }, ...event.references.map(citeButton)) : null);
+    const info = agentInfo(event.agent);
+    const detail = event.kind === "model_call";
+    const item = el("li", { class: `kind-${event.kind} agent-row ${info.accent}${detail ? " detail" : ""}` },
+      el("span", { class: "agent-avatar", "aria-hidden": "true" }, icon(...info.glyph)),
+      el("div", { class: "agent-body" },
+        el("div", { class: "agent-head" },
+          el("strong", { class: "agent-name" }, info.name),
+          el("span", { class: "agent-role" }, info.role),
+          el("time", { dateTime: event.timestamp }, `${clock(event.timestamp)} SGT`)),
+        addressee(event) ? el("p", { class: "agent-to" }, el("span", { "aria-hidden": "true" }, "→ "), addressee(event)) : null,
+        el("p", { class: "agent-summary" }, event.summary),
+        event.references.length ? el("div", { class: "refs" }, ...event.references.map(citeButton)) : null));
     $("log").append(item);
+    lightRoster(event);
     markNow(item);
     advance(event.kind === "model_call" ? event.agent : event.kind);
     item.scrollIntoView({ block: "nearest" });
   }
+
+  // The log records who wrote each event, not who read it, so "to" is derived from the kind of event.
+  const TO = {
+    case_filed: "Intake", priority_set: "Review queue",
+    evidence_requested: "Evidence agents", evidence_returned: "Both advocates", evidence_sealed: "Both advocates and the Judge", evidence_resealed: "Both advocates and the Judge",
+    photo_analysed: "Evidence record", policy_retrieved: "Both advocates and the Judge", precedent_retrieved: "Both advocates and the Judge",
+    submission_filed: "Judge", argument_assessed: "Judge's ruling", ruling_drafted: "Rider and Driver",
+    escalated: "Human reviewer", review_decision: "Case record", outcome_sent: "Rider and Driver",
+  };
+  const addressee = (event) => TO[event.kind] || null;
 
   function markNow(item) {
     $("log").querySelectorAll("li.now").forEach((li) => li.classList.remove("now"));
@@ -194,6 +209,7 @@
   function renderSummary(kase, log) {
     const ruling = kase.ruling;
     const card = $("summaryCard");
+    card.hidden = false;
     if (!ruling) {
       const why = log.filter((e) => e.kind === "escalated" || e.kind === "case_rejected").map((e) => e.summary).pop();
       card.replaceChildren(el("span", { class: "support-symbol", "aria-hidden": "true" }, "!"), el("h3", {}, "No ruling"), el("p", {}, why || `Case status: ${words(kase.status)}.`));
@@ -592,4 +608,66 @@
   }
   function hideCard() { card.hidden = true; }
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") hideCard(); });
+
+  // --- Agent identities -------------------------------------------------------------------------------
+  // Each Communication Log row is attributed to the agent that wrote it. The three Core Agents get a
+  // distinct glyph and colour so the exchange reads at a glance; supporting and system writes stay neutral.
+
+  const GLYPHS = {
+    rider: ["M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2", "M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"],
+    driver: ["M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z", "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z", "M12 3v5", "M4.3 15.5l4.4-2.5", "M19.7 15.5l-4.4-2.5"],
+    judge: ["M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z", "M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z", "M7 21h10", "M12 3v18", "M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"],
+    system: ["M22 12h-4l-3 9L9 3l-3 9H2"],
+  };
+
+  const LOG_AGENTS = {
+    rider_advocate: { name: "Rider Advocate", role: "Argues the rider's case" },
+    driver_advocate: { name: "Driver Advocate", role: "Argues the driver's case" },
+    judge: { name: "Judge", role: "Weighs both cases and rules" },
+    judge_self_check: { name: "Judge self-check", role: "Checks its own ruling" },
+    judge_second_pass: { name: "Judge second pass", role: "Rules a second time, order swapped" },
+    intake: { name: "Intake", role: "Files the case" },
+    orchestrator: { name: "Orchestrator", role: "Runs the stages in order" },
+    evidence: { name: "Evidence", role: "Retrieves trip records" },
+    rider_evidence: { name: "Rider Evidence Agent", role: "Finds the rider's facts" },
+    driver_evidence: { name: "Driver Evidence Agent", role: "Finds the driver's facts" },
+    image_analysis: { name: "Image Analysis", role: "Assesses the photos" },
+    policy: { name: "Policy", role: "Finds the applicable clauses" },
+    escalation: { name: "Escalation", role: "Sends it to a person" },
+    learning: { name: "Learning loop", role: "Keeps the override as precedent" },
+  };
+
+  const CORE_ACCENTS = { rider_advocate: "rider", driver_advocate: "driver", judge: "judge", judge_self_check: "judge", judge_second_pass: "judge" };
+
+  function agentInfo(agent) {
+    const known = LOG_AGENTS[agent] || { name: cap(words(agent)), role: "System" };
+    const accent = CORE_ACCENTS[agent] || "system";
+    return { ...known, accent, glyph: GLYPHS[accent] };
+  }
+
+  // Who took part: the three Core Agents always, the Supporting Agents lit only when they write to the log.
+  const ROSTER = [
+    { name: "Rider Advocate", accent: "rider", core: true, agents: ["rider_advocate"] },
+    { name: "Driver Advocate", accent: "driver", core: true, agents: ["driver_advocate"] },
+    { name: "Judge", accent: "judge", core: true, agents: ["judge", "judge_self_check", "judge_second_pass"] },
+    { name: "Evidence", accent: "system", agents: ["rider_evidence", "driver_evidence", "evidence"] },
+    { name: "Policy & precedent", accent: "system", agents: ["policy"] },
+    { name: "Photo analysis", accent: "system", agents: ["image_analysis"] },
+    { name: "SLA routing", accent: "system", kinds: ["priority_set"] },
+    { name: "Escalation", accent: "system", agents: ["escalation"] },
+    { name: "Learning loop", accent: "system", agents: ["learning"] },
+  ];
+
+  function renderRoster() {
+    $("agentRoster").replaceChildren(...ROSTER.map((a, i) => el("span", { class: `roster-agent ${a.accent}${a.core ? " on" : ""}`, "data-i": String(i) },
+      a.core ? icon(...GLYPHS[a.accent]) : null, a.name)));
+  }
+  function lightRoster(event) {
+    ROSTER.forEach((a, i) => {
+      if ((a.agents && a.agents.includes(event.agent)) || (a.kinds && a.kinds.includes(event.kind))) {
+        $("agentRoster").querySelector(`[data-i="${i}"]`).classList.add("on");
+      }
+    });
+  }
+  renderRoster();
 })();
