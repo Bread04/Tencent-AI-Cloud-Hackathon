@@ -95,7 +95,7 @@ def run_dispute(
     if case.switches.policy_precedent:  # the same Precedents go to both advocates and the Judge; advisory only
         mode = CONFIG.precedents.retrieval
         found = retrieve_precedents(
-            store.get_case(case_id), seeded_precedents() if precedents is None else precedents,
+            store.get_case(case_id), [*seeded_precedents(), *store.human_precedents()] if precedents is None else precedents,
             mode=mode, embedder=load_embedder() if mode == "embeddings" else None,
         )
         store.add_precedents(case_id, [s.precedent for s in found.served], describe(found))

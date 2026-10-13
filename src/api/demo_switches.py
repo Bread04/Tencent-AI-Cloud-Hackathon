@@ -18,6 +18,7 @@ class DemoSwitch:
     field: str  # the `Switches` field it turns on
     label: str  # the console checkbox
     photos_only: bool = False  # means nothing for a Dispute with no photos, so the console and the recordings leave it out for those
+    live_only: bool = False  # changes what a later Case sees, so one recorded stream cannot show it: never in a recording
 
 
 DEMO_SWITCHES = (
@@ -26,6 +27,7 @@ DEMO_SWITCHES = (
     DemoSwitch("routing", "sla_routing", "SLA routing"),
     DemoSwitch("evidence", "evidence_agents", "Evidence agents"),
     DemoSwitch("photos", "image_analysis", "Photo analysis", photos_only=True),
+    DemoSwitch("learning", "learning_loop", "Learn from overrides", live_only=True),
 )
 TRUE = {"true", "1", "yes", "on"}
 
@@ -37,12 +39,12 @@ def switches_from_query(query: Mapping[str, str]) -> Switches | None:
 
 
 def applicable_switches(dispute) -> tuple[DemoSwitch, ...]:
-    """The switches that can change a run of this Dispute: photo analysis only counts when it has photos."""
-    return tuple(s for s in DEMO_SWITCHES if not s.photos_only or dispute.photos)
+    """The switches a recording of this Dispute can vary: photo analysis only counts when it has photos, and live-only ones never do."""
+    return tuple(s for s in DEMO_SWITCHES if not s.live_only and (not s.photos_only or dispute.photos))
 
 
 def checkboxes_html() -> str:
-    needs = lambda s: ' data-needs="photos"' if s.photos_only else ""  # the console enables it only for a Dispute with photos
+    needs = lambda s: (' data-needs="photos"' if s.photos_only else "") + (' data-live-only="1"' if s.live_only else "")  # photos: enabled only for a Dispute with photos; live-only: left out of a recording's name
     return "\n    ".join(
         f'<label class="switch"><input type="checkbox" data-switch="{s.name}"{needs(s)}> {s.label}</label>' for s in DEMO_SWITCHES
     )

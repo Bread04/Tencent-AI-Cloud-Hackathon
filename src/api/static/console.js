@@ -13,7 +13,8 @@
   const switchBoxes = [...document.querySelectorAll("input[data-switch]")];
   switchBoxes.forEach((box) => { box.checked = params.has(box.dataset.switch); });
   const ticked = () => switchBoxes.filter((box) => box.checked && !box.disabled).map((box) => box.dataset.switch);
-  const variantSuffix = () => ticked().map((name) => `.${name}`).join(""); // the recorded stream for this setting
+  const liveOnly = (name) => switchBoxes.some((box) => box.dataset.switch === name && box.dataset.liveOnly); // Learn from overrides: needs earlier live Cases, so never in a recording
+  const variantSuffix = () => ticked().filter((name) => !liveOnly(name)).map((name) => `.${name}`).join(""); // the recorded stream for this setting
   const switchQuery = () => ticked().map((name) => `${name}=true`).join("&"); // the live API
 
   const $ = (id) => document.getElementById(id);

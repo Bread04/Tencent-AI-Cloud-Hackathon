@@ -12,6 +12,7 @@ from fastapi import FastAPI
 
 from src.api import create_app
 from src.api.demo_switches import DEMO_SWITCHES
+from src.contracts import PrecedentSource
 from src.intake import load_catalog
 from src.llm.stub import StubModel, load_replies
 from src.llm.adapter import ModelError
@@ -19,6 +20,18 @@ from src.llm.factory import environment_with_dotenv, model_from_environment
 from src.store import CaseStore
 
 PREPARED_DISPUTES = tuple(f"DISP-{number:03}" for number in range(2, 14))
+
+
+HUMAN_OVERRIDE = "@human_override"  # in a script: "the Precedent a reviewer's Override added", whose ID is only known once it exists
+
+
+def _with_override_ids(reply, case):
+    """Swap the placeholder in a scripted Judge reply for the Override Precedents the Case was served; none served, none cited."""
+    if not isinstance(reply, dict) or HUMAN_OVERRIDE not in reply.get("cited_precedent_ids", []):
+        return reply
+    served = [p.precedent_id for p in case.precedents if p.source is PrecedentSource.HUMAN_OVERRIDE]
+    cited = [i for i in reply["cited_precedent_ids"] if i != HUMAN_OVERRIDE]
+    return {**reply, "cited_precedent_ids": [*served, *cited]}
 
 
 class ReplayModel(StubModel):
@@ -56,7 +69,7 @@ class ReplayModel(StubModel):
             scripted = replies.get(agent, replies.get("judge") if agent == "judge_second_pass" else None)
             if scripted is None:
                 raise ModelError(f"ReplayModel has no scripted reply for dispute {dispute_id}, agent {agent}.")
-            self._script[key] = deepcopy(scripted)
+            self._script[key] = _with_override_ids(deepcopy(scripted), case)
         return super()._next_reply(case_id, agent)
 
 

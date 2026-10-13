@@ -1,0 +1,59 @@
+{
+  "_simulated": "Scripted replies for the offline model stub. Mock data, not model output.",
+  "judge": {
+    "outcome": "reject",
+    "balance_of_evidence": "respondent",
+    "remedy": "no_action",
+    "argument_assessments": [
+      {
+        "ref": "rider_advocate#claim",
+        "verdict": "unproven",
+        "reason": "No record places the rider at the pickup point, and the rider's location is missing.",
+        "evidence_ids": [
+          "EV-RIDERLOC-1"
+        ]
+      },
+      {
+        "ref": "rider_advocate#counter-1",
+        "verdict": "rejected",
+        "reason": "GPS places the driver at the pickup point from arrival to cancellation.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#claim",
+        "verdict": "accepted",
+        "reason": "GPS shows eight minutes at the pickup point and chat shows four messages and a call with no reply.",
+        "evidence_ids": [
+          "EV-GPS-1",
+          "EV-CHAT-1"
+        ]
+      },
+      {
+        "ref": "driver_advocate#counter-1",
+        "verdict": "accepted",
+        "reason": "GPS shows the driver stationary at the pickup point from arrival to cancellation.",
+        "evidence_ids": [
+          "EV-GPS-1"
+        ]
+      }
+    ],
+    "policy_fit": "clear",
+    "policy_fit_reason": "The driver waited past the no-show threshold, so the fee applies.",
+    "cited_evidence_ids": [
+      "EV-GPS-1",
+      "EV-CHAT-1",
+      "EV-FARE-1"
+    ],
+    "reasoning_summary": "The driver was at the pickup point for the whole wait and tried to contact the rider. The rider's position is unknown, so their claim is unproven and the fee stands.",
+    "cited_policy_clause_ids": [
+      "R-02",
+      "D-02"
+    ],
+    "cited_precedent_ids": [
+      "@human_override"
+    ],
+    "precedent_departure": "A reviewer overrode a similar Case where the driver's presence for the full wait was not established. Here the GPS record places the driver at the pickup point from arrival to cancellation, so the fee stands."
+  }
+}

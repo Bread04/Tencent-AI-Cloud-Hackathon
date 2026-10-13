@@ -57,9 +57,14 @@ class CaseStore:
         self._cases: dict[str, Case] = {}
         self._logs: dict[str, list[LogEvent]] = {}
         self._calls: dict[str, list[ModelCall]] = {}  # the model calls behind each Case, for the console
+        self._human_precedents: list[Precedent] = []  # learned from Overrides (ticket 16); the seeded ones live in data/precedents
         self._lock = threading.RLock()  # the two advocates write from separate threads
 
     # --- Reads ---------------------------------------------------------------
+
+    def human_precedents(self) -> list[Precedent]:
+        """The Precedents a Human Reviewer's Overrides have added, oldest first."""
+        return [precedent.model_copy(deep=True) for precedent in self._human_precedents]
 
     def get_case(self, case_id: str) -> Case:
         return self._case(case_id).model_copy(deep=True)
@@ -179,6 +184,20 @@ class CaseStore:
             case_id, agent, LogEventKind.PRECEDENT_RETRIEVED, summary,
             references=[p.precedent_id for p in precedents], precedents=precedents,
         )
+
+    def add_human_precedent(self, case_id: str, make: Callable[[str], Precedent], agent: str = "learning") -> None:
+        """Add a Precedent learned from this Case's Override to the store later Cases retrieve from; the Case itself is unchanged.
+
+        `make` is given the new Precedent's ID, chosen under the lock so two Overrides can never share one."""
+        with self._lock:
+            self._case(case_id)
+            precedent = make(f"PREC-HO-{len(self._human_precedents) + 1:04d}")
+            self._human_precedents.append(precedent.model_copy(deep=True))
+            self._write(
+                case_id, agent, LogEventKind.PRECEDENT_ADDED,
+                f"Added Precedent {precedent.precedent_id} (human override) from the reviewer's Override. Reason: {precedent.override_reason}",
+                references=[precedent.precedent_id],
+            )
 
     def add_submission(self, case_id: str, submission: Submission) -> None:
         case = self._case(case_id)

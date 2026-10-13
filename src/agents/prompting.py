@@ -41,6 +41,7 @@ def precedents_for_prompt(case: Case) -> str | None:
             "remedy": p.ruling.remedy.value,
             "policy_clauses_cited": p.ruling.cited_policy_clause_ids,
             "reasoning": p.ruling.reasoning_summary,
+            **({"override_reason": p.override_reason} if p.override_reason else {}),  # why a reviewer overturned the system's proposal
         }
         for p in case.precedents
     ]

@@ -9,6 +9,7 @@ with a recorded reason), after which both parties get the final Outcome.
 from datetime import datetime, timezone
 
 from src.agents.judge.numbers import amount_for
+from src.agents.learning import learn_from_override
 from src.agents.outcomes import outcomes_for
 from src.agents.policy import ALLOWED_REMEDIES
 from src.config import CONFIG
@@ -148,6 +149,8 @@ def decide_review(store: CaseStore, case_id: str, *, reviewer: str, decision: Re
              else _overridden(case, reviewer.strip(), reason.strip()))
     record = ReviewRecord(reviewer=reviewer.strip(), decision=decision, reason=(reason or "").strip() or None, decided_at=datetime.now(timezone.utc))
     store.finish_review(case_id, record, final, outcomes_for(final, case))  # one write: the Case is never ruled with nobody told
+    if decision is ReviewDecision.OVERRIDE and case.switches.learning_loop:  # the Learning Feedback Loop (ticket 16); with it off the Override is only recorded
+        learn_from_override(store, case, final, record.reason)
     return store.get_case(case_id)
 
 
