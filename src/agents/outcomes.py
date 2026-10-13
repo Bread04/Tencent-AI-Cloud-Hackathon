@@ -11,15 +11,17 @@ from src.contracts import ActionStatus, Case, DisputeCategory, Outcome, Party, R
 def outcomes_for(ruling: Ruling, case: Case) -> list[Outcome]:
     claimant = case.dispute.claimant
     if ruling.status is RulingStatus.PROPOSAL:
-        return pending_outcomes()
+        return pending_outcomes(case)
     return [
         Outcome(party=party, ruling_summary=_route_decision(ruling, claimant, party) if case.dispute.category is DisputeCategory.ROUTE_DEVIATION else _decision(ruling, claimant, party, case.dispute.category), action_status=ActionStatus.RECOMMENDED)
         for party in Party
     ]
 
 
-def pending_outcomes() -> list[Outcome]:
+def pending_outcomes(case: Case | None = None) -> list[Outcome]:
     """What both parties are told while a person reviews the Case, including when there is no Ruling at all."""
+    if case is not None and case.dispute.category is DisputeCategory.SAFETY_INCIDENT:
+        return [_pending_safety(party, party is case.dispute.claimant) for party in Party]
     return [_pending(party) for party in Party]
 
 
@@ -32,6 +34,16 @@ def _pending(party: Party) -> Outcome:
         ),
         action_status=ActionStatus.PENDING_REVIEW,
     )
+
+
+def _pending_safety(party: Party, filed_it: bool) -> Outcome:
+    """ADR 0006: whoever reported is told a Safety Officer has it as a priority; the other party is told only that a report is under review, never what it says."""
+    told = (
+        "A Safety Officer is reviewing your report as a priority and will follow up with you. Nothing about the fare has been decided yet."
+        if filed_it
+        else "A report about this trip is under review by a person. You will be told if anything is needed from you."
+    )
+    return Outcome(party=party, ruling_summary=told, action_status=ActionStatus.PENDING_REVIEW)
 
 
 def _decision(ruling: Ruling, claimant: Party, reader: Party, category: DisputeCategory) -> str:

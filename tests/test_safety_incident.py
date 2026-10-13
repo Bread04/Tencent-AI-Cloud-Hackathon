@@ -73,11 +73,29 @@ def test_a_safety_incident_is_held_even_with_the_escalation_switch_off():
     assert case.status is CaseStatus.PENDING_REVIEW
 
 
-def test_without_the_routing_switch_a_safety_incident_is_not_resolved_as_before():
+def test_without_the_routing_switch_a_safety_incident_is_still_taken_and_held_for_a_person_with_no_priority():
     store, case = run("DISP-005", Switches(escalation=True))
 
-    assert case.status is CaseStatus.REJECTED
-    assert "cannot be resolved yet" in next(e.summary for e in store.log(case.case_id) if e.kind is LogEventKind.CASE_REJECTED)
+    assert case.status is CaseStatus.PENDING_REVIEW and case.priority == 0
+    assert not [e for e in store.log(case.case_id) if e.kind is LogEventKind.CASE_REJECTED]
+    sent = next(e for e in store.log(case.case_id) if e.kind is LogEventKind.ESCALATED)
+    assert "Safety Officer" in sent.summary and "no Priority" in sent.summary  # ADR 0006: the reason it has no Priority is stated
+
+
+def test_a_safety_incident_is_sent_to_a_safety_officer_at_filing_before_any_evidence_is_gathered():
+    store, case = run("DISP-005")
+
+    kinds = [e.kind for e in store.log(case.case_id)]
+    assert kinds.index(LogEventKind.ESCALATED) < kinds.index(LogEventKind.EVIDENCE_REQUESTED)
+
+
+def test_the_reporter_is_told_a_safety_officer_has_it_and_the_other_party_is_told_nothing_of_the_allegation():
+    _, case = run("DISP-005")  # filed by the rider
+
+    told = {o.party.value: o.ruling_summary for o in case.outcomes}
+    assert "Safety Officer" in told["rider"] and "priority" in told["rider"]
+    assert "Safety" not in told["driver"] and "safety" not in told["driver"].lower() and "report" in told["driver"]
+    assert {o.action_status.value for o in case.outcomes} == {"pending_review"}
 
 
 def test_the_reviewer_can_confirm_a_safety_incident_and_the_parties_are_told_in_words_that_fit():
@@ -116,6 +134,36 @@ def test_a_safety_incident_filed_last_appears_first_in_the_queue_with_its_priori
 
     assert [item["case_id"] for item in queue] == [last, first, second]  # priority first, then oldest first
     assert queue[0]["priority"] > queue[1]["priority"] and "safety incident" in queue[0]["priority_reason"]
+
+
+def reviewer_client(store):
+    from fastapi import FastAPI
+
+    from src.api.review import add_review_routes
+
+    app = FastAPI()
+    add_review_routes(app, store=store, simulated="simulated", model_label="scripted replies")
+    return TestClient(app)
+
+
+def test_a_safety_incident_is_in_the_queue_from_filing_awaiting_its_proposal_and_ahead_of_every_other_case():
+    catalog, store = load_catalog(), CaseStore()
+    run("DISP-004", ROUTING, store)  # an ordinary held case, filed first
+    filed = store.create_case(catalog.dispute("DISP-005"), Switches())  # a Safety Incident that has only just been filed: no Judge yet, no Priority
+
+    queue = reviewer_client(store).get("/api/review").json()["cases"]
+
+    assert queue[0]["case_id"] == filed.case_id and queue[0]["awaiting_proposal"] and queue[0]["safety_officer"]
+    assert queue[0]["proposed_outcome"] is None and not queue[1]["awaiting_proposal"]
+
+
+def test_the_review_screen_refuses_a_decision_until_the_proposal_is_there():
+    catalog, store = load_catalog(), CaseStore()
+    filed = store.create_case(catalog.dispute("DISP-005"), Switches())
+
+    answer = reviewer_client(store).post(f"/api/review/{filed.case_id}/decision", json={"reviewer": "Dana", "decision": "confirm"})
+
+    assert answer.status_code == 409
 
 
 def test_the_case_json_carries_the_priority_for_the_console(client):

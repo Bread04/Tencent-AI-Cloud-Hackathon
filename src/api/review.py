@@ -8,10 +8,20 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
 from src.agents.escalation import ReviewInvalid, ReviewNotPossible, decide_review, review_package
-from src.contracts import CaseStatus, ReviewDecision
+from src.contracts import CaseStatus, DisputeCategory, ReviewDecision
 from src.store import CaseNotFound, CaseStore
 
 HERE = Path(__file__).resolve().parent
+IN_FLIGHT = {CaseStatus.FILED, CaseStatus.PRIORITISED, CaseStatus.GATHERING_EVIDENCE, CaseStatus.BUILDING_CASES, CaseStatus.JUDGING}
+
+
+def _for_safety_officer(case) -> bool:
+    return case.dispute.category is DisputeCategory.SAFETY_INCIDENT
+
+
+def _awaiting_proposal(case) -> bool:
+    """A Safety Incident still being worked on: it is in the queue already, and the Judge's proposal arrives later (ADR 0006)."""
+    return _for_safety_officer(case) and case.status in IN_FLIGHT
 
 
 class DecisionRequest(BaseModel):
@@ -28,8 +38,8 @@ def add_review_routes(app: FastAPI, *, store: CaseStore, simulated: str, model_l
 
     @app.get("/api/review")
     def queue():
-        held = [case for case in store.list_cases() if case.status is CaseStatus.PENDING_REVIEW]
-        held.sort(key=lambda case: (-case.priority, case.created_at))  # most urgent first, then the one waiting longest
+        held = [case for case in store.list_cases() if case.status is CaseStatus.PENDING_REVIEW or _awaiting_proposal(case)]
+        held.sort(key=lambda case: (not _for_safety_officer(case), -case.priority, case.created_at))  # Safety Incidents first, then most urgent, then the one waiting longest
         return {
             "cases": [
                 {
@@ -39,6 +49,8 @@ def add_review_routes(app: FastAPI, *, store: CaseStore, simulated: str, model_l
                     "status": case.status.value,
                     "priority": case.priority,
                     "priority_reason": case.priority_reason,
+                    "safety_officer": _for_safety_officer(case),
+                    "awaiting_proposal": _awaiting_proposal(case),
                     "proposed_outcome": case.ruling.outcome.value if case.ruling else None,
                     "confidence": case.ruling.confidence.value if case.ruling and case.ruling.confidence else None,
                     "reasons": [r.model_dump(mode="json") for r in review_package(case, store.log(case.case_id)).reasons],

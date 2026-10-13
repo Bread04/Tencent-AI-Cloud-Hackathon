@@ -57,7 +57,7 @@ def run_dispute(
     if not isinstance(model, RecordingModel):
         model = RecordingModel(model, store)  # every model call is recorded and shown in the log
 
-    reason = _rejection_reason(dispute, catalog, case.switches.sla_routing)
+    reason = _rejection_reason(dispute, catalog)
     if reason:
         store.reject_case(case_id, reason)
         return store.get_case(case_id)
@@ -67,6 +67,8 @@ def run_dispute(
         charged = {DisputeCategory.ROUTE_DEVIATION: lambda: record["receipt"]["paid_net"], DisputeCategory.PROPERTY_DAMAGE: lambda: record["damage_claim"]["cleaning_fee_claimed"]}.get(dispute.category, lambda: record["trip"]["cancellation_fee"])()
         priority = score(dispute, Decimal(charged))
         store.set_priority(case_id, priority.value, priority.reason)
+    if dispute.category is DisputeCategory.SAFETY_INCIDENT:  # ADR 0006: a person is told at filing, not after the model calls finish
+        store.note_safety_escalation(case_id, "a Safety Incident always goes to a person, whatever the Confidence. The Judge's proposal will be attached when it is ready." + ("" if case.switches.sla_routing else " SLA routing is off, so it has no Priority."))
 
     store.log_event(
         case_id,
@@ -107,7 +109,7 @@ def run_dispute(
         store.add_submission(case_id, submission)
     if failures:
         reason = ReviewTriggerRecord(trigger=ReviewTrigger.STAGE_FAILED, reason=" ".join(failures))
-        _hold_for_review(store, case_id, [reason], pending_outcomes())
+        _hold_for_review(store, case_id, [reason], pending_outcomes(store.get_case(case_id)))
         return store.get_case(case_id)
 
     try:
@@ -120,7 +122,7 @@ def run_dispute(
         )
     except (StageFailed, ModelError) as failure:
         reason = ReviewTriggerRecord(trigger=ReviewTrigger.STAGE_FAILED, reason=_failure_reason("Judge", "Ruling", failure))
-        _hold_for_review(store, case_id, [reason], pending_outcomes())
+        _hold_for_review(store, case_id, [reason], pending_outcomes(store.get_case(case_id)))
         return store.get_case(case_id)
 
     # History is applied only now, after the outcome is fixed (ADR 0001).
@@ -163,14 +165,13 @@ def _failure_reason(subject: str, noun: str, failure: Exception) -> str:
     return f"The {subject} could not produce a valid {noun}: {failure}"
 
 
-def _rejection_reason(dispute: Dispute, catalog: Catalog, routing: bool = False) -> str | None:
+def _rejection_reason(dispute: Dispute, catalog: Catalog) -> str | None:
     try:
         catalog.trip(dispute.trip_id)
     except UnknownTrip:
         return f"Trip {dispute.trip_id} does not exist."
-    supported_now = ROUTED_CATEGORIES if routing else SUPPORTED_CATEGORIES
-    if dispute.category not in supported_now:
-        supported = ", ".join(sorted(category.value for category in supported_now))
+    if dispute.category not in ROUTED_CATEGORIES:  # a Safety Incident is never turned away, with SLA routing on or off (ADR 0006)
+        supported = ", ".join(sorted(category.value for category in ROUTED_CATEGORIES))
         return f"{dispute.category.value} Disputes cannot be resolved yet; supported: {supported}."
     return None
 

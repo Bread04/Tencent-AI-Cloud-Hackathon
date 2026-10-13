@@ -264,6 +264,7 @@
     if (!ruling) return;
     const parts = [
       el("p", { class: "eyebrow" }, "Ruling"),
+      kase.dispute.category === "safety_incident" ? el("p", { class: "notice slim" }, "Fare remedy only. A Safety Officer investigates the driver's conduct; this system does not rule on it.") : null,
       el("h3", { class: "verdict" }, headline(kase)),
       el("div", { class: "badge-line" },
         el("span", { class: `chip ${ruling.status}` }, ruling.status === "proposal" ? "Proposal, held for review" : "Final"),

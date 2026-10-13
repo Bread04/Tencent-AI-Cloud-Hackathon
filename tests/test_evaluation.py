@@ -124,10 +124,14 @@ def test_an_ambiguous_case_that_is_ruled_without_review_fails():
 
 
 def test_a_case_that_is_turned_away_is_a_failure_with_the_reason():
-    report, _ = run(switches=Switches(escalation=True))  # routing off: Safety Incidents are unsupported
-    row = next(r for r in report.rows if r.dispute_id == "DISP-005")
+    catalog, labels = load_catalog(), load_labels()
+    catalog.disputes["DISP-X"] = catalog.disputes["DISP-002"].model_copy(update={"dispute_id": "DISP-X", "trip_id": "TRIP-NOPE"})  # a Dispute on a trip that does not exist
+    labels["DISP-X"] = labels["DISP-002"]
 
-    assert row.passed is False and "turned away" in row.why and "cannot be resolved yet" in row.why
+    report = evaluate(catalog=catalog, model_for=ReplayModel, switches=ROUTING, model_label="scripted replies", labels=labels)
+    row = next(r for r in report.rows if r.dispute_id == "DISP-X")
+
+    assert row.passed is False and "turned away" in row.why
 
 
 def test_a_case_with_no_label_is_a_failure_not_a_silent_skip():

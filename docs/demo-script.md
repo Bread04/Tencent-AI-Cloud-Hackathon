@@ -100,7 +100,7 @@ Press **Next step**. It turns on **SLA routing** and runs **DISP-005**. The ride
 - A new log event, `Priority set`. The Case shows Priority 130. A No-Show Case scores 20.
 - Ruling: `uphold` as a proposal, held for a person: `safety_incident`.
 
-Switch to the review tab and reload it: DISP-005 is at the top of the queue.
+The second line of the log, `Sent to a Safety Officer at once`, appears before any evidence is gathered. Switch to the review tab and reload it: DISP-005 is at the top of the queue, and while the Judge is still drafting it shows as awaiting proposal. Open it: the proposal is labelled as a fare remedy only, because the Safety Officer investigates conduct, not this system. The rider is told a Safety Officer has the report as a priority; the driver is told only that a report is under review.
 
 > The SLA and Routing Manager scores every Case by urgency and value. A Safety Incident always goes to a person, however confident the Judge is, and it goes to the front of the review queue with a full review package.
 

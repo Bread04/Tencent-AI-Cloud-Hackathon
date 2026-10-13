@@ -27,9 +27,9 @@
     $("queueEmpty").hidden = cases.length > 0;
     $("queue").replaceChildren(...cases.map((item) => {
       const button = el("button", { type: "button", class: "trip-choice", "aria-pressed": String(item.case_id === selected) },
-        el("span", { class: "row" }, el("strong", {}, item.dispute_id), el("span", { class: "tag cancelled" }, item.priority ? `priority ${item.priority}` : (item.confidence == null ? "no ruling" : `confidence ${item.confidence.toFixed(2)}`))),
+        el("span", { class: "row" }, el("strong", {}, item.dispute_id), el("span", { class: "tag cancelled" }, item.awaiting_proposal ? "awaiting proposal" : item.priority ? `priority ${item.priority}` : (item.confidence == null ? "no ruling" : `confidence ${item.confidence.toFixed(2)}`))),
         el("span", { class: "journey" }, `${item.case_id}`, el("small", {}, item.reasons.map((r) => words(r.trigger)).join(" · ") || "held for review")),
-        el("span", { class: "small muted" }, item.proposed_outcome ? `Proposed: ${words(item.proposed_outcome)}` : "Nothing proposed: a stage failed"),
+        el("span", { class: "small muted" }, (item.safety_officer ? "Safety Officer · " : "") + (item.proposed_outcome ? `Proposed: ${words(item.proposed_outcome)}` : item.awaiting_proposal ? "The Judge is still drafting its proposal" : "Nothing proposed: a stage failed")),
         item.priority_reason ? el("span", { class: "small muted" }, item.priority_reason) : null);
       button.addEventListener("click", () => open(item.case_id));
       return button;
@@ -65,10 +65,12 @@
 
   function proposed(pack) {
     const ruling = pack.proposed_ruling;
+    if (!ruling && pack.status !== "pending_review") return section("Proposed ruling", el("p", { class: "notice" }, "The Judge is still drafting its proposal. It will appear here when it is ready, and the decision form opens then."));
     if (!ruling) return section("Proposed ruling", el("p", { class: "notice" }, "There is no proposed ruling: a stage failed before one was made. It cannot be confirmed or overridden here."));
     const amount = ruling.amount != null ? ` · ${ruling.currency} ${ruling.amount}` : "";
     return section("Proposed ruling",
       el("p", {}, el("strong", {}, `${cap(words(ruling.outcome))}`), ` · ${words(ruling.remedy)}${amount} · confidence ${ruling.confidence ? ruling.confidence.value.toFixed(2) : "n/a"} · ${words(ruling.balance_of_evidence)} evidence`),
+      pack.dispute.category === "safety_incident" ? el("p", { class: "notice" }, "Fare remedy only. The system does not rule on whether the driver's conduct was dangerous: that is for the Safety Officer to investigate.") : null,
       el("p", {}, ruling.reasoning_summary),
       ruling.cited_policy_clause_ids.length ? el("p", { class: "who" }, `Policy cited: ${ruling.cited_policy_clause_ids.join(", ")}`) : null);
   }

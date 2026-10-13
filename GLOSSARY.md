@@ -226,6 +226,10 @@ _Avoid_: Flag, alert
 The person who confirms or overrides an escalated Ruling.
 _Avoid_: Support agent (ambiguous with our AI agents), moderator, admin
 
+**Safety Officer**:
+The Human Reviewer who takes Safety Incidents. They work the same review queue as every other Human Reviewer, with Safety Incidents always at the front. A Safety Incident reaches them by rule, whatever the Judge's confidence, and is never rejected as unsupported.
+_Avoid_: Safety team, escalation officer
+
 **Override**:
 A Human Reviewer's decision to replace the Judge's proposed Ruling, recorded with a reason.
 _Avoid_: Correction, reversal

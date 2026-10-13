@@ -111,17 +111,6 @@ def test_a_dispute_on_an_unknown_trip_is_rejected_with_a_clear_reason_and_no_mod
     assert model.calls == []
 
 
-def test_a_dispute_in_a_category_this_build_cannot_resolve_is_rejected_with_a_clear_reason():
-    catalog, store, model = load_catalog(), CaseStore(), StubModel({})
-    dispute = a_dispute(trip_id="TRIP-2026-09945", category="safety_incident")  # resolvable only with SLA routing on
-
-    case = run_dispute(dispute, store=store, model=model, catalog=catalog)
-
-    assert case.status is CaseStatus.REJECTED
-    assert "safety_incident" in store.log(case.case_id)[-1].summary
-    assert model.calls == []
-
-
 def test_the_policy_is_retrieved_logged_stored_and_given_to_both_advocates_and_the_judge():
     store, model, case = run_prepared_dispute()
 

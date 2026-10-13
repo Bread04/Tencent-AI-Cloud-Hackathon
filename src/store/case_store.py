@@ -27,6 +27,7 @@ from src.contracts import (
     Outcome,
     Party,
     ReviewDecision,
+    ReviewTrigger,
     ReviewRecord,
     PolicyClause,
     Precedent,
@@ -128,6 +129,11 @@ class CaseStore:
             priority=priority,
             priority_reason=reason,
         )
+
+    def note_safety_escalation(self, case_id: str, reason: str, agent: str = "escalation") -> None:
+        """Log that a Safety Incident was sent to a Safety Officer at filing. The Case keeps moving through its stages, so the
+        Judge's proposal can be attached to it; the review queue lists it meanwhile as awaiting a proposal."""
+        self._write(case_id, agent, LogEventKind.ESCALATED, f"Sent to a Safety Officer at once: {reason}", references=[ReviewTrigger.SAFETY_INCIDENT.value])
 
     def add_evidence(self, case_id: str, items: list[EvidenceItem], agent: str) -> None:
         case = self._case(case_id)
