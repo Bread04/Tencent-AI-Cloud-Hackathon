@@ -1,0 +1,495 @@
+{
+  "version": 1,
+  "historyId": "cfaeb52c-04cd-424e-b0ac-1164769ffc81",
+  "currentRevision": "06b88159-f172-42ac-9881-73b7a7523270",
+  "pendingChanges": false,
+  "files": {
+    "AGENTS.md": {
+      "hash": "1d4f0c8ca2507b94fd7c9df709fff01416adbd51a0f922b9d6ed2f40129147d5",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\1d\\1d4f0c8ca2507b94fd7c9df709fff01416adbd51a0f922b9d6ed2f40129147d5"
+    },
+    "CLAUDE.md": {
+      "hash": "1d4f0c8ca2507b94fd7c9df709fff01416adbd51a0f922b9d6ed2f40129147d5",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\1d\\1d4f0c8ca2507b94fd7c9df709fff01416adbd51a0f922b9d6ed2f40129147d5"
+    },
+    "assets/gsap.min.js": {
+      "hash": "c174bfce53a729418d57a8ad8625e7247c793a22fef8e2851e3cfa3de9cd8280",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\c1\\c174bfce53a729418d57a8ad8625e7247c793a22fef8e2851e3cfa3de9cd8280"
+    },
+    "assets/img/pip.svg": {
+      "hash": "ded5bfb9df6c1c9b787c73fad9fce26b1847eec83e3977a325e1725591501d50",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\de\\ded5bfb9df6c1c9b787c73fad9fce26b1847eec83e3977a325e1725591501d50"
+    },
+    "assets/img/waypoint-mark.svg": {
+      "hash": "8249b1d120e3c47d5449f77cb312bfd75acda81528f02eb8163304e5b4c71507",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\82\\8249b1d120e3c47d5449f77cb312bfd75acda81528f02eb8163304e5b4c71507"
+    },
+    "assets/nunito-variable.ttf": {
+      "hash": "bb55a5ca5c2042335b3991af27c4d0705d0ef41cac6164ac737fd8f2a1e85207",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\bb\\bb55a5ca5c2042335b3991af27c4d0705d0ef41cac6164ac737fd8f2a1e85207"
+    },
+    "assets/sfx/bong_001.wav": {
+      "hash": "b973bf28cf19f86c500c857a5888137cd59219b55c8594f089fcb8296c74a7b9",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\b9\\b973bf28cf19f86c500c857a5888137cd59219b55c8594f089fcb8296c74a7b9"
+    },
+    "assets/sfx/click_003.wav": {
+      "hash": "4a9a6af4a84c3326d14c2c6f2cfec36ebce23ae263f4d4e80f62f1bbe57a2510",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\4a\\4a9a6af4a84c3326d14c2c6f2cfec36ebce23ae263f4d4e80f62f1bbe57a2510"
+    },
+    "assets/sfx/impactSoft_medium_001.wav": {
+      "hash": "861b24ce89b139aebf9e7104c5559352c1755a8e408831ba28b1ec0f30b1a75d",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\86\\861b24ce89b139aebf9e7104c5559352c1755a8e408831ba28b1ec0f30b1a75d"
+    },
+    "assets/sfx/rollover2.wav": {
+      "hash": "9a42f6a37f24209487e970b96490a442278bf3b4df8d1bb324efd5c070440bf6",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\9a\\9a42f6a37f24209487e970b96490a442278bf3b4df8d1bb324efd5c070440bf6"
+    },
+    "hyperframes.json": {
+      "hash": "53dbce1e19aa713cbb12ee0bc4d206143b45ab15e6ffbfcaa8f69572d4d24d50",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\53\\53dbce1e19aa713cbb12ee0bc4d206143b45ab15e6ffbfcaa8f69572d4d24d50"
+    },
+    "index.html": {
+      "hash": "4cb03cdcccf174eb358e975fff00f4b1a6ddaf6c723a559fcb047add5251bd31",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\4c\\4cb03cdcccf174eb358e975fff00f4b1a6ddaf6c723a559fcb047add5251bd31"
+    },
+    "meta.json": {
+      "hash": "666ba61bf6ddddcff34b54cf7c1429921343d7e345bb578e65a31c904b72ae5e",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\66\\666ba61bf6ddddcff34b54cf7c1429921343d7e345bb578e65a31c904b72ae5e"
+    },
+    "package.json": {
+      "hash": "b2f63f5739f0c8d888b38bc9fa520c9e5482283961de886f424c6385b30316fd",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\b2\\b2f63f5739f0c8d888b38bc9fa520c9e5482283961de886f424c6385b30316fd"
+    },
+    "assets/music/bed.mp3": {
+      "hash": "f5793597e520aa8fa9cce91086816fc1e15e3aac0128bcf375df51ba70c0dc63",
+      "content": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\f5\\f5793597e520aa8fa9cce91086816fc1e15e3aac0128bcf375df51ba70c0dc63"
+    }
+  },
+  "revisions": {
+    "886cfd16-56b0-40f2-bc0a-31ef83781464": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1791906165198,
+      "endedAt": 1791906165199,
+      "files": {
+        "index.html": {
+          "before": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\ae\\aefe17e4a7389c6f17a77d9a0d8241afd43aaeb47f4b188fda90aae6ce0ef496",
+          "after": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\a4\\a482689a8c7d41b1459b581e8a52cd59555aba0ac8afebba0e4990a82a5428ea"
+        }
+      }
+    },
+    "4f028d88-a070-4eea-b143-c81f94943604": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1791906189032,
+      "endedAt": 1791906189034,
+      "files": {
+        "index.html": {
+          "before": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\a4\\a482689a8c7d41b1459b581e8a52cd59555aba0ac8afebba0e4990a82a5428ea",
+          "after": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\e2\\e29f289701c84d0a738ab0ebde3c8b9e0ceb01cca6f17b49b6b338d57afccd86"
+        }
+      }
+    },
+    "57b8df28-539f-4817-8389-d1f5ee3ab0be": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1791906210460,
+      "endedAt": 1791906210462,
+      "files": {
+        "index.html": {
+          "before": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\e2\\e29f289701c84d0a738ab0ebde3c8b9e0ceb01cca6f17b49b6b338d57afccd86",
+          "after": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\a0\\a09e585e0c16b28f59f21bb367cccc880fc96d6d24a79e70ec85ffeb8021f3b5"
+        }
+      }
+    },
+    "7471803b-3650-4787-9037-b44f1db88073": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1791906253644,
+      "endedAt": 1791906253645,
+      "files": {
+        "index.html": {
+          "before": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\a0\\a09e585e0c16b28f59f21bb367cccc880fc96d6d24a79e70ec85ffeb8021f3b5",
+          "after": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\e6\\e644e357caddbdc55da94d60615887a35ac4f3a82a12c65d92244603e979e01a"
+        }
+      }
+    },
+    "06b88159-f172-42ac-9881-73b7a7523270": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1791906733732,
+      "endedAt": 1791906733734,
+      "files": {
+        "index.html": {
+          "before": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\e6\\e644e357caddbdc55da94d60615887a35ac4f3a82a12c65d92244603e979e01a",
+          "after": "C:\\Users\\braed\\.cache\\hyperframes\\history\\cfaeb52c-04cd-424e-b0ac-1164769ffc81\\blobs\\4c\\4cb03cdcccf174eb358e975fff00f4b1a6ddaf6c723a559fcb047add5251bd31"
+        }
+      }
+    }
+  },
+  "checks": {
+    "latest": {
+      "revision": "06b88159-f172-42ac-9881-73b7a7523270",
+      "id": "52c11eba-2247-4271-bf58-d11ac8a5bfb5"
+    },
+    "revisions": {
+      "886cfd16-56b0-40f2-bc0a-31ef83781464": [
+        {
+          "id": "bd4eb2f8-a92d-48ec-94a8-ca81a7f243a3",
+          "scope": "project",
+          "metadata": {
+            "ok": false,
+            "browserSkipped": false,
+            "options": {
+              "samples": 9,
+              "atTransitions": false,
+              "maxIssues": 80,
+              "collapseStatic": true,
+              "tolerance": 2,
+              "timeout": 3000,
+              "contrast": true,
+              "strict": false,
+              "snapshots": false,
+              "browserGpuMode": "auto"
+            }
+          },
+          "createdAt": 1791906180330,
+          "contentHash": "7eeeffabdfde749a3c6fb3a67a2fb56f57e0628c40cd77b6e3a9b54242100adc",
+          "revision": "886cfd16-56b0-40f2-bc0a-31ef83781464",
+          "inputFingerprint": "6a235407773cfe24321c63ea49129ebf1e96caae3cfbd01820e4f7075884b1ca",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "f4cdd9ef-17f4-4d65-a7e6-dd34ee0ae6b6"
+        }
+      ],
+      "4f028d88-a070-4eea-b143-c81f94943604": [
+        {
+          "id": "1598866b-59b3-44d1-ba64-33f43045383c",
+          "scope": "project",
+          "metadata": {
+            "ok": false,
+            "browserSkipped": false,
+            "options": {
+              "samples": 9,
+              "atTransitions": false,
+              "maxIssues": 80,
+              "collapseStatic": true,
+              "tolerance": 2,
+              "timeout": 3000,
+              "contrast": true,
+              "strict": false,
+              "snapshots": false,
+              "browserGpuMode": "auto"
+            }
+          },
+          "createdAt": 1791906201715,
+          "contentHash": "2f4a5b240e4e8fa5ee52d84d98d88b7bf2caae46c60eb6ec2fd228a3c95610dd",
+          "revision": "4f028d88-a070-4eea-b143-c81f94943604",
+          "inputFingerprint": "9d9a1f26cfb6580263a97321790911fafd4e48c57b9b36b425462553d69bcabf",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "f4cdd9ef-17f4-4d65-a7e6-dd34ee0ae6b6"
+        }
+      ],
+      "57b8df28-539f-4817-8389-d1f5ee3ab0be": [
+        {
+          "id": "ae9b681b-7585-4376-b622-60a80025ea79",
+          "scope": "project",
+          "metadata": {
+            "ok": true,
+            "browserSkipped": false,
+            "options": {
+              "samples": 9,
+              "atTransitions": false,
+              "maxIssues": 80,
+              "collapseStatic": true,
+              "tolerance": 2,
+              "timeout": 3000,
+              "contrast": true,
+              "strict": false,
+              "snapshots": false,
+              "browserGpuMode": "auto"
+            }
+          },
+          "createdAt": 1791906222001,
+          "contentHash": "9979e487e7d92531a0315ee62d4abf671dfc98c2308e1396ed181a437cfdaf09",
+          "revision": "57b8df28-539f-4817-8389-d1f5ee3ab0be",
+          "inputFingerprint": "dbab628b30dd065795072380601776aca607d66014e1e1624fb466df91bd3065",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "f4cdd9ef-17f4-4d65-a7e6-dd34ee0ae6b6"
+        }
+      ],
+      "7471803b-3650-4787-9037-b44f1db88073": [
+        {
+          "id": "01b2021b-0a6c-4727-9cbc-45d557b5a76e",
+          "scope": "project",
+          "report": "C:\\Users\\braed\\Tencent Hackathon\\Tencent-AI-Cloud-Hackathon-1\\brag-output\\composition\\.hyperframes\\artifacts\\checks\\01b2021b-0a6c-4727-9cbc-45d557b5a76e.json",
+          "metadata": {
+            "ok": true,
+            "browserSkipped": false,
+            "options": {
+              "samples": 9,
+              "atTransitions": false,
+              "maxIssues": 80,
+              "collapseStatic": true,
+              "tolerance": 2,
+              "timeout": 3000,
+              "contrast": true,
+              "strict": false,
+              "snapshots": false,
+              "browserGpuMode": "auto"
+            }
+          },
+          "createdAt": 1791906264407,
+          "contentHash": "9979e487e7d92531a0315ee62d4abf671dfc98c2308e1396ed181a437cfdaf09",
+          "revision": "7471803b-3650-4787-9037-b44f1db88073",
+          "inputFingerprint": "eee9245cf0ba5db6263c1e5fda17a98e87bfad45c7c29a9da11029d2ebc190a2",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        }
+      ],
+      "06b88159-f172-42ac-9881-73b7a7523270": [
+        {
+          "id": "52c11eba-2247-4271-bf58-d11ac8a5bfb5",
+          "scope": "project",
+          "report": "C:\\Users\\braed\\Tencent Hackathon\\Tencent-AI-Cloud-Hackathon-1\\brag-output\\composition\\.hyperframes\\artifacts\\checks\\52c11eba-2247-4271-bf58-d11ac8a5bfb5.json",
+          "metadata": {
+            "ok": true,
+            "browserSkipped": false,
+            "options": {
+              "samples": 9,
+              "atTransitions": false,
+              "maxIssues": 80,
+              "collapseStatic": true,
+              "tolerance": 2,
+              "timeout": 3000,
+              "contrast": true,
+              "strict": false,
+              "snapshots": false,
+              "browserGpuMode": "auto"
+            }
+          },
+          "createdAt": 1791906744888,
+          "contentHash": "9979e487e7d92531a0315ee62d4abf671dfc98c2308e1396ed181a437cfdaf09",
+          "revision": "06b88159-f172-42ac-9881-73b7a7523270",
+          "inputFingerprint": "76acce770a8f99556b633c2790ab9434aadd34920c8d3b9f584004f1baeaf881",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        }
+      ]
+    },
+    "unversioned": [
+      {
+        "id": "622ef3ce-38fc-4933-bb28-114de3fa21fd",
+        "scope": "project",
+        "report": "C:\\Users\\braed\\Tencent Hackathon\\Tencent-AI-Cloud-Hackathon-1\\brag-output\\composition\\.hyperframes\\artifacts\\checks\\622ef3ce-38fc-4933-bb28-114de3fa21fd.json",
+        "metadata": {
+          "ok": false,
+          "browserSkipped": true,
+          "options": {
+            "samples": 9,
+            "atTransitions": false,
+            "maxIssues": 80,
+            "collapseStatic": true,
+            "tolerance": 2,
+            "timeout": 3000,
+            "contrast": true,
+            "strict": false,
+            "snapshots": false,
+            "browserGpuMode": "auto"
+          }
+        },
+        "createdAt": 1791906158812,
+        "contentHash": "aa7e2584347314d302fa34fcf8127320e59f384de89e11874a001655a961c34d",
+        "revision": null,
+        "inputFingerprint": "7f946a5612cb6e3633c7bcb00be5e1a0d1406ab22489b71b5cb7b821537e1f1e",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      }
+    ]
+  },
+  "snapshots": {
+    "latest": {
+      "revision": "57b8df28-539f-4817-8389-d1f5ee3ab0be",
+      "id": "81df4670-ead7-4761-b63f-bee449eb38a0-6"
+    },
+    "revisions": {
+      "57b8df28-539f-4817-8389-d1f5ee3ab0be": [
+        {
+          "scope": "full",
+          "id": "81df4670-ead7-4761-b63f-bee449eb38a0-0",
+          "image": "C:\\Users\\braed\\Tencent Hackathon\\Tencent-AI-Cloud-Hackathon-1\\brag-output\\snaps\\frame-00-at-2.5s.png",
+          "time": 2.5,
+          "metadata": {
+            "width": 1920,
+            "height": 1080,
+            "zoomScale": 1,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1791906237041,
+          "contentHash": "4c5c1f93cfca503a505922e6831db02501753c5ce333f89394d608d8bea29dc1",
+          "revision": "57b8df28-539f-4817-8389-d1f5ee3ab0be",
+          "inputFingerprint": "dbab628b30dd065795072380601776aca607d66014e1e1624fb466df91bd3065",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        },
+        {
+          "scope": "full",
+          "id": "81df4670-ead7-4761-b63f-bee449eb38a0-1",
+          "image": "C:\\Users\\braed\\Tencent Hackathon\\Tencent-AI-Cloud-Hackathon-1\\brag-output\\snaps\\frame-01-at-8.8s.png",
+          "time": 8.8,
+          "metadata": {
+            "width": 1920,
+            "height": 1080,
+            "zoomScale": 1,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1791906237041,
+          "contentHash": "8061825c74335891a913f1319332ae7b647a9cd5fe5c41d32ff313b93bc69b04",
+          "revision": "57b8df28-539f-4817-8389-d1f5ee3ab0be",
+          "inputFingerprint": "dbab628b30dd065795072380601776aca607d66014e1e1624fb466df91bd3065",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        },
+        {
+          "scope": "full",
+          "id": "81df4670-ead7-4761-b63f-bee449eb38a0-2",
+          "image": "C:\\Users\\braed\\Tencent Hackathon\\Tencent-AI-Cloud-Hackathon-1\\brag-output\\snaps\\frame-02-at-12.8s.png",
+          "time": 12.8,
+          "metadata": {
+            "width": 1920,
+            "height": 1080,
+            "zoomScale": 1,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1791906237042,
+          "contentHash": "d7345042aa4fdae1dffaeb64f25a66aeeb806a0750cce34f10e25cb81a586366",
+          "revision": "57b8df28-539f-4817-8389-d1f5ee3ab0be",
+          "inputFingerprint": "dbab628b30dd065795072380601776aca607d66014e1e1624fb466df91bd3065",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        },
+        {
+          "scope": "full",
+          "id": "81df4670-ead7-4761-b63f-bee449eb38a0-3",
+          "image": "C:\\Users\\braed\\Tencent Hackathon\\Tencent-AI-Cloud-Hackathon-1\\brag-output\\snaps\\frame-03-at-16.5s.png",
+          "time": 16.5,
+          "metadata": {
+            "width": 1920,
+            "height": 1080,
+            "zoomScale": 1,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1791906237042,
+          "contentHash": "5b5efac95620732efe9d758db3dd145bf1e4d8a4cbd094ce82db646aa2c4fd8e",
+          "revision": "57b8df28-539f-4817-8389-d1f5ee3ab0be",
+          "inputFingerprint": "dbab628b30dd065795072380601776aca607d66014e1e1624fb466df91bd3065",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        },
+        {
+          "scope": "full",
+          "id": "81df4670-ead7-4761-b63f-bee449eb38a0-4",
+          "image": "C:\\Users\\braed\\Tencent Hackathon\\Tencent-AI-Cloud-Hackathon-1\\brag-output\\snaps\\frame-04-at-21.5s.png",
+          "time": 21.5,
+          "metadata": {
+            "width": 1920,
+            "height": 1080,
+            "zoomScale": 1,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1791906237042,
+          "contentHash": "90ff5e381e13f00094bdbc109c40cfc8714673f66499dd5caf551514497e9a88",
+          "revision": "57b8df28-539f-4817-8389-d1f5ee3ab0be",
+          "inputFingerprint": "dbab628b30dd065795072380601776aca607d66014e1e1624fb466df91bd3065",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        },
+        {
+          "scope": "full",
+          "id": "81df4670-ead7-4761-b63f-bee449eb38a0-5",
+          "image": "C:\\Users\\braed\\Tencent Hackathon\\Tencent-AI-Cloud-Hackathon-1\\brag-output\\snaps\\frame-05-at-24s.png",
+          "time": 24,
+          "metadata": {
+            "width": 1920,
+            "height": 1080,
+            "zoomScale": 1,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1791906237043,
+          "contentHash": "b4ace449b3fdc6cb384c5d06c47e63f7f4086655fa4b38d9a0089b8e2f32b2f9",
+          "revision": "57b8df28-539f-4817-8389-d1f5ee3ab0be",
+          "inputFingerprint": "dbab628b30dd065795072380601776aca607d66014e1e1624fb466df91bd3065",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        },
+        {
+          "scope": "full",
+          "id": "81df4670-ead7-4761-b63f-bee449eb38a0-6",
+          "image": "C:\\Users\\braed\\Tencent Hackathon\\Tencent-AI-Cloud-Hackathon-1\\brag-output\\snaps\\frame-06-at-23.765s.png",
+          "time": 23.765,
+          "metadata": {
+            "width": 1920,
+            "height": 1080,
+            "zoomScale": 1,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1791906237043,
+          "contentHash": "b4ace449b3fdc6cb384c5d06c47e63f7f4086655fa4b38d9a0089b8e2f32b2f9",
+          "revision": "57b8df28-539f-4817-8389-d1f5ee3ab0be",
+          "inputFingerprint": "dbab628b30dd065795072380601776aca607d66014e1e1624fb466df91bd3065",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        }
+      ]
+    },
+    "unversioned": []
+  },
+  "renders": {
+    "latest": {
+      "id": "d02b51d6-d6a0-4976-a7df-cab9ef04a77c",
+      "completedAt": 1791906877456,
+      "output": "C:\\Users\\braed\\Tencent Hackathon\\Tencent-AI-Cloud-Hackathon-1\\brag-output\\render-raw.mp4",
+      "status": "completed",
+      "revision": "06b88159-f172-42ac-9881-73b7a7523270"
+    },
+    "retainedRevisions": [
+      "06b88159-f172-42ac-9881-73b7a7523270",
+      "7471803b-3650-4787-9037-b44f1db88073"
+    ]
+  },
+  "pendingArtifactCleanup": []
+}
