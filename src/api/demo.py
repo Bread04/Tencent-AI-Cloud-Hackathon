@@ -13,7 +13,7 @@ from fastapi import FastAPI
 from src.api import create_app
 from src.api.demo_switches import DEMO_SWITCHES
 from src.contracts import PrecedentSource
-from src.intake import load_catalog
+from src.intake import Catalog, load_catalog
 from src.llm.stub import StubModel, load_replies
 from src.llm.adapter import ModelError
 from src.llm.factory import environment_with_dotenv, model_from_environment
@@ -41,9 +41,13 @@ class ReplayModel(StubModel):
     shown, and with the stability check on the second pass has its own reply (the same as the first by default).
     """
 
-    def __init__(self, store: CaseStore, scripts: dict | None = None):
+    def __init__(self, store: CaseStore, scripts: dict | None = None, catalog: Catalog | None = None):
         super().__init__({})
         self._store = store
+        # A Dispute filed from the report form has no script of its own. It replays the prepared Dispute on the same Trip and category.
+        self._prepared_for = {
+            (d.trip_id, d.category): d.dispute_id for d in (catalog.disputes.values() if catalog else ()) if d.dispute_id in PREPARED_DISPUTES
+        }
         self._custom = deepcopy(scripts) if scripts is not None else None  # tests hand in their own scripts
         self._loaded: dict[tuple, dict] = {}
 
@@ -52,7 +56,9 @@ class ReplayModel(StubModel):
         if self._custom is not None:
             return self._custom.get(dispute_id)
         if dispute_id not in PREPARED_DISPUTES:
-            return None
+            dispute_id = self._prepared_for.get((case.dispute.trip_id, case.dispute.category))
+            if dispute_id is None:
+                return None
         variants = tuple(s.name for s in DEMO_SWITCHES if getattr(case.switches, s.field))  # a missing variant file keeps the base replies
         if (dispute_id, variants) not in self._loaded:
             self._loaded[(dispute_id, variants)] = load_replies(dispute_id, *variants)
@@ -76,12 +82,13 @@ class ReplayModel(StubModel):
 def create_demo_app() -> FastAPI:
     store = CaseStore()
     env = environment_with_dotenv()
+    catalog = load_catalog()
     def model_for(fresh_store: CaseStore):  # one model per store: the app's own, and each evaluation case's
-        return model_from_environment(env, stub=ReplayModel(fresh_store))
+        return model_from_environment(env, stub=ReplayModel(fresh_store, catalog=catalog))
 
     model = model_for(store)
     label = f"Live model: {env['MODEL_NAME']}" if env.get("MODEL_PROVIDER") == "openai_compatible" else "Scripted replies"
-    return create_app(store=store, model=model, catalog=load_catalog(), model_label=label, model_for=model_for)
+    return create_app(store=store, model=model, catalog=catalog, model_label=label, model_for=model_for)
 
 
 app = create_demo_app()

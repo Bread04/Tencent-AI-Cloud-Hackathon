@@ -38,11 +38,11 @@ function appHarness(search=''){
  const elements=new Map(),get=id=>{if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
  const handlers={},requests=[],mounts=[];
  const document={getElementById:get,createElement:tag=>new Element(tag),querySelectorAll:()=>[]};
- const RiderCasePanel={load(){},dispose(){}},RiderReportStore={read:()=>null};
+ const RiderCasePanel={load(){},dispose(){}},DisputePanel={recall:()=>null,resume(){},dispose(){}},RiderReportStore={read:()=>null};
  const RiderApi={collectEvidence:options=>{const pending=deferred();requests.push({options,pending});return pending.promise;}};
  const AgentChat={mount:(element,handle,options)=>{const panel={disposed:false,dispose(){this.disposed=true;},readForExport:async()=>{throw new Error('Locked');}};mounts.push({handle,options,panel});return panel;}};
  const window={RydeDemo:data,addEventListener:(name,fn)=>handlers[name]=fn};
- vm.runInNewContext(fs.readFileSync(require.resolve('../app.js'),'utf8'),{window,document,location:{search,hash:''},history:{replaceState(){}},URLSearchParams,Intl,Date,Option:class extends Element{constructor(text,value){super('option');this.textContent=text;this.value=value;}},RiderCasePanel,RiderReportStore,RiderApi,AgentChat,Blob,URL,setTimeout});
+ vm.runInNewContext(fs.readFileSync(require.resolve('../app.js'),'utf8'),{window,document,location:{search,hash:''},history:{replaceState(){}},URLSearchParams,Intl,Date,Option:class extends Element{constructor(text,value){super('option');this.textContent=text;this.value=value;}},RiderCasePanel,DisputePanel,RiderReportStore,RiderApi,AgentChat,Blob,URL,setTimeout});
  return {get,handlers,requests,mounts};
 }
 test('evidence page cannot render a late response after Rider selection or page disposal',async()=>{

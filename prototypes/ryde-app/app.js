@@ -22,7 +22,7 @@
     updateLocation();
   }
   function invalidateEvidence() { evidenceGeneration++;evidenceChat?.dispose();evidenceChat=null;bundle = null;el('collectEvidence').disabled=false;el('downloadEvidence').disabled=true;el('evidenceResults').hidden = true;el('collectionNotice').textContent = 'No evidence collected yet. Run the agent to inspect the records.'; }
-  function invalidate() { invalidateEvidence();RiderCasePanel.dispose(el('riderCaseMount')); }
+  function invalidate() { invalidateEvidence();RiderCasePanel.dispose(el('riderCaseMount'));DisputePanel.dispose(el('filedDisputeMount')); }
   function render() {
     const rider = data.rider(riderId), trips = data.trips(riderId), trip = data.trip(riderId, tripId);
     el('greeting').textContent = rider.name.split(' ')[0]; el('avatar').textContent = rider.initials;
@@ -57,6 +57,8 @@
     });
     const report = readReport(); el('savedHint').textContent = report ? 'A rider report is saved in this app session.' : 'Photos and files can be added in the report form.';
     RiderCasePanel.load(el('riderCaseMount'),{riderId,tripId,report});
+    const filedCase = DisputePanel.recall(window.sessionStorage, riderId, tripId); // a Dispute filed from the report form for this trip
+    if (filedCase) DisputePanel.resume(el('filedDisputeMount'), filedCase);
     // Keep recovery available even when a stored report is malformed.
     el('clearReport').hidden = !report && el('appError').hidden;
     switchTab(tab);

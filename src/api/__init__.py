@@ -18,6 +18,7 @@ from urllib.parse import parse_qs
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
 from src.agents.policy import SIMULATED_LABEL as POLICY_SIMULATED
@@ -29,9 +30,10 @@ from src.config import CONFIG
 from src.api.chat import (CHAT_STYLE, COOKIE_NAME, SESSION_SECONDS, CLIENT_COOKIE_NAME,
                          TRANSCRIPT_SECONDS, MAX_TRANSCRIPT_BYTES, ChatAccess, RiderTranscripts,
                          validate_rider_transcript, case_path, locked_html, log_html)
-from src.api.rider import install_rider_routes
+from src.api.rider import install_rider_routes, read_payload
 from src.contracts import Case, DisputeCategory, LogEvent, RulingStatus
 from src.intake import Catalog, UnknownDispute
+from src.intake.report import ReportError, dispute_from_report
 from src.llm.adapter import ModelAdapter
 from src.orchestrator import run_dispute
 from src.store import CaseNotFound, CaseStore
@@ -163,15 +165,9 @@ def create_app(
         template = (HERE / "console.html").read_text(encoding="utf-8")
         return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{SWITCHES}}", checkboxes_html()).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
 
-    @app.post("/api/disputes/{dispute_id}/run", status_code=202)
-    def start_run(dispute_id: str, request: Request):
-        """Start a run in the background and return its Case ID as soon as the Case exists, so the console can watch it."""
-        try:
-            dispute = catalog.dispute(dispute_id)
-        except UnknownDispute as error:
-            return JSONResponse({"error": str(error)}, status_code=404)
+    def start_in_background(dispute, switches):
+        """Run a Dispute in the background and answer with its Case ID as soon as the Case exists, so the caller can watch it."""
         known = {case.case_id for case in store.list_cases()}
-        switches = switches_from_query(request.query_params)  # None: the configured defaults
 
         def work():
             try:
@@ -188,7 +184,25 @@ def create_app(
             if created:
                 return {"case_id": created[0]}
             time.sleep(0.01)
-        return JSONResponse({"error": f"The run for {dispute_id} did not start."}, status_code=504)
+        return JSONResponse({"error": f"The run for {dispute.dispute_id} did not start."}, status_code=504)
+
+    @app.post("/api/disputes/{dispute_id}/run", status_code=202)
+    def start_run(dispute_id: str, request: Request):
+        try:
+            dispute = catalog.dispute(dispute_id)
+        except UnknownDispute as error:
+            return JSONResponse({"error": str(error)}, status_code=404)
+        return start_in_background(dispute, switches_from_query(request.query_params))  # None: the configured defaults
+
+    @app.post("/api/reports", status_code=202)
+    async def file_report(request: Request):
+        """File a Dispute from the report form: validate the report, create the Case and run it. The report is kept as submitted."""
+        try:
+            report = await read_payload(request)
+            dispute = dispute_from_report(report, catalog)
+        except ValueError as error:  # ReportError, or a body that is not a bounded JSON object
+            return JSONResponse({"error": str(error)}, status_code=422 if isinstance(error, ReportError) else 400)
+        return await run_in_threadpool(start_in_background, dispute, None)
 
     @app.get("/api/cases/{case_id}")
     def case_json(case_id: str):
