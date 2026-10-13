@@ -23,7 +23,7 @@ from pydantic import BaseModel
 
 from src.agents.policy import SIMULATED_LABEL as POLICY_SIMULATED
 from src.agents.intake import IntakeError, resolve_category
-from src.api.demo_switches import checkboxes_html, switches_from_query
+from src.api.demo_switches import switches_from_query, switches_json
 from src.api.evaluation import add_evaluation_routes
 from src.api.review import add_review_routes
 from src.config import CONFIG
@@ -161,9 +161,9 @@ def create_app(
 
     @app.get("/", response_class=HTMLResponse)
     def home():
-        rows = "".join(_dispute_row(d, catalog.trip(d.trip_id)) for d in catalog.disputes.values())
+        rows = _dispute_groups(catalog)
         template = (HERE / "console.html").read_text(encoding="utf-8")
-        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{SWITCHES}}", checkboxes_html()).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
+        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{SWITCHES}}", escape(switches_json())).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
 
     def start_in_background(dispute, switches):
         """Run a Dispute in the background and answer with its Case ID as soon as the Case exists, so the caller can watch it."""
@@ -282,6 +282,24 @@ def create_app(
     # API and Prepared Disputes routes take precedence over prototype static paths.
     app.mount("/", StaticFiles(directory=Path(__file__).resolve().parents[2] / "prototypes", html=True), name="prototypes")
     return app
+
+
+MVP_CATEGORIES = (
+    (DisputeCategory.ROUTE_DEVIATION, "Route deviation"),
+    (DisputeCategory.NO_SHOW_CHARGE, "No-show charge"),
+)
+
+
+def _dispute_groups(catalog) -> str:
+    """The picker: the two MVP categories open and first, the rest folded under 'More categories'."""
+    rows = {category: [] for category in DisputeCategory}
+    for dispute in catalog.disputes.values():
+        rows[dispute.category].append(_dispute_row(dispute, catalog.trip(dispute.trip_id)))
+    group = lambda title, items: f"<section class='cat-group'><h3>{escape(title)}<span class='count'>{len(items)}</span></h3>{''.join(items)}</section>"
+    shown = "".join(group(title, rows[category]) for category, title in MVP_CATEGORIES if rows[category])
+    mvp = {category for category, _ in MVP_CATEGORIES}
+    more = "".join(group(category.value.replace("_", " ").capitalize(), items) for category, items in rows.items() if category not in mvp and items)
+    return shown + (f"<details class='cat-more'><summary>More categories</summary>{more}</details>" if more else "")
 
 
 def _dispute_row(dispute, record: dict) -> str:

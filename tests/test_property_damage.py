@@ -182,4 +182,4 @@ def test_the_console_serves_the_photos_and_marks_the_disputes_that_have_them():
     page = client.get("/").text
 
     assert client.get("/photos/seat-stain.png").headers["content-type"] == "image/png"
-    assert "data-dispute='DISP-011'" in page and page.count("data-photos=1") == 3 and 'data-needs="photos"' in page
+    assert "data-dispute='DISP-011'" in page and page.count("data-photos=1") == 3 and "&quot;needsPhotos&quot;: true" in page

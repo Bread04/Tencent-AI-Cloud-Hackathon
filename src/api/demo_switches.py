@@ -1,11 +1,12 @@
 """The demo's switches in one table.
 
 Each row is one Supporting Agent the console can turn on for a run. The table drives the API (`?name=true`), the
-console's checkboxes, the recorded-stream file names (`DISP-003.precedent.stability.json`, names in table order) and
+console's URL switches, the recorded-stream file names (`DISP-003.precedent.stability.json`, names in table order) and
 which scripted replies the stub plays. Adding a switch is one row here plus its `Switches` field.
 """
 
 from collections.abc import Mapping
+import json
 from dataclasses import dataclass
 
 from src.config import CONFIG
@@ -43,8 +44,6 @@ def applicable_switches(dispute) -> tuple[DemoSwitch, ...]:
     return tuple(s for s in DEMO_SWITCHES if not s.live_only and (not s.photos_only or dispute.photos))
 
 
-def checkboxes_html() -> str:
-    needs = lambda s: (' data-needs="photos"' if s.photos_only else "") + (' data-live-only="1"' if s.live_only else "")  # photos: enabled only for a Dispute with photos; live-only: left out of a recording's name
-    return "\n    ".join(
-        f'<label class="switch"><input type="checkbox" data-switch="{s.name}"{needs(s)}> {s.label}</label>' for s in DEMO_SWITCHES
-    )
+def switches_json() -> str:
+    """The table as JSON for the console, which reads its URL switches from here instead of repeating the names."""
+    return json.dumps([{"name": s.name, "needsPhotos": s.photos_only, "liveOnly": s.live_only} for s in DEMO_SWITCHES])

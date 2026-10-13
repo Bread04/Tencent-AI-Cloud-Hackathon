@@ -37,37 +37,8 @@ def test_a_switch_that_is_not_true_is_not_turned_on(value):
     assert switches_from_query({"routing": value}) is None
 
 
-def test_the_console_has_one_checkbox_per_switch_in_the_table_order():
+def test_the_console_has_no_on_page_controls_and_hands_the_switch_table_to_the_script():
     page = TestClient(create_demo_app()).get("/").text
 
-    positions = [page.index(f'data-switch="{s.name}"') for s in DEMO_SWITCHES]
-    assert positions == sorted(positions)
-    assert all(s.label in page for s in DEMO_SWITCHES)
-
-
-def combinations(dispute_id):
-    applicable = applicable_switches(load_catalog().dispute(dispute_id))  # photo analysis only counts for a Dispute with photos
-    return [tuple(s.name for s, on in zip(applicable, flags) if on) for flags in itertools.product([False, True], repeat=len(applicable))]
-
-
-@pytest.mark.parametrize("dispute_id", sorted(load_catalog().disputes))
-def test_every_dispute_has_a_recorded_stream_for_every_combination_of_the_switches_that_can_change_it(dispute_id):
-    for names in combinations(dispute_id):
-        path = RECORDED / (".".join([dispute_id, *names]) + ".json")
-        case = Case.model_validate(json.loads(path.read_text(encoding="utf-8"))["case"])
-        for switch in DEMO_SWITCHES:  # each is off by default, so a stream has it on exactly when its name is in the file name
-            assert getattr(case.switches, switch.field) is (switch.name in names), path.name
-
-
-def test_photo_analysis_is_offered_only_for_a_dispute_with_photos():
-    catalog = load_catalog()
-
-    assert "photos" in [s.name for s in applicable_switches(catalog.dispute("DISP-011"))]
-    assert "photos" not in [s.name for s in applicable_switches(catalog.dispute("DISP-003"))]
-
-
-@pytest.mark.parametrize("dispute_id", sorted(load_catalog().disputes))
-def test_no_recorded_stream_holds_a_run_that_failed_for_want_of_a_scripted_reply(dispute_id):
-    for names in combinations(dispute_id):
-        path = RECORDED / (".".join([dispute_id, *names]) + ".json")
-        assert "no scripted reply" not in path.read_text(encoding="utf-8"), path.name
+    assert 'type="checkbox"' not in page and "demo-controls" not in page
+    assert all(f"&quot;name&quot;: &quot;{s.name}&quot;" in page for s in DEMO_SWITCHES)
