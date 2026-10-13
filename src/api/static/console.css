@@ -186,8 +186,10 @@ details.call .call-meta { margin-left: auto; margin-right: 12px; font: 11px var(
 .call pre { max-height: 280px; overflow: auto; }
 @media (max-width: 720px) { .lane { grid-template-columns: 110px 1fr 40px; } }
 
-/* Header switches */
-.account { gap: 18px; }
+/* Header switches. They take a row of their own when the header is too narrow for them, so none is ever pushed off screen. */
+.console .app-header { flex-wrap: wrap; row-gap: 12px; }
+.account { gap: 18px; flex-wrap: wrap; }
+.account label.switch { white-space: nowrap; }
 .account label.switch { display: flex; align-items: center; gap: 6px; color: #a9b2be; font: 11px/1.5 var(--mono); cursor: pointer; }
 .account label.switch input { accent-color: var(--blue); }
 
@@ -213,3 +215,7 @@ details.call .call-meta { margin-left: auto; margin-right: 12px; font: 11px var(
 .photo-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 16px; }
 .evidence-photo { width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line, #ddd); }
 .uncertainty { font-style: italic; margin: 4px 0 8px; }
+
+/* The architecture page: the diagram is drawn on white for a projector, and scrolls sideways on a narrow screen. */
+.diagram-panel { background: #fff; padding: 12px; overflow-x: auto; }
+.diagram-panel svg { display: block; width: 100%; min-width: 1100px; height: auto; }

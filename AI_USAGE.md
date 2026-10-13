@@ -11,6 +11,7 @@ A running disclosure of where AI tools were used in this project. Update it as y
 ## In building it
 
 - Claude Code (Claude) wrote and reviewed much of the code, tests and tickets under the team's direction. Every change was run against the test suite before it was committed.
+- The architecture diagram (`docs/architecture-diagram.svg`) and the demo script (`docs/demo-script.md`) were drafted by Claude Code from `docs/architecture.md` and the running system, and are to be checked and rehearsed by the team.
 - Fill in: which parts each of you wrote or edited by hand, and any other AI tools used (design, research, slides).
 
 ## Design sources

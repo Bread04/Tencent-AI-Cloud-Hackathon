@@ -300,7 +300,11 @@ The two seams in the spec: end-to-end resolution with the model stubbed, and the
 
 ## 11. Diagram deliverable
 
-The hackathon requires an architecture diagram. The Mermaid chart in section 2 is the source; for the demo, a cleaned-up version should show: the Case store in the middle, the three Core Agents highlighted, the supporting agents as optional rings, the human review path, and the Communication Log. Mark simulated components.
+The hackathon requires an architecture diagram. It is [architecture-diagram.svg](architecture-diagram.svg), drawn from the Mermaid chart in section 2 and served by the app at `/architecture`:
+
+![Architecture diagram](architecture-diagram.svg)
+
+It shows the Case store in the middle, the three Core Agents highlighted, each Supporting Agent as a dashed layer naming the console switch that turns it on, the human review path and the Communication Log, with every simulated component tagged. The SVG is edited by hand; `tests/test_architecture_diagram.py` checks it still shows those things and still names every switch in `src/api/demo_switches.py`. Two things in it are newer than section 2: the Judge's stability check (section 6.7) and the History step (section 6.2).
 
 ## 12. Open decisions for the contract session
 

@@ -2,7 +2,8 @@
 
 `/` is the console (`console.html` plus `static/`): pick a prepared Dispute, run it, and watch the
 Communication Log, the Ruling and both Outcomes fill in. It reads the JSON API (`/api/...`).
-`/cases/{id}` is the plain server-rendered Case page. Everything shown is Mock Data and says so.
+`/cases/{id}` is the plain server-rendered Case page and `/architecture` the architecture diagram.
+Everything shown is Mock Data and says so.
 """
 
 import threading
@@ -38,6 +39,7 @@ from src.store import CaseNotFound, CaseStore
 SIMULATED = "Simulated: all trips, evidence, policy and payments on this page are mock data."
 HERE = Path(__file__).resolve().parent
 PROTOTYPES = HERE.parents[1] / "prototypes"
+DIAGRAM = HERE.parents[1] / "docs" / "architecture-diagram.svg"
 START_TIMEOUT_SECONDS = 5  # how long a run may take to create its Case before the start request gives up
 
 
@@ -200,6 +202,12 @@ def create_app(
             "calls": [call.model_dump(mode="json") for call in store.calls(case_id)],
             "run_error": run_errors.get(case_id),
         }
+
+    @app.get("/architecture", response_class=HTMLResponse)
+    def architecture():
+        """The architecture diagram (`docs/architecture-diagram.svg`, the one copy) inside the console's frame."""
+        template = (HERE / "architecture.html").read_text(encoding="utf-8")
+        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{DIAGRAM}}", DIAGRAM.read_text(encoding="utf-8"))
 
     add_review_routes(app, store=store, simulated=SIMULATED, model_label=model_label)
     if model_for is not None:  # the evaluation runs every case on fresh stores, so it needs a way to make a model for each
