@@ -238,14 +238,15 @@ details.call .call-meta { margin-left: auto; margin-right: 12px; font: 11px var(
 
 /* Dispute picker, grouped by category */
 .cat-group { margin-bottom: 18px; }
-.cat-group > h3, .cat-more > summary { display: flex; align-items: center; justify-content: space-between; margin: 0 0 8px; font-size: 13px; font-weight: 600; color: var(--ink); }
-.cat-group .count { font: 11px var(--mono); color: var(--muted); font-weight: 400; }
-.cat-more { border-top: 1px solid var(--line); padding-top: 12px; }
-.cat-more > summary { cursor: pointer; color: var(--muted); list-style: none; }
+.cat-group > h3, .cat-more > summary { display: flex; align-items: center; justify-content: space-between; margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #dfe6f0; }
+.cat-group .count { font: 11px var(--mono); color: #dbe4f5; font-weight: 400; }
+.cat-more { border-top: 1px solid #2d3849; padding-top: 12px; }
+.cat-more > summary { cursor: pointer; color: #8a97ad; list-style: none; }
 .cat-more > summary::-webkit-details-marker { display: none; }
 .cat-more > summary:after { content: "+"; font-family: var(--mono); }
 .cat-more[open] > summary:after { content: "–"; }
 .cat-more[open] > summary { margin-bottom: 12px; }
+.trip-column .muted, .trip-column .small { color: #aeb9c9; }
 
 /* The log: a conversation, from -> to */
 .log-heading { padding-top: 14px; border-top: 1px solid var(--line); }
