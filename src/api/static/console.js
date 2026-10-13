@@ -10,7 +10,10 @@
   const POLL_MS = 400;
   const SWITCHES = JSON.parse(document.body.dataset.switches); // [{name, needsPhotos, liveOnly}], from the table
   let photosOnHand = false; // photo analysis only means something for a Dispute that has photos
-  const ticked = () => SWITCHES.filter((s) => params.has(s.name) && (!s.needsPhotos || photosOnHand)).map((s) => s.name);
+  let safetyIncident = false; // a Safety Incident is only accepted with SLA routing on (it goes to a person at the front of the queue), so the console turns it on
+  const on = new Set(SWITCHES.filter((s) => params.has(s.name)).map((s) => s.name)); // the supporting agents that are on: from the URL, then the walkthrough turns more on
+  let guided = false; // the walkthrough is in charge of which agents are on; until it starts, a Dispute with photos gets its photos analysed
+  const ticked = () => SWITCHES.filter((s) => (on.has(s.name) || (s.name === "routing" && safetyIncident) || (s.needsPhotos && !guided && !params.has("core"))) && (!s.needsPhotos || photosOnHand)).map((s) => s.name);
   const variantSuffix = () => ticked().filter((name) => !SWITCHES.find((s) => s.name === name).liveOnly).map((name) => `.${name}`).join(""); // the recorded stream for this setting
   const switchQuery = () => ticked().map((name) => `${name}=true`).join("&"); // the live API
 
@@ -53,7 +56,7 @@
 
   // --- Running a dispute ----------------------------------------------------------------------------
 
-  const syncPhotoSwitch = (button) => { photosOnHand = Boolean(button.dataset.photos); };
+  const syncPhotoSwitch = (button) => { photosOnHand = Boolean(button.dataset.photos); safetyIncident = button.dataset.category === "safety_incident"; };
   document.querySelectorAll("button.trip-choice").forEach((button) => button.addEventListener("click", () => { syncPhotoSwitch(button); run(button); }));
 
   // /?run=DISP-003 opens the console already running that dispute (a deep link for the demo).
@@ -72,8 +75,7 @@
     $("fareLabel").textContent = d.category === 'route_deviation' ? 'Paid fare in dispute' : 'Fee in dispute';
     $("disputeNote").textContent = `Dispute: ${d.description}`;
     $("log").replaceChildren();
-    renderRoster();
-    setProgress(-1);
+    workflow.reset();
     $("outcomes").hidden = true;
     $("outcomePair").replaceChildren();
     $("summaryCard").replaceChildren();
@@ -141,7 +143,7 @@
     if (mine !== runId) return;
     currentCase = body.case;
     markNow(null);
-    completePipeline(body.case);
+    workflow.finish();
     $("caseStatus").textContent = words(body.case.status);
     showPriority(body.case);
     if (body.run_error) fail(`The run stopped: ${body.run_error}`);
@@ -181,12 +183,33 @@
           el("time", { dateTime: event.timestamp }, `${clock(event.timestamp)} SGT`)),
         addressee(event) ? el("p", { class: "agent-to" }, el("span", { "aria-hidden": "true" }, "→ "), addressee(event)) : null,
         el("p", { class: "agent-summary" }, event.summary),
+        event.kind === "photo_analysed" ? photoCard(event) : null,
         event.references.length ? el("div", { class: "refs" }, ...event.references.map(citeButton)) : null));
+    item.dataset.nodes = workflow.event(event).join(" ");
     $("log").append(item);
-    lightRoster(event);
     markNow(item);
-    advance(event.kind === "model_call" ? event.agent : event.kind);
     item.scrollIntoView({ block: "nearest" });
+  }
+
+  // Photo analysis made visible: the photo beside what was found, and which checks it passed. Findings are signals, never proof.
+  function photoCard(event) {
+    const items = event.references.map((id) => currentCase && currentCase.evidence.find((e) => e.evidence_id === id)).filter(Boolean);
+    if (!items.length) return null;
+    const file = items[0].derived && items[0].derived.photo;
+    const verdict = (item) => {
+      const d = item.derived || {};
+      if (d.alignment) return { name: "Taken during the trip?", ok: d.alignment === "aligned" };
+      if (d.signal) return { name: "Made by AI?", ok: d.signal === "none" };
+      return { name: "What it shows", ok: null };
+    };
+    return el("div", { class: "photo-card" },
+      file ? el("img", { class: "photo-thumb", src: photoUrl(file), alt: "Photo filed with the report (simulated placeholder)" }) : null,
+      el("ul", { class: "photo-checks" }, ...items.map((item) => {
+        const v = verdict(item);
+        return el("li", { class: v.ok === null ? "info" : v.ok ? "pass" : "warn" },
+          el("span", { class: "check-mark", "aria-hidden": "true" }, v.ok === null ? "i" : v.ok ? "✓" : "!"),
+          el("div", {}, el("strong", {}, v.name), el("p", {}, item.content), item.derived.uncertainty ? el("small", {}, `Uncertainty: ${item.derived.uncertainty}`) : null));
+      })));
   }
 
   // The log records who wrote each event, not who read it, so "to" is derived from the kind of event.
@@ -457,9 +480,7 @@
       ...cards);
   }
 
-  // --- Pipeline stepper ---------------------------------------------------------------------------------
-  // Ported from the 21st.dev "Animated Progress Stepper" (shadcnspace/stepper-03): a spring-style progress line, a
-  // travelling dot, a pulsing ring on the active step and an icon-to-check morph. Drawn in Waypoint colours.
+  // --- SVG helpers ---------------------------------------------------------------------------------------
 
   const SVGNS = "http://www.w3.org/2000/svg";
   function svg(tag, attrs = {}, ...children) {
@@ -471,61 +492,6 @@
   const icon = (...paths) => svg("svg", { viewBox: "0 0 24 24", width: 18, height: 18, fill: "none", stroke: "currentColor",
     "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" },
     ...paths.map((d) => svg("path", { d })));
-  const STAGES = [
-    { name: "Intake", icon: () => icon("M22 12h-6l-2 3h-4l-2-3H2", "M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z") },
-    { name: "Evidence", icon: () => icon("M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z", "m21 21-4.3-4.3") },
-    { name: "Policy", icon: () => icon("M4 19.5A2.5 2.5 0 0 1 6.5 17H20", "M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z") },
-    { name: "Advocates", icon: () => icon("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z", "M22 21v-2a4 4 0 0 0-3-3.87", "M16 3.13a4 4 0 0 1 0 7.75") },
-    { name: "Judge", icon: () => icon("M12 3v18", "M5 8l-3 7a4 4 0 0 0 6 0L5 8z", "M19 8l-3 7a4 4 0 0 0 6 0l-3-7z", "M7 21h10", "M5 8h14") },
-    { name: "Outcome", icon: () => icon("M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z", "M4 22v-7") },
-  ];
-  const STAGE_OF = {
-    case_filed: 0, priority_set: 0, case_rejected: 0,
-    evidence_requested: 1, evidence_returned: 1, evidence_sealed: 1, evidence_resealed: 1, photo_analysed: 1,
-    policy_retrieved: 2, precedent_retrieved: 2,
-    submission_filed: 3,
-    argument_assessed: 4, ruling_drafted: 4, self_check_passed: 4, self_check_failed: 4, stability_check: 4,
-    escalated: 5, review_decision: 5, outcome_sent: 5, precedent_added: 5,
-  };
-  const STAGE_OF_AGENT = { rider_advocate: 3, driver_advocate: 3, judge: 4, judge_self_check: 4 }; // a model call counts toward its agent's stage
-  let reached = -1;
-
-  function setProgress(index, finished = false, review = false) {
-    reached = index;
-    const last = STAGES.length - 1;
-    const progress = finished ? 1 : Math.max(index, 0) / last;
-    const existing = $("pipeline").querySelector(".stepper");
-    const steps = STAGES.map((stage, i) => {
-      const done = finished || i < index;
-      const current = !finished && i === index;
-      const held = review && i === last;
-      const face = done ? (held ? el("span", { class: "face pop", key: "held" }, "!") : el("span", { class: "face pop" }, check()))
-        : el("span", { class: "face" }, stage.icon());
-      return el("li", { class: `step${done ? " done" : ""}${current ? " current" : ""}${held ? " review" : ""}`, "aria-current": current ? "step" : "false" },
-        el("span", { class: "circle" }, current ? el("span", { class: "ring", "aria-hidden": "true" }) : null, face),
-        el("span", { class: "step-name" }, held ? "Held for review" : stage.name));
-    });
-    if (existing) {
-      existing.style.setProperty("--p", String(progress)); // the line and the dot ease to the new position
-      existing.querySelector("ol").replaceChildren(...steps);
-      return;
-    }
-    const stepper = el("div", { class: "stepper" },
-      el("span", { class: "stepper-track" }), el("span", { class: "stepper-line" }), el("span", { class: "stepper-dot" }),
-      el("ol", {}, ...steps));
-    stepper.style.setProperty("--p", String(progress));
-    $("pipeline").replaceChildren(stepper);
-  }
-  const check = () => svg("svg", { viewBox: "0 0 24 24", width: 18, height: 18, fill: "none", stroke: "currentColor", "stroke-width": 3,
-    "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" }, svg("path", { d: "M20 6 9 17l-5-5" }));
-  function advance(kind) {
-    const stage = STAGE_OF[kind] ?? STAGE_OF_AGENT[kind];
-    if (stage !== undefined && stage > reached) setProgress(stage);
-  }
-  function completePipeline(kase) {
-    setProgress(STAGES.length - 1, true, kase.status === "pending_review" || !kase.ruling || kase.ruling.status === "proposal");
-  }
-
   // --- Confidence gauge ----------------------------------------------------------------------------------
   // Ported from the 21st.dev "Financial Score Cards" (designali-in/financial-score-cards): a half-circle arc with a
   // gradient by strength, a strength badge, digits that slide up, and an arc that holds, then sweeps on a slow ease.
@@ -645,29 +611,238 @@
     return { ...known, accent, glyph: GLYPHS[accent] };
   }
 
-  // Who took part: the three Core Agents always, the Supporting Agents lit only when they write to the log.
-  const ROSTER = [
-    { name: "Rider Advocate", accent: "rider", core: true, agents: ["rider_advocate"] },
-    { name: "Driver Advocate", accent: "driver", core: true, agents: ["driver_advocate"] },
-    { name: "Judge", accent: "judge", core: true, agents: ["judge", "judge_self_check", "judge_second_pass"] },
-    { name: "Evidence", accent: "system", agents: ["rider_evidence", "driver_evidence", "evidence"] },
-    { name: "Policy & precedent", accent: "system", agents: ["policy"] },
-    { name: "Photo analysis", accent: "system", agents: ["image_analysis"] },
-    { name: "SLA routing", accent: "system", kinds: ["priority_set"] },
-    { name: "Escalation", accent: "system", agents: ["escalation"] },
-    { name: "Learning loop", accent: "system", agents: ["learning"] },
-  ];
+  // --- Agent workflow: the whole system as an n8n-style canvas -------------------------------------------
+  // Three lanes: the rider's side on top, the shared spine in the middle, the driver's side below. Boxes are
+  // agents, lines are the information passing between them, and both light up from the Communication Log events
+  // as they are revealed, so the canvas and the log always tell the same story.
 
-  function renderRoster() {
-    $("agentRoster").replaceChildren(...ROSTER.map((a, i) => el("span", { class: `roster-agent ${a.accent}${a.core ? " on" : ""}`, "data-i": String(i) },
-      a.core ? icon(...GLYPHS[a.accent]) : null, a.name)));
+  const NODES = [
+    { id: "intake", name: "Intake", note: "Files the case", col: 0, row: 1, kind: "system" },
+    { id: "sla", name: "SLA routing", note: "Sets priority", col: 0, row: 2, kind: "support" },
+    { id: "image", name: "Photo analysis", note: "Reads photos", col: 1, row: 0, kind: "support" },
+    { id: "evidence", name: "Evidence", note: "Pulls trip records", col: 1, row: 1, kind: "system" },
+    { id: "rider_ev", name: "Rider evidence", note: "Picks rider's facts", col: 2, row: 0, kind: "support", passThrough: true },
+    { id: "policy", name: "Policy & precedent", note: "Finds the rules", col: 2, row: 1, kind: "support" },
+    { id: "driver_ev", name: "Driver evidence", note: "Picks driver's facts", col: 2, row: 2, kind: "support", passThrough: true },
+    { id: "rider_adv", name: "Rider Advocate", note: "Argues for the rider", col: 3, row: 0, kind: "rider" },
+    { id: "driver_adv", name: "Driver Advocate", note: "Argues for the driver", col: 3, row: 2, kind: "driver" },
+    { id: "judge", name: "Judge", note: "Weighs both and rules", col: 4, row: 1, kind: "judge" },
+    { id: "escalation", name: "Escalation", note: "Holds it for a person", col: 5, row: 0, kind: "support" },
+    { id: "outcome", name: "Outcome", note: "Tells rider and driver", col: 5, row: 1, kind: "system" },
+    { id: "learning", name: "Learning loop", note: "Keeps overrides", col: 5, row: 2, kind: "support" },
+  ];
+  // [from, to, what travels along it (shown when the line is highlighted), shape]
+  const EDGES = [
+    ["intake", "sla", "priority"], ["intake", "image", "photos"], ["intake", "evidence", "case"], ["image", "evidence", "findings"],
+    ["evidence", "rider_ev", "records"], ["evidence", "policy", "case type"], ["evidence", "driver_ev", "records"],
+    ["rider_ev", "rider_adv", "rider's facts"], ["driver_ev", "driver_adv", "driver's facts"],
+    ["policy", "rider_adv", "clauses"], ["policy", "driver_adv", "clauses"],
+    ["rider_adv", "judge", "submission"], ["driver_adv", "judge", "submission"],
+    ["judge", "outcome", "ruling"], ["judge", "escalation", "if unsure"], ["escalation", "learning", "override", "loop"],
+  ];
+  // Which node an event belongs to: by what it is, then by who wrote it.
+  function nodesOf(event) {
+    const { agent, kind } = event;
+    if (kind === "priority_set") return ["sla"];
+    if (kind === "outcome_sent") return ["outcome"];
+    if (kind === "escalated" || kind === "review_decision" || agent === "escalation") return ["escalation"];
+    if (kind === "precedent_added" || agent === "learning") return ["learning"];
+    if (kind === "photo_analysed" || agent === "image_analysis") return ["image"];
+    if (agent.startsWith("rider_evidence")) return ["rider_ev"];
+    if (agent.startsWith("driver_evidence")) return ["driver_ev"];
+    if (agent === "evidence" || ["evidence_requested", "evidence_sealed", "evidence_resealed"].includes(kind)) return ["evidence"];
+    if (agent === "policy") return ["policy"];
+    if (agent === "rider_advocate") return ["rider_adv"];
+    if (agent === "driver_advocate") return ["driver_adv"];
+    if (agent.startsWith("judge")) return ["judge"];
+    if (agent === "intake") return ["intake"];
+    return [];
   }
-  function lightRoster(event) {
-    ROSTER.forEach((a, i) => {
-      if ((a.agents && a.agents.includes(event.agent)) || (a.kinds && a.kinds.includes(event.kind))) {
-        $("agentRoster").querySelector(`[data-i="${i}"]`).classList.add("on");
+
+  // --- Presenter walkthrough: the Demo Day script as steps (the table in src/api/walkthrough.py) ----------------
+  // Next step turns on that step's supporting agents (they stay on, so the canvas fills up as the demo goes) and
+  // runs its Dispute. ?short=1 leaves out the steps the script marks skippable, and their agents stay off.
+
+  (() => {
+    const bar = $("walkthrough");
+    const all = JSON.parse(document.body.dataset.walkthrough || "[]");
+    if (!all.length) return;
+    const steps = params.has("short") ? all.filter((s) => !s.skippable) : all;
+    let at = -1;
+    const LABEL = Object.fromEntries(all.flatMap((s) => s.tick.map((name, i) => [name, s.labels[i]])));
+    const prev = el("button", { type: "button", class: "wt-button", "aria-label": "Previous step" }, "‹");
+    const next = el("button", { type: "button", class: "wt-button primary" }, "Start the walkthrough");
+    const where = el("span", { class: "wt-where" });
+    const says = el("span", { class: "wt-says" }, `${steps.length} steps: the three core agents first, then each supporting agent in turn.`);
+    const using = el("span", { class: "wt-using" });
+    bar.hidden = false;
+    bar.append(prev, el("div", { class: "wt-text" }, el("div", { class: "wt-line" }, where, says), using), next);
+
+    function show() {
+      const step = steps[at];
+      prev.disabled = at <= 0;
+      next.textContent = at < 0 ? "Start the walkthrough" : at >= steps.length - 1 ? "Run again" : "Next step ›";
+      if (at < 0) return;
+      where.textContent = `Step ${at + 1} of ${steps.length} · ${step.dispute}`;
+      says.textContent = step.says;
+      using.replaceChildren(
+        ...(step.labels.length ? [el("span", { class: "wt-new" }, `Turns on ${step.labels.join(", ")}`)] : []),
+        el("span", { class: "wt-core" }, on.size ? `Agents on: ${[...on].map((name) => LABEL[name]).join(", ")}` : "Core agents only"),
+        ...(step.override ? [el("span", { class: "wt-override" }, "Then open the ", el("a", { href: "/review", target: "_blank", rel: "noopener" }, "review queue"), " and override the proposal.")] : []));
+    }
+
+    function go(index) {
+      at = (index + steps.length) % steps.length;
+      guided = true;
+      on.clear(); // the switches turned on by every step up to this one, so stepping back never leaves a later agent on
+      steps.slice(0, at + 1).forEach((s) => s.tick.forEach((name) => on.add(name)));
+      show();
+      const button = document.querySelector(`button.trip-choice[data-dispute="${steps[at].dispute}"]`);
+      if (button) { const folded = button.closest("details.cat-more"); if (folded) folded.open = true; syncPhotoSwitch(button); run(button); }
+    }
+    next.addEventListener("click", () => go(at + 1));
+    prev.addEventListener("click", () => go(at - 1));
+    show();
+  })();
+
+  const workflow = (() => {
+    const canvas = $("wfCanvas"), edgeLayer = $("wfEdges");
+    const NODE_W = 124, NODE_H = 52, ROW_H = 92, PAD_X = 14, PAD_Y = 34, LOOP_PAD = 34, MIN_W = 1000;
+    const state = new Map(), edgeEls = [], nodeEls = new Map();
+    let filter = null, running = false, focusNode = null; // focusNode: the box under the pointer, so its lines stand out
+    const seen = new Set(), waiting = new Set(); // seen: event kinds so far; waiting: agents the run is now waiting on
+
+    NODES.forEach((n) => {
+      const glyph = GLYPHS[n.kind] || GLYPHS.system;
+      const box = el("button", { type: "button", class: `wf-node ${n.kind}`, "data-node": n.id, "aria-pressed": "false", title: `${n.name}: ${n.note}. Select to filter the log.` },
+        el("span", { class: "wf-icon" }, icon(...glyph)),
+        el("span", { class: "wf-text" }, el("strong", {}, n.name), el("small", {}, n.note)),
+        el("span", { class: "wf-count", hidden: true }, "0"));
+      box.addEventListener("click", () => setFilter(filter === n.id ? null : n.id));
+      for (const [on, off] of [["mouseenter", "mouseleave"], ["focus", "blur"]]) {
+        box.addEventListener(on, () => { focusNode = n.id; paint(); });
+        box.addEventListener(off, () => { focusNode = null; paint(); });
       }
+      canvas.append(box);
+      nodeEls.set(n.id, box);
     });
-  }
-  renderRoster();
+
+    function place() {
+      const width = Math.max(canvas.clientWidth, MIN_W);
+      const colW = (width - 2 * PAD_X - LOOP_PAD) / 6;
+      const pos = (n) => ({ x: PAD_X + (n.col + 0.5) * colW, y: PAD_Y + n.row * ROW_H });
+      NODES.forEach((n) => { const { x, y } = pos(n); const box = nodeEls.get(n.id); box.style.width = `${NODE_W}px`; box.style.left = `${x - NODE_W / 2}px`; box.style.top = `${y - NODE_H / 2}px`; });
+      const height = PAD_Y * 2 + 2 * ROW_H + NODE_H / 2;
+      canvas.style.height = `${height}px`;
+      edgeLayer.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      edgeLayer.setAttribute("width", width);
+      edgeLayer.setAttribute("height", height);
+      const head = (id, cls) => svg("marker", { id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 11, markerHeight: 11, markerUnits: "userSpaceOnUse", orient: "auto" }, svg("path", { d: "M1 1 L9 5 L1 9 z", class: `wf-arrowhead ${cls}` }));
+      edgeLayer.replaceChildren(svg("defs", {}, head("wfArrow", ""), head("wfArrowLit", "lit"), head("wfArrowFlow", "flowing")));
+      edgeEls.length = 0;
+      const byId = Object.fromEntries(NODES.map((n) => [n.id, n]));
+      EDGES.forEach(([from, to, label, shape]) => {
+        const A = byId[from], B = byId[to], a = pos(A), b = pos(B);
+        let d, x1, y1, x2, y2;
+        if (shape === "loop") { // out of the right-hand side, round the column and back in: the override feeds the learning loop
+          x1 = a.x + NODE_W / 2 + 3; y1 = a.y; x2 = b.x + NODE_W / 2 + 4; y2 = b.y;
+          d = `M${x1} ${y1} C${x1 + LOOP_PAD} ${y1} ${x2 + LOOP_PAD} ${y2} ${x2} ${y2}`;
+        } else if (A.col === B.col) { // same column: straight down or up
+          const down = b.y > a.y;
+          x1 = x2 = a.x; y1 = a.y + (down ? NODE_H / 2 + 3 : -NODE_H / 2 - 3); y2 = b.y + (down ? -NODE_H / 2 - 4 : NODE_H / 2 + 4);
+          d = `M${x1} ${y1} L${x2} ${y2}`;
+        } else {
+          x1 = a.x + NODE_W / 2 + 3; y1 = a.y; x2 = b.x - NODE_W / 2 - 4; y2 = b.y;
+          const bend = Math.max(18, (x2 - x1) / 2);
+          d = `M${x1} ${y1} C${x1 + bend} ${y1} ${x2 - bend} ${y2} ${x2} ${y2}`;
+        }
+        const path = svg("path", { d, class: "wf-edge" });
+        edgeLayer.append(path);
+        const ports = [svg("circle", { cx: x1, cy: y1, r: 3.5, class: "wf-port" })];
+        edgeLayer.append(...ports);
+        let text = null;
+        if (label) { // a small pill on the line's midpoint, shown only while the line is highlighted
+          const mid = path.getPointAtLength ? path.getPointAtLength(path.getTotalLength() / 2) : { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
+          const w = label.length * 6.2 + 16;
+          const pill = svg("rect", { x: mid.x - w / 2, y: mid.y - 9, width: w, height: 18, rx: 9, class: "wf-pill" });
+          text = svg("text", { x: mid.x, y: mid.y + 3.5, class: "wf-edge-label", "text-anchor": "middle" });
+          text.textContent = label;
+          edgeLayer.append(pill, text);
+          ports.push(pill);
+        }
+        edgeEls.push({ from, to, path, text, ports });
+      });
+      paint();
+    }
+
+    const touched = (id) => (state.get(id)?.count || 0) > 0;
+    const isActive = (id) => Boolean(state.get(id)?.active) || waiting.has(id);
+    // An evidence agent that was switched off is passed through: the records still reach the advocates, past its box.
+    const passed = (id) => Boolean(state.get(id)?.skipped) && NODES.find((n) => n.id === id).passThrough === true;
+
+    function paint() {
+      nodeEls.forEach((box, id) => {
+        const s = state.get(id) || { count: 0 };
+        box.dataset.status = s.active || waiting.has(id) ? "active" : s.count ? "done" : s.skipped ? "skipped" : "idle";
+        box.classList.toggle("filtered", filter === id);
+        box.setAttribute("aria-pressed", String(filter === id));
+        const badge = box.querySelector(".wf-count");
+        badge.hidden = !s.count;
+        badge.textContent = String(s.count || 0);
+      });
+      edgeEls.forEach((e) => {
+        const lit = (touched(e.from) || passed(e.from)) && (touched(e.to) || passed(e.to)) && !(passed(e.from) && passed(e.to));
+        const flowing = touched(e.from) && isActive(e.to);
+        const hot = focusNode === e.from || focusNode === e.to;
+        const dim = focusNode !== null && !hot;
+        e.path.classList.toggle("lit", lit);
+        e.path.classList.toggle("flowing", flowing);
+        e.path.classList.toggle("hot", hot);
+        e.path.classList.toggle("dim", dim);
+        e.path.setAttribute("marker-end", `url(#${flowing ? "wfArrowFlow" : lit ? "wfArrowLit" : "wfArrow"})`);
+        e.ports.forEach((p) => { p.classList.toggle("lit", lit || flowing); p.classList.toggle("dim", dim); p.classList.toggle("show", hot && p.tagName === "rect"); });
+        if (e.text) { e.text.classList.toggle("lit", lit); e.text.classList.toggle("flowing", flowing); e.text.classList.toggle("show", hot); }
+      });
+    }
+
+    function setFilter(id) {
+      filter = id;
+      $("log").querySelectorAll("li").forEach((li) => { li.hidden = id !== null && !(li.dataset.nodes || "").split(" ").includes(id); });
+      paint();
+    }
+
+    function reset() { state.clear(); seen.clear(); waiting.clear(); filter = null; running = true; paint(); }
+    function event(e) {
+      const ids = nodesOf(e);
+      state.forEach((s) => { s.active = false; });
+      ids.forEach((id) => { const s = state.get(id) || { count: 0 }; s.count += 1; s.active = true; state.set(id, s); });
+      expectNext(e);
+      paint();
+      return ids;
+    }
+    // A model call takes seconds and writes nothing until it returns, so the canvas shows who the run is waiting on.
+    function expectNext(e) {
+      seen.add(e.kind);
+      if (e.kind === "submission_filed") seen.add(`sub:${e.agent}`);
+      waiting.clear();
+      if (!seen.has("evidence_requested")) waiting.add("evidence");
+      if (seen.has("evidence_sealed") || seen.has("policy_retrieved")) {
+        if (!seen.has("sub:rider_advocate")) waiting.add("rider_adv");
+        if (!seen.has("sub:driver_advocate")) waiting.add("driver_adv");
+      }
+      if (seen.has("sub:rider_advocate") && seen.has("sub:driver_advocate") && !seen.has("ruling_drafted")) waiting.add("judge");
+      if (seen.has("ruling_drafted") && !seen.has("outcome_sent") && !seen.has("escalated")) waiting.add("outcome");
+    }
+    function finish() {
+      running = false;
+      waiting.clear();
+      state.forEach((s) => { s.active = false; });
+      NODES.forEach((n) => { if (!touched(n.id)) state.set(n.id, { count: 0, skipped: true }); });
+      paint();
+    }
+
+    new ResizeObserver(place).observe(canvas);
+    place();
+    return { reset, event, finish, setFilter };
+  })();
 })();

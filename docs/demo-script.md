@@ -1,8 +1,8 @@
 # Demo script
 
-The Demo Day walkthrough: what to click, what the audience sees, and what to say. Lines in a quote block are spoken. It runs about eight minutes; three steps are marked as ones you can skip to bring it to about five. The short version never ticks Stability check or Evidence agents, so name them on the diagram instead of showing them.
+The Demo Day walkthrough: what to click, what the audience sees, and what to say. Lines in a quote block are spoken. It runs about eight minutes; three steps are marked as ones you can skip to bring it to about five. The short version never turns on Stability check or Evidence agents, so name them on the diagram instead of showing them.
 
-The whole walkthrough at a glance is [diagrams/demo-walkthrough.html](diagrams/demo-walkthrough.html). The steps here are the same rows as `STEPS` in [`src/api/walkthrough.py`](../src/api/walkthrough.py). A test checks each step here against that table: the Dispute, the switches ticked, the outcome, the amount, the Confidence and Priority figures quoted, the review reasons and the Override's wording. The rehearsal below runs the table end to end.
+The whole walkthrough at a glance is [diagrams/demo-walkthrough.html](diagrams/demo-walkthrough.html). The steps here are the same rows as `STEPS` in [`src/api/walkthrough.py`](../src/api/walkthrough.py). A test checks each step here against that table: the Dispute, the switches turned on, the outcome, the amount, the Confidence and Priority figures quoted, the review reasons and the Override's wording. The rehearsal below runs the table end to end.
 
 ## Before you present
 
@@ -21,11 +21,11 @@ The whole walkthrough at a glance is [diagrams/demo-walkthrough.html](diagrams/d
    ```
 
    It must end with `11 of 11 steps ended as scripted.`
-3. Open two browser tabs: the console at `http://127.0.0.1:8000/` and the review queue at `http://127.0.0.1:8000/review`. Keep the console tab open for the whole demo. Its ticked boxes are not saved, so leaving the page and coming back unticks them. If that happens, `http://127.0.0.1:8000/?precedent=1&stability=1&routing=1&evidence=1&learning=1` ticks them again (Photo analysis is ticked by hand once a Dispute with photos is selected).
-4. Set **Replay speed** to **Presenter** so the Communication Log fills in at a readable pace. Use **Fast** if you are short of time.
+3. Open two browser tabs: the console at `http://127.0.0.1:8000/` and the review queue at `http://127.0.0.1:8000/review`. Keep the console tab open for the whole demo. The supporting agents that are switched on are not saved, so leaving the page and coming back turns them off. The walkthrough bar above the dispute list turns each one on again as you press **Next step**: step 1 starts from the three core agents, and pressing **‹** goes back a step and turns later agents off with it.
+4. The Communication Log fills in at a readable pace by default (`?pace=150` is faster, `?pace=0` is instant). Add `?short=1` to the address to leave out the three steps marked skippable.
 5. Start from a fresh server. Cases, the review queue and learned Precedents live in memory, so a restart clears them.
 
-If runs start failing on the day (for example the header names a live model and it cannot be reached), tick **Replay a recording** in the header. The console then plays saved scripted runs of the same Disputes and calls no model. The server must still be up, because it serves the page. A recording creates no Case, so nothing reaches the review queue: the queue in step 6 and all of steps 10 and 11 need real runs.
+If runs start failing on the day (for example the header names a live model and it cannot be reached), add `?recorded=1` to the address. The console then plays saved scripted runs of the same Disputes and calls no model. The server must still be up, because it serves the page. A recording creates no Case, so nothing reaches the review queue: the queue in step 6 and all of steps 10 and 11 need real runs.
 
 ## Opening
 
@@ -37,11 +37,11 @@ Show the architecture page (`/architecture`). Clicking a box shows the source li
 
 ## Part 1: the three Core Agents alone
 
-Open the console tab. Every switch in the header is unticked.
+Open the console tab. The walkthrough bar reads **Start the walkthrough**. Every supporting agent is off, so the workflow canvas shows only the three core agents lit.
 
 ### 1. DISP-003: a No-Show Charge ruled for the Claimant
 
-Click **DISP-003**. The rider says the driver cancelled early and they were charged a no-show fee.
+Press **Start the walkthrough**. It runs **DISP-003**. The rider says the driver cancelled early and they were charged a no-show fee.
 
 Point at the Communication Log as it fills: evidence requested and sealed, policy retrieved, a Submission from each advocate, then the Judge's assessment and Ruling.
 
@@ -50,11 +50,11 @@ Point at the Communication Log as it fills: evidence requested and sealed, polic
 
 > The driver waited four minutes. The trip's own data sets a five-minute free wait, so the fee was charged too early. That arithmetic is done in code, not by the model. The Judge accepts or rejects each argument and cites the evidence item and the policy clause behind it.
 
-Open the **Ruling** tab to show the Confidence parts and the per-argument assessment, then **What each person is told** on the Overview tab: the rider and the driver each get their own Outcome, and the refund is marked recommended, never executed.
+Open the **Ruling** tab to show the Confidence parts and the per-argument assessment, then on the **Communication log** tab, **What each person is told**: the rider and the driver each get their own Outcome, and the refund is marked recommended, never executed.
 
 ### 2. DISP-002: the same category ruled for the Respondent
 
-Click **DISP-002**. Another rider disputes a no-show fee.
+Press **Next step**. It runs **DISP-002**. Another rider disputes a no-show fee.
 
 - Ruling: `reject`, no action, Confidence 0.70, final.
 - This is the case ruled for the Respondent: the rider filed it and the driver wins.
@@ -63,7 +63,7 @@ Click **DISP-002**. Another rider disputes a no-show fee.
 
 ### 3. DISP-008: a Route Deviation with a computed partial refund
 
-Click **DISP-008**. The rider says the driver took a longer route.
+Press **Next step**. It runs **DISP-008**. The rider says the driver took a longer route.
 
 - Ruling: `partially_uphold`, partial refund of SGD 5.39, Confidence 0.95, final.
 
@@ -73,11 +73,11 @@ Open the **Ruling** tab and show the calculation.
 
 ## Part 2: the Supporting Agents, one switch at a time
 
-Each switch stays ticked once it is on. Never untick one.
+Each supporting agent stays on once a step has turned it on. The workflow canvas lights it up as it works. Never press **‹** during this part.
 
 ### 4. DISP-003 again, now with precedent
 
-Tick **Use precedent**, then click **DISP-003**.
+Press **Next step**. It turns on **Use precedent** and runs **DISP-003**.
 
 - A new log event, `Precedent retrieved`, lists three similar past Rulings.
 - Ruling: still `uphold`, SGD 5.00, final. The Judge cites PREC-NS-02 and says why the two it departs from are different.
@@ -86,7 +86,7 @@ Tick **Use precedent**, then click **DISP-003**.
 
 ### 5. DISP-003 once more, with the stability check (can be skipped)
 
-Tick **Stability check**, then click **DISP-003**.
+Press **Next step**. It turns on **Stability check** and runs **DISP-003**.
 
 - A new log event, `Stability check`: the Judge ruled twice with the order of the two Submissions swapped.
 - Ruling: `uphold`, SGD 5.00, but now a proposal held for a person: `stability_disagreement`.
@@ -95,7 +95,7 @@ Tick **Stability check**, then click **DISP-003**.
 
 ### 6. DISP-005: a Safety Incident jumps the queue
 
-Tick **SLA routing**, then click **DISP-005**. The rider reports dangerous speeding.
+Press **Next step**. It turns on **SLA routing** and runs **DISP-005**. The rider reports dangerous speeding.
 
 - A new log event, `Priority set`. The Case shows Priority 130. A No-Show Case scores 20.
 - Ruling: `uphold` as a proposal, held for a person: `safety_incident`.
@@ -106,7 +106,7 @@ Switch to the review tab and reload it: DISP-005 is at the top of the queue.
 
 ### 7. DISP-011: Evidence Agents read the chat (can be skipped)
 
-Tick **Evidence agents**, then click **DISP-011**. Here the driver is the Claimant, asking for a cleaning fee.
+Press **Next step**. It turns on **Evidence agents** and runs **DISP-011**. Here the driver is the Claimant, asking for a cleaning fee.
 
 - The log shows a Rider Evidence Agent and a Driver Evidence Agent. Open **Evidence and policy**: new items quote the chat word for word, including the rider's "Sorry, I did spill my drink."
 - Ruling: `uphold`, compensation to the driver of SGD 40.00, final.
@@ -115,24 +115,26 @@ Tick **Evidence agents**, then click **DISP-011**. Here the driver is the Claima
 
 ### 8. DISP-011 again, with the photo analysed
 
-Tick **Photo analysis**, then click **DISP-011**. The box can only be ticked while a Dispute with photos is selected.
+Press **Next step**. It turns on **Photo analysis** and runs **DISP-011**, which has photos.
 
-- A new log event, `Photo analysed`. Open **Evidence and policy**: findings for what the photo shows, when it was taken and whether it looks AI-generated, each with its uncertainty.
+- A new log event, `Photo analysed`, with a card under it: the photo beside its three findings, what it shows, whether it was taken during the trip and whether it looks AI-generated, each with its uncertainty. The Photo analysis box on the workflow lights up. **Evidence and policy** has the same findings as citable items.
 - Ruling: `uphold`, SGD 40.00, final. A driver's claim, upheld.
 
 > Image Analysis reports what the photo shows, whether its timestamp falls inside the trip, and any sign of AI generation. Those are signals for the Judge, never a Ruling on their own.
 
 ### 9. DISP-012: a photo that fails its check (can be skipped)
 
-Click **DISP-012**. Another cleaning-fee claim.
+Press **Next step**. It runs **DISP-012**. Another cleaning-fee claim.
 
 - Ruling: `reject` as a proposal, held for a person: `authenticity_check`.
 
 > Same claim, but this photo was taken two weeks before the trip. The check fails, Confidence is capped, and a person decides. A bad photo never wins or loses a case by itself.
 
+The card in the log shows the failed check in amber. If there is time, click **DISP-013** in the list: its photo was taken during the trip but the card flags it as likely AI-generated, so it is held for a person for `authenticity_check` too. Then press **Next step** to carry on.
+
 ### 10. DISP-004: a person overrides the Judge
 
-Tick **Learn from overrides**, then click **DISP-004**. The driver's GPS stops two minutes after arrival.
+Press **Next step**. It turns on **Learn from overrides** and runs **DISP-004**. The driver's GPS stops two minutes after arrival.
 
 - Ruling: `reject` as a proposal, Confidence 0.50, held for a person: `low_confidence`.
 
@@ -149,14 +151,14 @@ The driver's GPS stops two minutes after arrival, so the full wait is not proven
 
 ### 11. DISP-007: the next similar Case sees the Override
 
-Back on the console tab, click **DISP-007**.
+Back on the console tab, press **Next step**. It runs **DISP-007**.
 
 - `Precedent retrieved` now lists PREC-HO-0001, marked as a human override.
 - Ruling: `reject`, final. The Judge cites the Override and explains why this Case differs: here the GPS covers the whole wait.
 
 > The Override a person recorded a minute ago is now in front of the Judge. It did not blindly copy it. It cited it and explained why this case is different. That is the loop: the system rules, a person overrides, and the next Ruling takes that Override into account.
 
-After step 10, do not run DISP-002 or DISP-004 again, and keep **Learn from overrides** ticked for DISP-007. They are No-Show Cases, so they are now shown the Override too, and their other scripted Judge replies do not explain a departure from it. The system then refuses the Ruling and holds the Case, which is correct but is not what this script says. Restart the server to clear it.
+After step 10, do not run DISP-002 or DISP-004 again, and keep **Learn from overrides** on for DISP-007. They are No-Show Cases, so they are now shown the Override too, and their other scripted Judge replies do not explain a departure from it. The system then refuses the Ruling and holds the Case, which is correct but is not what this script says. Restart the server to clear it.
 
 ## Closing
 
@@ -178,5 +180,5 @@ Open `/evaluation` and press **Run the evaluation**.
 - **Fraud and Bad-Faith Detection Agent.** Not built. It is the one optional agent in the brief that we left out.
 - **Filing a Dispute from the report form into this pipeline** (tickets 18 and 19). Not finished, so do not open the Rider app or the Help form during the walkthrough. The Rider app prepares its own Submission and does not produce a Judge Ruling.
 - **Precedent retrieval by embeddings.** The code path exists behind a setting; the demo uses tags, the default.
-- **Escalation has no checkbox.** It is on for every run, including Part 1, so a low-Confidence Ruling is never sent out as final. Part 1's three Cases are all above the line and are not escalated.
+- **Escalation has no switch.** It is on for every run, including Part 1, so a low-Confidence Ruling is never sent out as final. Part 1's three Cases are all above the line and are not escalated.
 - **Real payments, real Ryde data, messages sent to riders and drivers.** All simulated and labelled as such on every page. Each Outcome is shown on screen, not sent.

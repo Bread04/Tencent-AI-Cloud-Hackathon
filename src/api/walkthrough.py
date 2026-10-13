@@ -8,6 +8,7 @@ one (a learned Override is served to every later No-Show Case).
     uv run python -m scripts.rehearse
 """
 
+import json
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
@@ -67,6 +68,16 @@ STEPS = (
     Step("DISP-007", "a later similar Case is shown that Override, and the Judge says why this one differs", RulingOutcome.REJECT, rules_for=FOR.RESPONDENT,
          shows=(SHOWN.PRECEDENT_RETRIEVED,), cites_override=True),
 )
+
+
+def steps_json() -> str:
+    """The table for the console's walkthrough bar: the Dispute to run, what it shows, and the switches it turns on."""
+    labels = {s.name: s.label for s in DEMO_SWITCHES}
+    return json.dumps([
+        {"dispute": step.dispute_id, "says": step.says, "tick": list(step.tick), "labels": [labels[name] for name in step.tick],
+         "skippable": step.skippable, "override": step.override}
+        for step in STEPS
+    ])
 
 
 @dataclass(frozen=True)

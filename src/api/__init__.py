@@ -24,6 +24,7 @@ from pydantic import BaseModel
 from src.agents.policy import SIMULATED_LABEL as POLICY_SIMULATED
 from src.agents.intake import IntakeError, resolve_category
 from src.api.demo_switches import switches_from_query, switches_json
+from src.api.walkthrough import steps_json
 from src.api.evaluation import add_evaluation_routes
 from src.api.review import add_review_routes
 from src.config import CONFIG
@@ -163,7 +164,9 @@ def create_app(
     def home():
         rows = _dispute_groups(catalog)
         template = (HERE / "console.html").read_text(encoding="utf-8")
-        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{SWITCHES}}", escape(switches_json())).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
+        for asset in ("console.js", "console.css"):  # the file's modified time in the URL, so a browser never serves a stale copy after an edit
+            template = template.replace(f"/static/{asset}", f"/static/{asset}?v={(HERE / 'static' / asset).stat().st_mtime_ns}")
+        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{SWITCHES}}", escape(switches_json())).replace("{{WALKTHROUGH}}", escape(steps_json())).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
 
     def start_in_background(dispute, switches):
         """Run a Dispute in the background and answer with its Case ID as soon as the Case exists, so the caller can watch it."""

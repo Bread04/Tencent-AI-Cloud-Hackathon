@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="/static/console.css">
 <link rel="icon" type="image/svg+xml" href="/prototypes/shared/waypoint-mark.svg">
 </head>
-<body class="rider-app console" data-threshold="{{THRESHOLD}}" data-switches="{{SWITCHES}}">
+<body class="rider-app console" data-threshold="{{THRESHOLD}}" data-switches="{{SWITCHES}}" data-walkthrough="{{WALKTHROUGH}}">
 <header class="app-header">
   <a class="brand" href="/"><img src="/prototypes/shared/waypoint-mark.svg" alt="" width="36" height="36">Waypoint</a>
   <nav class="shared-nav" aria-label="Main navigation">
@@ -34,6 +34,8 @@
   <div class="notice slim" role="note">{{SIMULATED}} Mock policy. A recommended action is never executed.</div>
   <div id="appError" class="notice error" role="alert" hidden></div>
 
+  <nav id="walkthrough" class="walkthrough" aria-label="Presenter walkthrough" hidden></nav>
+
   <div class="workspace">
     <aside class="trip-column">
       <div class="section-title"><h2>Disputes</h2><span class="count">{{COUNT}}</span></div>
@@ -56,6 +58,14 @@
         </div>
         <div class="fare"><span id="fareLabel" class="small muted">Fee in dispute</span><strong id="fare">–</strong><span class="small muted">Simulated payment</span></div>
       </div>
+      <section class="workflow" aria-labelledby="wfTitle">
+        <div class="wf-head">
+          <h3 id="wfTitle">Agent workflow</h3>
+          <ul class="wf-legend" aria-hidden="true"><li class="idle">Waiting</li><li class="active">Working</li><li class="done">Done</li><li class="skipped">Not used</li></ul>
+        </div>
+        <div class="wf-scroll"><div id="wfCanvas" class="wf-canvas"><svg id="wfEdges" class="wf-edges" aria-hidden="true"></svg></div></div>
+        <p class="wf-hint small muted">Each box is an agent. A line lights up as information passes along it. Select an agent to show only its messages in the log.</p>
+      </section>
       <nav class="tabs" aria-label="Case details">
         <button type="button" data-tab="overview" aria-pressed="true">Communication log</button>
         <button type="button" data-tab="ruling" aria-pressed="false">Ruling</button>
@@ -65,8 +75,6 @@
       </nav>
 
       <div id="overview" class="tab-panel">
-        <ol id="pipeline" class="pipeline" aria-label="Where the run is"></ol>
-        <div id="agentRoster" class="agent-roster" aria-label="The agents arguing the case"></div>
         <div class="log-heading">
           <h3>Communication log</h3>
           <p id="status" class="muted small" role="status">Nothing running. Choose a dispute on the left.</p>

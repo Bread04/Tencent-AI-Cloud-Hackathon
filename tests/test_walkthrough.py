@@ -177,9 +177,9 @@ def test_the_script_has_one_numbered_step_per_walkthrough_step_running_the_same_
         assert re.findall(r"DISP-\d{3}", body.splitlines()[0]) == [step.dispute_id]
 
 
-def test_each_step_of_the_script_tells_the_presenter_to_tick_exactly_the_switches_that_step_turns_on():
+def test_each_step_of_the_script_names_exactly_the_switches_that_step_turns_on():
     for (number, body), step in zip(sections(), STEPS):
-        told = re.findall(r"Tick \*\*(.+?)\*\*", body)
+        told = re.findall(r"[Tt]urns on \*\*(.+?)\*\*", body)
         assert told == [LABELS[name] for name in step.tick], f"step {number}"
 
 
