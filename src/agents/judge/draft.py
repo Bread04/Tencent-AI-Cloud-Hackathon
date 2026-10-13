@@ -137,8 +137,13 @@ def _amount_problems(case: Case, draft: JudgeDraft) -> list[str]:
         if not calculated["available"]:
             return ["Route refund inputs do not reconcile: " + calculated["unavailable_reason"]]
         refund, paid = Decimal(calculated["refund"]), Decimal(calculated["paid_net"])
-        if refund <= 0 or (draft.remedy is Remedy.PARTIAL_REFUND and refund >= paid) or (draft.remedy is Remedy.FULL_REFUND and refund != paid):
-            return ["The remedy must match the code-computed positive refund: partial below paid net, full equal to paid net."]
+        if refund <= 0:
+            if draft.remedy is not Remedy.NO_ACTION:
+                return ["The code-computed refund is SGD 0.00 (no excess fare): outcome must be reject and remedy must be no_action."]
+        elif draft.remedy is Remedy.PARTIAL_REFUND and refund >= paid:
+            return [f"The code-computed refund is SGD {refund}, which equals or exceeds paid net SGD {paid}: outcome must be uphold and remedy full_refund."]
+        elif draft.remedy is Remedy.FULL_REFUND and refund != paid:
+            return [f"The code-computed refund is SGD {refund} (less than full paid net SGD {paid}): outcome must be partially_uphold and remedy partial_refund."]
         return []
     if draft.remedy is not Remedy.FEE_REVERSAL:
         if draft.amount_input_evidence_ids:
@@ -156,9 +161,14 @@ def _amount_problems(case: Case, draft: JudgeDraft) -> list[str]:
 
 def _policy_gap_problems(draft: JudgeDraft) -> list[str]:
     if draft.policy_gap and draft.policy_fit is not PolicyFit.UNCLEAR:
-        return ["The draft names a Policy Gap, so Policy Fit must be unclear."]
+        return [
+            f"The draft names a Policy Gap ('{draft.policy_gap}'), so policy_fit must be unclear. "
+            "Either set policy_fit to 'unclear', or set policy_gap to null if the case is covered by existing clauses."
+        ]
     if draft.policy_fit is PolicyFit.UNCLEAR and not draft.policy_gap:
-        return ["The draft says Policy Fit is unclear but does not name the gap; name the gap, the situation no clause covers."]
+        return [
+            "The draft says Policy Fit is unclear but does not name the gap; name the gap, the situation no clause covers."
+        ]
     return []
 
 
