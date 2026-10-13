@@ -162,6 +162,7 @@ class LogEventKind(StrEnum):
     EVIDENCE_REQUESTED = "evidence_requested"
     EVIDENCE_RETURNED = "evidence_returned"
     EVIDENCE_SEALED = "evidence_sealed"
+    EVIDENCE_RESEALED = "evidence_resealed"  # a second evidence version; what was built on the first is now stale
     PHOTO_ANALYSED = "photo_analysed"
     POLICY_RETRIEVED = "policy_retrieved"
     PRECEDENT_RETRIEVED = "precedent_retrieved"
@@ -200,6 +201,29 @@ class Switches(Contract):
 # --- Dispute -----------------------------------------------------------------
 
 
+class Incident(Contract):
+    """When and where the reported incident happened, as the party stated it."""
+
+    time: datetime | None  # in `time_zone`; None when the party does not know the time
+    time_zone: Text
+    location: str | None = None
+
+
+class RequestedResolution(Contract):
+    """What the party asked for on the report form. The Ruling's Remedy and amount are decided separately."""
+
+    type: Text
+    amount: Decimal | None = Field(default=None, gt=0)
+    currency: Annotated[str, Field(pattern=r"^[A-Z]{3}$")] | None = None
+    details: str | None = None
+
+    @model_validator(mode="after")
+    def _amount_states_its_currency(self):
+        if self.amount is not None and not self.currency:
+            raise ValueError("a requested amount must state its currency")
+        return self
+
+
 class Dispute(Contract):
     dispute_id: Text
     trip_id: Text
@@ -210,6 +234,11 @@ class Dispute(Contract):
     filed_at: datetime
     photos: list[str] = []
     driver_statement: str | None = None
+    # From the report form (ticket 18). All empty for a Dispute that was not filed through it.
+    filed_report: dict[str, Any] | None = None  # the report exactly as it was submitted; kept, never edited
+    incident: Incident | None = None
+    category_details: dict[str, str] = {}
+    requested_resolution: RequestedResolution | None = None
 
     @property
     def claimant(self) -> Party:
@@ -257,6 +286,10 @@ class Submission(Contract):
     counter_arguments: list[CounterArgument] = []
     policy_clause_ids: list[str] = []
     requested_outcome: Text
+    # What it was built from (ticket 18): stamped by code from the Case snapshot the advocate read, never by the model.
+    report_version: str | None = None
+    evidence_version: str | None = None
+    policy_version: str | None = None
 
 
 class PolicyClause(Contract):
@@ -428,16 +461,31 @@ class Case(Contract):
     priority: int = 0
     priority_reason: str | None = None
     switches: Switches = Switches()
+    report_version: str | None = None  # set when the Case is created from the filed report
     evidence: list[EvidenceItem] = []
     evidence_version: str | None = None  # set when the evidence set is sealed
+    superseded_evidence_versions: list[str] = []  # earlier versions, oldest first, once the evidence is resealed
     policy_clauses: list[PolicyClause] = []
+    policy_version: str | None = None  # the one version every served Policy Clause shares
     precedents: list[Precedent] = []
     submissions: list[Submission] = []
     ruling: Ruling | None = None
+    # Built on a superseded evidence version (ticket 18): kept for the record, never argued from or acted on.
+    stale_submissions: list[Submission] = []
+    stale_ruling: Ruling | None = None
     outcomes: list[Outcome] = []
     review_record: ReviewRecord | None = None
     created_at: datetime
     updated_at: datetime
+
+    @property
+    def versions(self) -> dict[str, str | None]:
+        """The report, evidence and policy versions in force, under the names a Submission records them by."""
+        return {
+            "report_version": self.report_version,
+            "evidence_version": self.evidence_version,
+            "policy_version": self.policy_version,
+        }
 
     @model_validator(mode="after")
     def _one_submission_per_advocate(self):

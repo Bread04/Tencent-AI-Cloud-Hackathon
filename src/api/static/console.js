@@ -465,7 +465,7 @@
   ];
   const STAGE_OF = {
     case_filed: 0, priority_set: 0, case_rejected: 0,
-    evidence_requested: 1, evidence_returned: 1, evidence_sealed: 1, photo_analysed: 1,
+    evidence_requested: 1, evidence_returned: 1, evidence_sealed: 1, evidence_resealed: 1, photo_analysed: 1,
     policy_retrieved: 2, precedent_retrieved: 2,
     submission_filed: 3,
     argument_assessed: 4, ruling_drafted: 4, self_check_passed: 4, self_check_failed: 4, stability_check: 4,

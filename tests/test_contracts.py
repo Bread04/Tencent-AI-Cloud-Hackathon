@@ -59,6 +59,57 @@ def test_dispute_rejects_an_empty_description():
     assert "description" in rejected(b.a_dispute, description="")
 
 
+def test_dispute_keeps_the_filed_report_and_its_incident_details_and_requested_resolution():
+    dispute = b.a_filed_dispute()
+
+    assert dispute.filed_report["statement"] == "I waited at the lobby and the driver never came."
+    assert dispute.incident.time.isoformat() == "2026-10-09T08:05:00"
+    assert dispute.incident.time_zone == "Asia/Singapore"
+    assert dispute.incident.location == "Novena Square pickup bay"
+    assert dispute.category_details == {"waitedMinutes": "12"}
+    assert dispute.requested_resolution.type == "refund"
+    assert dispute.requested_resolution.amount == Decimal("5.00")
+    assert dispute.requested_resolution.currency == "SGD"
+    assert type(dispute).model_validate_json(dispute.model_dump_json()) == dispute
+
+
+def test_a_dispute_filed_without_a_report_is_still_valid():
+    dispute = b.a_dispute()
+
+    assert dispute.filed_report is None
+    assert dispute.incident is None
+    assert dispute.category_details == {}
+    assert dispute.requested_resolution is None
+
+
+def test_an_incident_whose_time_is_unknown_is_valid_but_it_must_name_its_time_zone():
+    assert b.a_filed_dispute(incident={"time": None, "time_zone": "Asia/Singapore"}).incident.time is None
+
+    assert "time_zone" in rejected(b.a_filed_dispute, incident={"time": "2026-10-09T08:05:00"})
+    assert "time_zone" in rejected(b.a_filed_dispute, incident={"time": None, "time_zone": ""})
+
+
+@pytest.mark.parametrize(
+    "bad_fields, named",
+    [
+        ({"incident": {"time": "yesterday morning", "time_zone": "Asia/Singapore"}}, "incident.time"),
+        ({"incident": {"time": None, "time_zone": "Asia/Singapore", "weather": "rain"}}, "incident.weather"),
+        ({"category_details": {"waitedMinutes": 12}}, "category_details.waitedMinutes"),
+        ({"requested_resolution": {"amount": "5.00", "currency": "SGD"}}, "requested_resolution.type"),
+        ({"requested_resolution": {"type": "refund", "amount": "-5.00", "currency": "SGD"}}, "requested_resolution.amount"),
+        ({"requested_resolution": {"type": "refund", "amount": "0", "currency": "SGD"}}, "requested_resolution.amount"),
+        ({"requested_resolution": {"type": "refund", "amount": "5.00", "currency": "dollars"}}, "requested_resolution.currency"),
+        ({"filed_report": "the driver never came"}, "filed_report"),
+    ],
+)
+def test_a_malformed_report_field_is_rejected_by_name(bad_fields, named):
+    assert named in rejected(b.a_filed_dispute, **bad_fields)
+
+
+def test_a_requested_amount_must_state_its_currency():
+    assert "currency" in rejected(b.a_filed_dispute, requested_resolution={"type": "refund", "amount": "5.00"})
+
+
 # --- Evidence Item ---------------------------------------------------------
 
 

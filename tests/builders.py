@@ -20,6 +20,25 @@ def a_dispute(**overrides):
     return c.Dispute(**(fields | overrides))
 
 
+def a_filed_dispute(**overrides):
+    """A Dispute that came from the report form, with the report as it was submitted."""
+    fields = dict(
+        filed_report={
+            "id": "RPT-0001",
+            "reporterRole": "Rider",
+            "category": "No-show charge",
+            "statement": "I waited at the lobby and the driver never came.",
+            "incident": {"time": "2026-10-09T08:05", "timeZone": "Asia/Singapore", "location": "Novena Square pickup bay"},
+            "categoryDetails": {"waitedMinutes": "12"},
+            "requestedResolution": {"type": "refund", "amount": 5, "currency": "SGD"},
+        },
+        incident={"time": "2026-10-09T08:05:00", "time_zone": "Asia/Singapore", "location": "Novena Square pickup bay"},
+        category_details={"waitedMinutes": "12"},
+        requested_resolution={"type": "refund", "amount": "5.00", "currency": "SGD"},
+    )
+    return a_dispute(**(fields | overrides))
+
+
 def an_evidence_item(**overrides):
     fields = dict(
         evidence_id="EV-GPS-1",

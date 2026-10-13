@@ -84,6 +84,14 @@ _Avoid_: Ticket
 A single ride from pickup to drop-off, or a cancelled attempt at one, that a dispute is tied to.
 _Avoid_: Ride, booking
 
+**Filed Report**:
+The report form a party submitted, kept on the Dispute exactly as it was sent. Its incident time and place, category details and Requested Resolution are also held as checked fields that agents read; the raw report itself is never sent to a model.
+_Avoid_: Complaint form, ticket
+
+**Requested Resolution**:
+What the filing party asked for on the report form: a type and, where given, an amount and currency. It is the party's request only; what the Ruling grants is the Remedy.
+_Avoid_: Remedy (reserved for what the Ruling grants), claim amount
+
 ### Agents
 
 **Rider Advocate**:
@@ -127,6 +135,18 @@ _Avoid_: Proof, data point
 **Material Evidence**:
 The evidence a Dispute Category cannot be fairly decided without, listed in a checklist kept with the policy. When some of it is missing, Confidence drops.
 _Avoid_: Key evidence, required fields
+
+**Evidence Version**:
+The ID a Case's evidence set gets when it is sealed, after which nothing can be added. A Submission records the report, Evidence and policy versions it was built from, and one built on a version no longer in force is refused.
+_Avoid_: Snapshot, revision
+
+**Reseal**:
+Adding a record the first Evidence Version lacked and sealing a second version, allowed once per Case and never after a final Ruling. The Submissions and Ruling built on the first version become Stale.
+_Avoid_: Reopen, amend
+
+**Stale**:
+Said of a Submission or Ruling built on an Evidence Version that a Reseal replaced. It is kept on the Case for the record, apart from the current ones, and is never argued from or acted on.
+_Avoid_: Outdated, invalid
 
 **Submission**:
 An advocate's structured argument for one party, citing Evidence Items and policy clauses.

@@ -7,7 +7,7 @@ import pytest
 
 from src.agents.advocates import build_submission
 from src.agents.policy import policy_for
-from src.contracts import Advocate, CaseStatus, LogEventKind, Party
+from src.contracts import Advocate, CaseStatus, Incident, LogEventKind, Party, RequestedResolution
 from src.intake import load_catalog
 from src.llm.repair import StageFailed
 from src.llm.stub import StubModel
@@ -139,3 +139,48 @@ def test_the_two_advocates_run_at_the_same_time_and_neither_sees_the_other():
     prompts = {call["agent"]: prompt_of(call) for call in model.calls if call["agent"].endswith("_advocate")}
     assert replies["driver_advocate"]["claim_restated"] not in prompts["rider_advocate"]
     assert replies["rider_advocate"]["claim_restated"] not in prompts["driver_advocate"]
+
+
+def test_a_submission_records_the_versions_of_the_snapshot_it_was_built_from_whatever_the_model_says():
+    case = sealed_case()
+    claimed = stub_replies()["rider_advocate"] | {"evidence_version": "made-up-by-the-model"}
+    model = model_for(case, rider_advocate=claimed)
+
+    submission = build_submission(Advocate.RIDER_ADVOCATE, case, model)
+
+    assert (submission.report_version, submission.evidence_version, submission.policy_version) == (
+        "CASE-0001-report-v1", "CASE-0001-evidence-v1", "waypoint-singapore-draft-2026-10",
+    )
+
+
+def test_the_submissions_of_a_resolved_dispute_name_the_versions_in_force():
+    catalog, store = load_catalog(), CaseStore()
+    model = StubModel({("CASE-0001", agent): reply for agent, reply in stub_replies().items()})
+
+    case = run_dispute(catalog.dispute(DISPUTE_ID), store=store, model=model, catalog=catalog)
+
+    assert len(case.submissions) == 2
+    for submission in case.submissions:
+        assert submission.evidence_version == case.evidence_version == "CASE-0001-evidence-v1"
+        assert submission.policy_version == case.policy_version == "waypoint-singapore-draft-2026-10"
+        assert submission.report_version == case.report_version == "CASE-0001-report-v1"
+
+
+def test_an_advocate_reads_the_report_fields_once_as_untrusted_text_and_not_the_raw_report():
+    report_fields = dict(
+        filed_report={"statement": "RAW-REPORT-MARKER"},
+        incident=Incident(time=None, time_zone="Asia/Singapore", location="INCIDENT-LOCATION-MARKER"),
+        category_details={"waitedMinutes": "DETAIL-MARKER"},
+        requested_resolution=RequestedResolution(type="refund", amount="5.00", currency="SGD"),
+    )
+    case = sealed_case(**report_fields)
+    model = model_for(case)
+
+    build_submission(Advocate.RIDER_ADVOCATE, case, model)
+
+    prompt = prompt_of(model.calls[0])
+    assert "INCIDENT-LOCATION-MARKER" in prompt
+    assert "DETAIL-MARKER" in prompt
+    assert "requested_resolution" in prompt
+    assert "RAW-REPORT-MARKER" not in prompt
+    assert "incident, category_details and requested_resolution" in prompt

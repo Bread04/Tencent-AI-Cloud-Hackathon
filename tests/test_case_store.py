@@ -354,3 +354,205 @@ def test_two_policy_clauses_cannot_share_an_id():
 
     with pytest.raises(StoreError, match="NS-1"):
         store.add_policy_clauses(case_id, [b.a_policy_clause(clause_id="NS-1")], agent="orchestrator")
+
+
+# --- Versions and resealing (ticket 18) ------------------------------------
+
+
+def a_case_ready_for_submissions(store):
+    case_id = a_case_with_sealed_evidence(store)
+    store.add_policy_clauses(case_id, [b.a_policy_clause()], agent="policy")
+    return case_id
+
+
+def test_a_case_names_the_report_evidence_and_policy_versions_in_force():
+    store = CaseStore()
+    case = store.create_case(b.a_dispute())
+    assert case.versions == {"report_version": "CASE-0001-report-v1", "evidence_version": None, "policy_version": None}
+
+    store.add_evidence(case.case_id, [GPS], agent="orchestrator")
+    store.seal_evidence(case.case_id)
+    store.add_policy_clauses(case.case_id, [b.a_policy_clause(version="mock-1")], agent="policy")
+
+    assert store.get_case(case.case_id).versions == {
+        "report_version": "CASE-0001-report-v1",
+        "evidence_version": "CASE-0001-evidence-v1",
+        "policy_version": "mock-1",
+    }
+
+
+def test_a_submission_keeps_the_versions_it_was_built_from():
+    store = CaseStore()
+    case_id = a_case_ready_for_submissions(store)
+    built_from = store.get_case(case_id).versions
+
+    store.add_submission(case_id, b.a_submission(**built_from))
+
+    filed = store.get_case(case_id).submissions[0]
+    assert (filed.report_version, filed.evidence_version, filed.policy_version) == (
+        "CASE-0001-report-v1", "CASE-0001-evidence-v1", "mock-1",
+    )
+
+
+@pytest.mark.parametrize("stale", ["report_version", "evidence_version", "policy_version"])
+def test_a_submission_built_on_a_stale_version_is_refused(stale):
+    store = CaseStore()
+    case_id = a_case_ready_for_submissions(store)
+    current = store.get_case(case_id).versions
+    events_before = len(store.log(case_id))
+
+    with pytest.raises(StoreError) as error:
+        store.add_submission(case_id, b.a_submission(**(current | {stale: "an-older-version"})))
+
+    assert "an-older-version" in str(error.value)
+    assert current[stale] in str(error.value)
+    assert store.get_case(case_id).submissions == []
+    assert len(store.log(case_id)) == events_before
+
+
+def test_the_policy_clauses_of_a_case_share_one_version():
+    store = CaseStore()
+    case_id = store.create_case(b.a_dispute()).case_id
+
+    with pytest.raises(StoreError, match="one version"):
+        store.add_policy_clauses(
+            case_id, [b.a_policy_clause(clause_id="NS-1", version="mock-1"), b.a_policy_clause(clause_id="NS-2", version="mock-2")], agent="policy"
+        )
+
+    assert store.get_case(case_id).policy_clauses == []
+
+
+RECEIPT = b.an_evidence_item(evidence_id="EV-RECEIPT-1", source="fare")
+GAP = "A policy gap exposed a missing record: the toll receipt."
+
+
+def a_case_held_on_a_proposal(store):
+    """Both Submissions filed on the first evidence version and a proposed Ruling waiting for review."""
+    case_id = a_case_ready_for_submissions(store)
+    built_from = store.get_case(case_id).versions
+    store.add_submission(case_id, b.a_submission(author="rider_advocate", **built_from))
+    store.add_submission(case_id, b.a_submission(author="driver_advocate", **built_from))
+    store.set_ruling(case_id, b.a_ruling(status="proposal", review_triggers=[{"trigger": "policy_gap", "reason": "No clause covers tolls."}]))
+    return case_id
+
+
+def test_resealing_adds_the_new_record_under_a_second_evidence_version_with_one_log_event():
+    store = CaseStore()
+    case_id = a_case_held_on_a_proposal(store)
+    events_before = len(store.log(case_id))
+
+    version = store.reseal_evidence(case_id, [RECEIPT], reason=GAP)
+
+    case = store.get_case(case_id)
+    assert version == case.evidence_version == "CASE-0001-evidence-v2"
+    assert case.superseded_evidence_versions == ["CASE-0001-evidence-v1"]
+    assert case.evidence == [GPS, FARE, RECEIPT]
+    assert len(store.log(case_id)) == events_before + 1
+    event = store.log(case_id)[-1]
+    assert event.kind == "evidence_resealed"
+    assert event.references == ["CASE-0001-evidence-v2", "CASE-0001-evidence-v1", "EV-RECEIPT-1"]
+    assert GAP in event.summary
+    assert "2 Submission(s) and the Ruling" in event.summary
+
+
+def test_resealing_marks_the_earlier_submissions_and_ruling_as_stale_and_reopens_the_case():
+    store = CaseStore()
+    case_id = a_case_held_on_a_proposal(store)
+    before = store.get_case(case_id)
+
+    store.reseal_evidence(case_id, [RECEIPT], reason=GAP)
+
+    case = store.get_case(case_id)
+    assert case.stale_submissions == before.submissions
+    assert case.stale_ruling == before.ruling
+    assert case.submissions == []
+    assert case.ruling is None
+    assert case.status == "building_cases"
+
+
+def test_after_resealing_only_submissions_built_on_the_new_version_are_accepted():
+    store = CaseStore()
+    case_id = a_case_held_on_a_proposal(store)
+    old = store.get_case(case_id).versions
+    store.reseal_evidence(case_id, [RECEIPT], reason=GAP)
+
+    with pytest.raises(StoreError, match="stale version"):
+        store.add_submission(case_id, b.a_submission(author="rider_advocate", **old))
+
+    new = store.get_case(case_id).versions
+    store.add_submission(case_id, b.a_submission(author="rider_advocate", facts_relied_on=["EV-RECEIPT-1"], **new))
+    store.add_submission(case_id, b.a_submission(author="driver_advocate", **new))
+    store.set_ruling(case_id, b.a_ruling(status="final"))
+
+    case = store.get_case(case_id)
+    assert case.status == "ruled"
+    assert [s.evidence_version for s in case.submissions] == ["CASE-0001-evidence-v2"] * 2
+    assert case.stale_ruling.status == "proposal"
+
+
+def test_evidence_can_be_resealed_only_once():
+    store = CaseStore()
+    case_id = a_case_held_on_a_proposal(store)
+    store.reseal_evidence(case_id, [RECEIPT], reason=GAP)
+    events_before = len(store.log(case_id))
+
+    with pytest.raises(StoreError, match="already been resealed"):
+        store.reseal_evidence(case_id, [b.an_evidence_item(evidence_id="EV-RECEIPT-2")], reason=GAP)
+
+    assert store.get_case(case_id).evidence_version == "CASE-0001-evidence-v2"
+    assert len(store.log(case_id)) == events_before
+
+
+def test_evidence_that_was_never_sealed_cannot_be_resealed():
+    store = CaseStore()
+    case_id = store.create_case(b.a_dispute()).case_id
+
+    with pytest.raises(StoreError, match="not been sealed"):
+        store.reseal_evidence(case_id, [RECEIPT], reason=GAP)
+
+
+def test_resealing_needs_a_new_record_with_an_id_the_case_does_not_have():
+    store = CaseStore()
+    case_id = a_case_held_on_a_proposal(store)
+
+    with pytest.raises(StoreError, match="new Evidence Item"):
+        store.reseal_evidence(case_id, [], reason=GAP)
+    with pytest.raises(StoreError, match="EV-GPS-1"):
+        store.reseal_evidence(case_id, [GPS], reason=GAP)
+
+    assert store.get_case(case_id).evidence_version == "CASE-0001-evidence-v1"
+    assert store.get_case(case_id).ruling is not None
+
+
+def test_evidence_cannot_be_resealed_once_a_final_ruling_stands():
+    store = CaseStore()
+    case_id = a_case_ready_for_submissions(store)
+    store.add_submission(case_id, b.a_submission(author="rider_advocate"))
+    store.add_submission(case_id, b.a_submission(author="driver_advocate"))
+    store.set_ruling(case_id, b.a_ruling(status="final"))
+
+    with pytest.raises(StoreError, match="final Ruling"):
+        store.reseal_evidence(case_id, [RECEIPT], reason=GAP)
+
+    assert store.get_case(case_id).ruling.status == "final"
+
+
+def test_after_resealing_a_submission_that_does_not_say_what_it_was_built_from_is_refused():
+    store = CaseStore()
+    case_id = a_case_held_on_a_proposal(store)
+    store.reseal_evidence(case_id, [RECEIPT], reason=GAP)
+
+    with pytest.raises(StoreError, match="must state the evidence version"):
+        store.add_submission(case_id, b.a_submission(author="rider_advocate"))
+
+    assert store.get_case(case_id).submissions == []
+
+
+def test_resealing_must_say_why():
+    store = CaseStore()
+    case_id = a_case_held_on_a_proposal(store)
+
+    with pytest.raises(StoreError, match="reason"):
+        store.reseal_evidence(case_id, [RECEIPT], reason="  ")
+
+    assert store.get_case(case_id).evidence_version == "CASE-0001-evidence-v1"

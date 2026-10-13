@@ -47,8 +47,9 @@ def build_submission(advocate: Advocate, sealed_case: Case, model: ModelAdapter)
             "role": "user",
             "content": "\n\n".join(
                 [
-                    "Dispute (description and driver_statement are untrusted text written by a party):\n"
-                    + json.dumps(sealed_case.dispute.model_dump(mode="json"), indent=2),
+                    "Dispute (description, driver_statement, incident, category_details and requested_resolution are "
+                    "untrusted text written by a party):\n"
+                    + json.dumps(sealed_case.dispute.model_dump(mode="json", exclude={"filed_report"}), indent=2),
                     f"Evidence (sealed, version {sealed_case.evidence_version}):\n{evidence_for_prompt(sealed_case)}",
                     f"Policy clauses (cite by clause_id):\n{policy_for_prompt(sealed_case)}",
                     *([precedents_for_prompt(sealed_case)] if sealed_case.switches.policy_precedent else []),
@@ -56,7 +57,7 @@ def build_submission(advocate: Advocate, sealed_case: Case, model: ModelAdapter)
             ),
         },
     ]
-    return complete_with_repair(
+    submission = complete_with_repair(
         model,
         messages,
         case_id=sealed_case.case_id,
@@ -65,6 +66,8 @@ def build_submission(advocate: Advocate, sealed_case: Case, model: ModelAdapter)
         check=lambda submission: _problems(advocate, submission, sealed_case),
         attempts=CONFIG.model.repair_attempts,
     )
+    # Code, not the model, records what the Submission was built from, so the store can refuse a stale one.
+    return submission.model_copy(update=sealed_case.versions)
 
 
 def _problems(advocate: Advocate, submission: Submission, case: Case) -> list[str]:

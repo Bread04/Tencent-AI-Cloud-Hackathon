@@ -8,8 +8,8 @@
 
 **Tier:** 0 · **Owner:** Kyven and Braedon together
 
-- [ ] The filed report's incident, category-detail and requested-resolution fields are held on the Dispute and rejected when malformed
-- [ ] A Submission carries the report, evidence and policy versions it was built from, and a Submission built on a stale version is refused
-- [ ] Sealing a second evidence version is allowed once, logs an event, and marks earlier Submissions and the Ruling as stale
-- [ ] Existing contract objects and tests still pass, and the shared contract file is changed only in this ticket
-- [ ] The decisions are recorded in docs/contract-decisions.md
+- [x] The filed report's incident, category-detail and requested-resolution fields are held on the Dispute and rejected when malformed
+- [x] A Submission carries the report, evidence and policy versions it was built from, and a Submission built on a stale version is refused
+- [x] Sealing a second evidence version is allowed once, logs an event, and marks earlier Submissions and the Ruling as stale
+- [x] Existing contract objects and tests still pass, and the shared contract file is changed only in this ticket
+- [x] The decisions are recorded in docs/contract-decisions.md

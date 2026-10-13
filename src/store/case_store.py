@@ -51,6 +51,11 @@ def _utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def _repeated(new_ids: list[str], known_ids: set[str]) -> list[str]:
+    """The new IDs that are already known or appear twice among the new ones."""
+    return [i for n, i in enumerate(new_ids) if i in known_ids or i in new_ids[:n]]
+
+
 class CaseStore:
     def __init__(self, clock: Callable[[], datetime] = _utc_now):
         self._clock = clock
@@ -86,10 +91,12 @@ class CaseStore:
 
     def create_case(self, dispute: Dispute, switches: Switches | None = None, agent: str = "intake") -> Case:
         now = self._clock()
+        case_id = f"CASE-{len(self._cases) + 1:04d}"
         case = Case(
-            case_id=f"CASE-{len(self._cases) + 1:04d}",
+            case_id=case_id,
             dispute=dispute,
             switches=switches or CONFIG.switches,
+            report_version=f"{case_id}-report-v1",
             created_at=now,
             updated_at=now,
         )
@@ -128,7 +135,7 @@ class CaseStore:
             raise StoreError(f"Evidence for {case_id} is sealed as {case.evidence_version}; nothing can be added.")
         new_ids = [item.evidence_id for item in items]
         known_ids = {item.evidence_id for item in case.evidence}
-        duplicates = [i for n, i in enumerate(new_ids) if i in known_ids or i in new_ids[:n]]
+        duplicates = _repeated(new_ids, known_ids)
         if duplicates:
             raise StoreError(f"Evidence Item IDs must be unique in a Case; already present: {', '.join(duplicates)}.")
         missing = sum(item.status is EvidenceStatus.MISSING for item in items)
@@ -159,13 +166,57 @@ class CaseStore:
         )
         return version
 
+    def reseal_evidence(self, case_id: str, items: list[EvidenceItem], reason: str, agent: str = "orchestrator") -> str:
+        """Add a record the first evidence version lacked and seal a second version, once; return its ID.
+
+        The Submissions and Ruling built on the first version move to `stale_submissions` and `stale_ruling`,
+        and the Case goes back to `building_cases` so both advocates argue again from the new version."""
+        case = self._case(case_id)
+        if case.evidence_version is None:
+            raise StoreError(f"Evidence for {case_id} has not been sealed yet, so it cannot be resealed.")
+        if case.superseded_evidence_versions:
+            raise StoreError(f"Evidence for {case_id} has already been resealed as {case.evidence_version}; it can be resealed only once.")
+        if case.ruling is not None and case.ruling.status is RulingStatus.FINAL:
+            raise StoreError(f"{case_id} has a final Ruling; its evidence cannot be resealed.")
+        if not items:
+            raise StoreError(f"Resealing {case_id} needs at least one new Evidence Item.")
+        if not reason.strip():
+            raise StoreError(f"Resealing {case_id} needs a reason: say which missing record was found.")
+        new_ids = [item.evidence_id for item in items]
+        known_ids = {item.evidence_id for item in case.evidence}
+        duplicates = _repeated(new_ids, known_ids)
+        if duplicates:
+            raise StoreError(f"Evidence Item IDs must be unique in a Case; already present: {', '.join(duplicates)}.")
+        version = f"{case_id}-evidence-v2"
+        stale = f"{len(case.submissions)} Submission(s)" + (" and the Ruling" if case.ruling is not None else "")
+        self._write(
+            case_id,
+            agent,
+            LogEventKind.EVIDENCE_RESEALED,
+            f"Evidence resealed as {version} with {len(items)} new item(s), replacing {case.evidence_version}. "
+            f"{stale} built on the earlier version are now stale. Reason: {reason}",
+            references=[version, case.evidence_version, *new_ids],
+            status=CaseStatus.BUILDING_CASES,
+            evidence=[*case.evidence, *items],
+            evidence_version=version,
+            superseded_evidence_versions=[case.evidence_version],
+            stale_submissions=case.submissions,
+            stale_ruling=case.ruling,
+            submissions=[],
+            ruling=None,
+        )
+        return version
+
     def add_policy_clauses(self, case_id: str, clauses: list[PolicyClause], agent: str) -> None:
         case = self._case(case_id)
         new_ids = [clause.clause_id for clause in clauses]
         known_ids = {clause.clause_id for clause in case.policy_clauses}
-        duplicates = [i for n, i in enumerate(new_ids) if i in known_ids or i in new_ids[:n]]
+        duplicates = _repeated(new_ids, known_ids)
         if duplicates:
             raise StoreError(f"Policy Clause IDs must be unique in a Case; already present: {', '.join(duplicates)}.")
+        versions = sorted({clause.version for clause in [*case.policy_clauses, *clauses]})
+        if len(versions) > 1:
+            raise StoreError(f"The Policy Clauses of a Case must share one version; got {', '.join(versions)}.")
         self._write(
             case_id,
             agent,
@@ -173,6 +224,7 @@ class CaseStore:
             f"{len(clauses)} applicable Policy Clause(s) retrieved.",
             references=new_ids,
             policy_clauses=[*case.policy_clauses, *clauses],
+            policy_version=versions[0] if versions else None,
         )
 
     def add_precedents(self, case_id: str, precedents: list[Precedent], summary: str, agent: str = "policy") -> None:
@@ -203,6 +255,16 @@ class CaseStore:
         case = self._case(case_id)
         if case.evidence_version is None:
             raise StoreError(f"A Submission cannot be filed for {case_id} until its evidence is sealed.")
+        if case.superseded_evidence_versions and submission.evidence_version is None:
+            raise StoreError(f"Evidence for {case_id} was resealed, so a Submission must state the evidence version it was built from.")
+        # Otherwise a version the Submission does not state is not checked; one it states must be the version in force.
+        stale = [
+            f"{name.replace('_', ' ')} {built_from} (now {case.versions[name]})"
+            for name in case.versions
+            if (built_from := getattr(submission, name)) is not None and built_from != case.versions[name]
+        ]
+        if stale:
+            raise StoreError(f"The {submission.author.value} Submission for {case_id} was built on a stale version: {'; '.join(stale)}.")
         submissions = [*case.submissions, submission]
         self._write(
             case_id,

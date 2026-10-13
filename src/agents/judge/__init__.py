@@ -106,7 +106,7 @@ def _messages(case: Case, rider: Submission, driver: Submission, *, neutral: boo
             "role": "user",
             "content": "\n\n".join(
                 [
-                    f"Dispute:\n{case.dispute.model_dump_json(indent=2)}",
+                    f"Dispute:\n{case.dispute.model_dump_json(indent=2, exclude={'filed_report'})}",
                     f"Evidence (sealed, version {case.evidence_version}):\n{evidence_for_prompt(case)}",
                     f"Policy clauses (cite by clause_id):\n{policy_for_prompt(case)}",
                     *([precedents_for_prompt(case)] if case.switches.policy_precedent else []),
