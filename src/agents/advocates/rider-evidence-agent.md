@@ -118,7 +118,7 @@ An unsupported category may still produce a useful evidence package. It must not
 
 ### Route Deviation: ticket 06 evidence requirements
 
-Follow the approved [Ticket 06 spec](../../../_bmad-output/implementation-artifacts/spec-06-route-deviation-end-to-end.md) without changing steps 3 → 4 → 5. [Backend route tools](../../tools/evidence/route.py) now compute route/fare evidence for DISP-008–007 under [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md). Shared simulated vehicle telemetry is explicitly separate from missing Rider device GPS. The original two-endpoint sample remains insufficient. Proposed report-relevance metadata elsewhere in this document remains future work.
+Follow the approved [Ticket 06 spec](../../../.scratch/dispute-resolution/issues/06-route-deviation-end-to-end.md) without changing steps 3 → 4 → 5. [Backend route tools](../../tools/evidence/route.py) now compute route/fare evidence for DISP-008–007 under [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md). Shared simulated vehicle telemetry is explicitly separate from missing Rider device GPS. The original two-endpoint sample remains insufficient. Proposed report-relevance metadata elsewhere in this document remains future work.
 
 The Rider app boundary still applies. Collect the Rider-visible originals here; request unavailable shared Trip analysis through the orchestrator's authorized evidence tools. Keep the resulting shared Evidence Items under their actual producer/provenance rather than relabelling Driver telemetry as Rider-device data. Both advocates and the Judge receive the same sealed findings.
 

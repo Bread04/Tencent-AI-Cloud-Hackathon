@@ -1,6 +1,0 @@
-/render/
-/config.user.toml
-/custom/config.user.toml
-/custom/*.user.toml
-__pycache__/
-*.pyc
