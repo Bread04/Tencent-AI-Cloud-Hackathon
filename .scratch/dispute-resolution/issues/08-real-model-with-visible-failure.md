@@ -8,7 +8,7 @@
 
 **Tier:** 0 · **Owner:** Kyven
 
-- [ ] The provider and model are confirmed and recorded, including whether it accepts images
+- [x] The provider and model are confirmed and recorded, including whether it accepts images (Google Gemini via its OpenAI-compatible endpoint, model `gemini-3.5-flash-lite`)
 - [x] One setting switches between the stub and the real model (`MODEL_PROVIDER=stub|openai_compatible`, `src/llm/factory.py`)
 - [x] Credentials are read from the environment and are absent from the repo (`MODEL_BASE_URL`, `MODEL_API_KEY`, `MODEL_NAME`; names only in `.env.example`; the key is never in the repr or an error message)
 - [x] Structured output is requested and validated against the contract (`response_format` json_schema, then `model_validate_json`; `src/llm/client.py`)
@@ -28,7 +28,10 @@ Models seen: Apodex 1.1 mini and Nemotron 3 Super (text only); Gemma 4, Dots 3 n
 - DISP-004: held for review. The Judge's reply did not match the required format.
 Those two show the safety path working, not a made-up Ruling. A stronger model is needed for the other cases.
 
-**Still open:** confirm the production provider and model (and whether it accepts images). Run:
-`MODEL_PROVIDER=openai_compatible MODEL_BASE_URL=... MODEL_API_KEY=... MODEL_NAME=... uv run python -m scripts.try_model DISP-003`.
+**Confirmed provider (13 Oct 2026):** Google Gemini via its OpenAI-compatible endpoint.
+`MODEL_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai`, `MODEL_NAME=gemini-3.5-flash-lite`,
+`MODEL_TIMEOUT_SECONDS=300`, `MODEL_RATE_LIMIT_RETRIES=8` (recorded in `.env`, git-ignored). The endpoint is
+OpenAI-compatible, so `MODEL_PROVIDER=openai_compatible` is unchanged. Tier 3 image support is satisfied by Gemini's
+vision-capable models; confirm the specific `gemini-3.5-flash-lite` vision behaviour when a photo case first runs on the real model.
 
 Known gap: the timeout is per phase (connect, read, write), not a wall-clock cap, and one dispute can make about seven calls with no overall budget.

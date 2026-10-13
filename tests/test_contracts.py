@@ -123,6 +123,10 @@ def test_evidence_item_rejects_an_unknown_status():
     assert "status" in rejected(b.an_evidence_item, status="probably_fine")
 
 
+def test_evidence_item_rejects_an_unknown_source():
+    assert "source" in rejected(b.an_evidence_item, source="made_up_kind")
+
+
 def test_conflicting_evidence_must_link_the_items_it_conflicts_with():
     assert "conflicts_with" in rejected(b.an_evidence_item, status="conflicting")
 

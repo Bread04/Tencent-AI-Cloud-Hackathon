@@ -11,7 +11,7 @@ from src.agents.policy.precedents import (
     retrieve_precedents,
     seeded_precedents,
 )
-from src.contracts import DisputeCategory, PrecedentSource
+from src.contracts import DisputeCategory, EvidenceItem, PrecedentSource
 from src.intake import load_catalog
 from src.store import CaseStore
 from src.tools.evidence import gather_evidence
@@ -184,3 +184,36 @@ def test_no_show_cases_are_not_served_safety_precedents():
     result = retrieve_precedents(a_sealed_case("DISP-003"), seeded_precedents())
 
     assert all(s.precedent.category is DisputeCategory.NO_SHOW_CHARGE for s in result.served)
+
+
+# --- Route Deviation and Property Damage -----------------------------------------------------------------------------------
+
+
+def test_a_route_deviation_case_is_described_by_route_length_and_whether_a_detour_was_agreed():
+    assert case_tags(a_sealed_case("DISP-008")) == {"route_longer_than_expected", "no_agreed_detour"}
+    assert case_tags(a_sealed_case("DISP-009")) == {"route_longer_than_expected", "agreed_detour"}
+    assert case_tags(a_sealed_case("DISP-010")) == {"route_longer_than_expected", "no_agreed_detour"}
+
+
+def test_route_deviation_precedents_are_retrievable_and_point_the_right_way():
+    rider_wins = retrieve_precedents(a_sealed_case("DISP-008"), seeded_precedents())
+    driver_wins = retrieve_precedents(a_sealed_case("DISP-009"), seeded_precedents())
+
+    assert rider_wins.served[0].precedent.precedent_id == "PREC-RD-01"
+    assert driver_wins.served[0].precedent.precedent_id == "PREC-RD-02"
+    assert {s.precedent.category for s in rider_wins.served + driver_wins.served} == {DisputeCategory.ROUTE_DEVIATION}
+
+
+def test_a_property_damage_case_is_described_by_the_claim_and_the_photo_findings():
+    case = a_sealed_case("DISP-011")
+    findings = [
+        EvidenceItem(evidence_id="EV-PHOTO-1-TIME", source="photo_finding", trip_id=case.dispute.trip_id, side="shared",
+                     status="available", derived={"alignment": "outside_window"}),
+        EvidenceItem(evidence_id="EV-PHOTO-1-AI", source="photo_finding", trip_id=case.dispute.trip_id, side="shared",
+                     status="available", derived={"signal": "none"}),
+    ]
+    with_photos = case.model_copy(update={"evidence": [*case.evidence, *findings]})
+
+    tags = case_tags(with_photos)
+    assert "cleaning_fee_claimed" in case_tags(a_sealed_case("DISP-011"))
+    assert {"cleaning_fee_claimed", "photo_outside_window", "photo_no_ai_signal"} <= tags

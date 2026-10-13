@@ -82,23 +82,34 @@ Placeholders the code currently runs on. Each needs a decision.
 
 | # | Question | Placeholder in the code |
 | --- | --- | --- |
-| 1 | **Ruling amount limit** for the `amount_over_limit` trigger. | SGD 50.00 (`escalation.amount_limit`) |
-| 2 | **History rule table.** Which rules, and what counts as "several"? May a rule add a Review Trigger as well as lower Confidence? | Two rules from the prototype, each lowering Confidence by one step: `prior_rejected` (3 or more prior rejected disputes of the category) and `late_cancel_flag` (`CONFIG.history_rules`) |
-| 3 | **Stability margin:** how far Confidence may differ between the two Judge passes before it counts as disagreement. | 0.1 (`confidence.stability_margin`) |
-| 4 | **Material-evidence checklists** for Route Deviation, Property Damage and Safety Incident. | Not defined; only No-Show Charge exists |
-| 5 | **How a checklist line is matched to Evidence Items.** The architecture's Evidence Item has no `kind` field. | None; `MaterialEvidenceEntry.evidence_ids` is filled by whoever builds the checklist |
+| ~~1~~ | ~~Ruling amount limit for the `amount_over_limit` trigger.~~ Confirmed 13 Oct 2026: SGD 50.00. | — |
+| ~~2~~ | ~~History rule table.~~ Confirmed 13 Oct 2026: `prior_rejected` lowers at ≥ 3 and also triggers review at ≥ 5; `late_cancel_flag` lowers on the flag; step 0.05, cap 0.2. | — |
+| ~~3~~ | ~~Stability margin.~~ Confirmed 13 Oct 2026: 0.1. | — |
+| ~~4~~ | ~~Material-evidence checklists for Route Deviation, Property Damage and Safety Incident.~~ Resolved: all four categories are defined in `CONFIG.material_evidence`. | — |
+| ~~5~~ | ~~How a checklist line is matched to Evidence Items.~~ Resolved: `CHECKLIST_SOURCES` in `src/agents/judge/numbers.py` maps each key to its `source`. | — |
 | 6 | **Citing missing evidence.** Rule 2 says a `missing` item can be cited only as missing. | Added `missing_evidence_ids` to Submission and Ruling (not in the architecture table); every other evidence citation is treated as fact |
-| 9 | **`Case.priority`:** scale and direction. | Integer, default 0, meaning not yet agreed |
-| 10 | **Model provider**, including a vision-capable model. | None; only the offline stub exists (ticket 08) |
-| 11 | **Per-argument identity.** An Argument Assessment refers to an argument by its text and its author; a Submission has no argument IDs. | Text plus author |
-| 12 | **Recomputing the amount** (rule 3) from fare Evidence Items needs the policy formula. | The contract only checks amount against the shown calculation; recomputation is left to the Judge ticket |
-| 13 | **Evidence Item kind.** `source` is free text, so withholding History from the Judge (architecture 6.2) and matching checklist lines both rely on string matching. Should `source` be a closed list (gps, chat, fare, history, trip, photo, driver statement)? | Free text |
-| 14 | **Case IDs and the stub script.** Case IDs are numbered in creation order and the stub is keyed on (case ID, agent), so a mock-case script depends on the order cases are created. Key on the dispute ID instead? | `CASE-0001`, `CASE-0002`, … |
+| ~~9~~ | ~~`Case.priority` scale and direction.~~ Resolved: category points (Safety 100 > Property 40 > Route 30 > No-Show 20) plus urgency and amount; higher is more urgent (`src/agents/routing.py`). | — |
+| ~~10~~ | ~~Model provider, including a vision-capable model.~~ Resolved 13 Oct 2026: Google Gemini (`gemini-3.5-flash-lite`), vision-capable, via its OpenAI-compatible endpoint (ticket 08). | — |
+| ~~11~~ | ~~Per-argument identity.~~ Resolved 13 Oct 2026: arguments carry a code-assigned reference (`rider_advocate#counter-1`), and the `ArgumentAssessment` stores it as `argument_ref`. | — |
+| ~~12~~ | ~~Recomputing the amount needs the policy formula.~~ Resolved: `amount_for` in `src/agents/judge/numbers.py` recomputes it by ADR 0004; the Judge cites the calculation. | — |
+| ~~13~~ | ~~Evidence Item kind.~~ Resolved 13 Oct 2026: `EvidenceSource` (a `StrEnum`) closes the `source` list. | — |
+| ~~14~~ | ~~Case IDs and the stub script.~~ Resolved: `ReplayModel` (`src/api/demo.py`) resolves scripts by `dispute_id`, so mock cases do not depend on creation order. | — |
 | 15 | **Claimant and Respondent** are derived from `filed_by` rather than stored, so a fixture that carries `claimant` is rejected. | Derived properties |
 | 16 | **Where citation rules run.** `citation_errors` is called by the agents (so they can repair), not by the store on `add_submission` or `set_ruling`. | Agents call it |
-| 17 | **Invalid Dispute Category.** It fails contract validation before a Case exists, so no `case_rejected` event is logged for it. Intake needs to decide how to show that rejection. | Validation error |
+| ~~17~~ | ~~Invalid Dispute Category.~~ Resolved: intake rejects with a 422 and reason before a Case exists; a Case that is later rejected emits `case_rejected` via `store.reject` (ticket 19). | — |
 | 18 | Still open from architecture section 12 and untouched here: precedent similarity (now decided: tags first, optional embedding rerank, see architecture 5.3), mock policy wording, timeouts per stage. | |
-| 9 | **Where the Route Deviation refund formula lives.** The shared policy set has none (see ADR 0002). | Not defined |
+| ~~9~~ | ~~Where the Route Deviation refund formula lives.~~ Resolved: ADR 0004 defines it; `amount_for` implements it. | — |
+
+## Confirmed (Braedon, 13 Oct 2026)
+
+All open items above are now resolved. The four remaining placeholders were confirmed as follows, implemented where they needed code:
+
+- **1 — Amount limit:** SGD 50.00 (unchanged; documented in `config.py`).
+- **2 — History rules:** `prior_rejected` lowers Confidence at ≥ 3 and also adds a `history_rule` trigger at ≥ 5; `late_cancel_flag` lowers on the flag; step 0.05, cap 0.2. The ≥ 5 trigger is in `src/agents/judge/history.py`.
+- **3 — Stability margin:** 0.1 (unchanged).
+- **11 — Argument identity:** arguments already carry a code-assigned reference (`rider_advocate#counter-1`); the `ArgumentAssessment` now stores it as `argument_ref`.
+
+Items 6, 15, 16 and 18 are effectively decided in the "Decided" section below and only need a wording note (mock policy + per-stage timeouts, item 18). This session also closed the tag gap behind item 4: `case_tags` now emits tags for Route Deviation and Property Damage, so the two seeded Route Deviation Precedents are reachable again.
 
 ## Decided (Braedon, 11 Oct 2026, for Kyven to confirm)
 

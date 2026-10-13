@@ -71,6 +71,26 @@ class EvidenceStatus(StrEnum):
     CONFLICTING = "conflicting"
 
 
+class EvidenceSource(StrEnum):
+    """The closed vocabulary of Evidence Item `source` kinds (architecture 6.2; contract open item 13).
+
+    Closing this list makes History-withholding and checklist matching exact
+    (no string matching against a free-text field).
+    """
+
+    GPS = "gps"
+    CHAT = "chat"
+    FARE = "fare"
+    HISTORY = "history"
+    RIDER_LOCATION = "rider_location"
+    ROUTE = "route"
+    DAMAGE_CLAIM = "damage_claim"
+    TRIP = "trip"
+    PHOTO_FINDING = "photo_finding"
+    EXTRACTED_FACT = "extracted_fact"
+    TOOLS = "tools"
+
+
 class Advocate(StrEnum):
     RIDER_ADVOCATE = "rider_advocate"
     DRIVER_ADVOCATE = "driver_advocate"
@@ -257,7 +277,7 @@ class EvidenceItem(Contract):
     (content says why), never an absent item."""
 
     evidence_id: Text
-    source: Text
+    source: EvidenceSource
     trip_id: Text
     side: EvidenceSide
     timestamp: datetime | None = None
@@ -312,6 +332,7 @@ class Calculation(Contract):
 
 class ArgumentAssessment(Contract):
     author: Advocate  # whose Submission the argument came from
+    argument_ref: str | None = None  # the argument's reference (`rider_advocate#counter-1`); set by code, never by the model
     argument: Text
     verdict: ArgumentVerdict
     reason: Text
@@ -458,7 +479,7 @@ class Case(Contract):
     case_id: Text
     dispute: Dispute
     status: CaseStatus = CaseStatus.FILED
-    priority: int = 0
+    priority: int = 0  # review-queue order (contract-decisions item 9): 0 unprioritised (routing off), higher is more urgent; Safety Incidents score highest
     priority_reason: str | None = None
     switches: Switches = Switches()
     report_version: str | None = None  # set when the Case is created from the filed report

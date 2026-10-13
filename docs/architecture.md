@@ -230,7 +230,7 @@ A single configuration lists each supporting agent as on or off: Evidence Agents
 
 ### 6.4 Model adapter
 
-One function takes messages and optional image inputs and returns text or a schema-validated object. Everything else is built on it. Two implementations: an offline **stub** that returns scripted replies per case (for development and tests), and a real **client** for an OpenAI-compatible endpoint, provider to be confirmed. Structured output is requested as schema-constrained JSON and validated in code. Vision is a second entry point on the same adapter.
+One function takes messages and optional image inputs and returns text or a schema-validated object. Everything else is built on it. Two implementations: an offline **stub** that returns scripted replies per case (for development and tests), and a real **client** for an OpenAI-compatible endpoint — Google Gemini (`gemini-3.5-flash-lite`). Structured output is requested as schema-constrained JSON and validated in code. Vision is a second entry point on the same adapter.
 
 ### 6.5 Mock data and policy
 

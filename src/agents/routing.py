@@ -1,8 +1,9 @@
 """The SLA & Routing Manager (architecture.md section 5.1): a Priority and a reason for every Case.
 
 Priority is a scoring function over category, urgency (safety-related words in the description) and the
-disputed value. Higher is more urgent. The numbers are PLACEHOLDERS to be tuned; what matters is the order:
-a Safety Incident always outranks every other category, however small its fee.
+disputed value. Higher is more urgent, so the review queue orders by descending priority. The scale is the
+confirmed one (contract-decisions item 9): category points (Safety 100 > Property 40 > Route 30 > No-Show 20),
+plus urgency and a little for the amount. A Safety Incident always outranks every other category, however small its fee.
 """
 
 import re

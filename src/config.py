@@ -34,10 +34,10 @@ class ConfidenceSettings(_Settings):
     consistency_conflict: Score = 0.65  # a conflict on a material item
     stability_agree: Score = 0.95  # Tier 1
     stability_disagree: Score = 0.5
-    stability_margin: Score = 0.1  # PLACEHOLDER: Confidence gap between passes that counts as disagreement
+    stability_margin: Score = 0.1  # the Confidence gap between passes that counts as disagreement (confirmed 13 Oct 2026)
     authenticity_failed_or_unknown: Score = 0.5  # Tier 3, a photo that matters
     decisive_own_finding_cap: Score = 0.75
-    history_step: Score = 0.05  # per History rule that fires (PLACEHOLDER: 0.1 pulled the DISP-002 demo case below the threshold)
+    history_step: Score = 0.05  # per History rule that fires (confirmed 13 Oct 2026; 0.1 pulled the DISP-002 demo case below the threshold)
     history_max: Score = 0.2  # most that History can lower Confidence
 
 
@@ -45,7 +45,7 @@ class EscalationSettings(_Settings):
     """When a Ruling goes to a Human Reviewer (architecture.md section 5.7)."""
 
     confidence_threshold: Score = 0.7  # below this, escalate
-    amount_limit: Decimal = Decimal("50.00")  # PLACEHOLDER: a Ruling amount above this is reviewed
+    amount_limit: Decimal = Decimal("50.00")  # a Ruling amount above this is reviewed (confirmed 13 Oct 2026)
     triggers: tuple[ReviewTrigger, ...] = tuple(ReviewTrigger)  # any one escalates
 
 
@@ -115,7 +115,7 @@ class Config(_Settings):
     }
     cleaning_fee_cap: Decimal = Decimal("50.00")  # PLACEHOLDER (ADR 0005): the most a cleaning fee can be, in SGD
 
-    # PLACEHOLDER table, taken from the Judge prototype.
+    # The confirmed rule table (contract-decisions item 2, 13 Oct 2026).
     history_rules: tuple[HistoryRule, ...] = (
         HistoryRule(
             key="prior_rejected",

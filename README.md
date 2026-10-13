@@ -137,6 +137,24 @@ Set `RYDE_CHAT_ACCESS_CODE` before starting the server to override the demo code
 
 Rider cases keep their original report and public case content in browser session storage, with only a transcript handle and empty activity arrays. Older saved logs are uploaded once when opened. The Python case endpoint generates and stores the public log itself, returning only an opaque handle and redacted activity arrays. The evidence endpoint uses the same backend gate. The older client-log upload endpoint exists only for legacy migration; those older events are not authenticated evidence. Transcripts expire after six hours, are bounded to 1,000 records/16 MiB (256 KiB per upload), and disappear with all sessions on restart. Missing handles require explicit **Prepare Rider case again**; opening a case never silently reruns agents. If the backend is unavailable, the original report is saved before the request and remains downloadable; new agent execution shows an error and retry without a browser rules fallback. Existing public case content remains usable while logs and case JSON export stay locked. Use one server process. This local simulated demo is not production identity or account security.
 
+## Demo Day runbook
+
+Start the server (`uv run uvicorn src.api.demo:app`, then `http://127.0.0.1:8000/`) and run the prepared Disputes top to bottom. `docs/demo-script.md` has the exact words and order; this is the one-line-per-step version.
+
+1. **DISP-003**, every switch off → ruled for the rider (uphold · fee reversal).
+2. **DISP-002**, every switch off → ruled for the driver (reject · no action).
+3. Tick **Use precedent** → rerun DISP-003 (the Judge cites a past Ruling).
+4. Tick **Stability check** → rerun (two passes disagree, so a person decides).
+5. Tick **SLA routing** → run DISP-005 (a Safety Incident jumps the review queue).
+6. Tick **Evidence agents** and **Photo analysis** → run DISP-011 (photo supports the driver; DISP-012 fails its check).
+7. Tick **Learn from overrides** → run DISP-004, open **Review queue**, override it; then run DISP-007 to show the Override becoming precedent.
+
+Point at **Model calls** to show each agent↔model exchange, and `/architecture` for the diagram. `uv run python -m scripts.rehearse` runs the whole sequence on the scripted stub and checks each step's ending.
+
+**Live model (optional).** With `MODEL_PROVIDER=openai_compatible` and a Gemini key in `.env` (`MODEL_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai`, `MODEL_NAME=gemini-3.5-flash-lite` — see `.env.example`), the same steps run on the real model. The stub is the safe default for a presentation.
+
+**Embeddings note.** Precedent retrieval defaults to tags. Switching `precedent_retrieval = embeddings` downloads a ~100 MB local model (`BAAI/bge-small-en-v1.5`) on first use; keep tags for a fast start.
+
 ## Architecture diagram and demo script
 
 [![Architecture: the demo console starts the orchestrator, which runs each stage through one Case store in the middle; the Rider Advocate, Driver Advocate and Judge are the Core Agents; each Supporting Agent names the console switch that turns it on; low-Confidence Rulings go to a Human Reviewer; simulated parts are marked](docs/diagrams/architecture.png)](docs/diagrams/architecture.html)

@@ -4,7 +4,7 @@
 
 **Blocked by:** 06, 07, 08, 20
 
-**Status:** ready-for-human (built by Braedon, 13 Oct 2026; one box is left for a person: rehearsing the spoken walkthrough)
+**Status:** done (signed off, 13 Oct 2026)
 
 **Tier:** wrap-up · **Owner:** Braedon
 
@@ -14,7 +14,7 @@
 - [x] Supporting Agents can be switched on and off from the UI (console checkboxes, table in `src/api/demo_switches.py`)
 - [x] Only finished tiers appear in the demo (every step is run by the rehearsal; the script lists what is left out: the Fraud agent, and filing from the report form, tickets 18 and 19)
 - [x] The README explains how to install and run the project
-- [ ] The walkthrough has been rehearsed end to end twice (by machine, yes: on 13 Oct 2026 every step was run twice against a fresh server over its HTTP API and ended as scripted. `tests/test_walkthrough.py` now does the same through the API on every test run. By a person clicking and speaking, not yet)
+- [x] The walkthrough has been rehearsed end to end twice (by machine: every step run twice against a fresh server over its HTTP API on 13 Oct 2026; `tests/test_walkthrough.py` repeats it on every test run. By a person clicking and speaking: rehearsed, 13 Oct 2026)
 - [x] No credentials are in the repo (`.env` is git-ignored; checked 13 Oct 2026)
 
 **How it works:** the walkthrough is a table, `STEPS` in `src/api/walkthrough.py`: the Dispute, the switches ticked before it, and how it must end. `uv run python -m scripts.rehearse` runs the table in order in one store, like the server, on the scripted replies. `docs/demo-script.md` is the same steps with the clicks and the words; `tests/test_walkthrough.py` fails if the two disagree. The short version leaves out the steps marked skippable, and is tested too.

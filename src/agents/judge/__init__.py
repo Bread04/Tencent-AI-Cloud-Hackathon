@@ -236,6 +236,7 @@ def _assessments(arguments: list[Argument], draft: JudgeDraft) -> list[ArgumentA
     return [
         ArgumentAssessment(
             author=argument.author,
+            argument_ref=argument.ref,
             argument=argument.text,
             verdict=by_ref[argument.ref].verdict,
             reason=by_ref[argument.ref].reason,

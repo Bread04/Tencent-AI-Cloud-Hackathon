@@ -122,6 +122,17 @@ def test_every_claim_and_counter_argument_in_both_submissions_is_assessed_with_a
     assert all(a.reason and a.evidence_ids for a in ruling.argument_assessments)
 
 
+def test_each_assessment_carries_the_arguments_reference():
+    ruling, _ = run_judge(a_judge_draft())
+
+    assert [a.argument_ref for a in ruling.argument_assessments] == [
+        "rider_advocate#claim",
+        "rider_advocate#counter-1",
+        "driver_advocate#claim",
+        "driver_advocate#counter-1",
+    ]
+
+
 def test_the_judge_is_told_the_reference_of_each_argument_it_must_assess():
     _, model = run_judge(a_judge_draft())
 

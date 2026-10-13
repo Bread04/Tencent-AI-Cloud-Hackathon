@@ -4,7 +4,7 @@
 
 **Blocked by:** 04, 05
 
-**Status:** ready-for-human
+**Status:** done (signed off, 13 Oct 2026)
 
 **Tier:** 0 · **Owner:** Kyven (policy clauses with Braedon)
 

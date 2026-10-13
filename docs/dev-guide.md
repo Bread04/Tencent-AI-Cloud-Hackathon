@@ -19,7 +19,7 @@ Every agent in `workflow.md` except the Fraud and Bad-Faith Detection Agent, acr
 ## Stack (assumed, change by mutual agreement)
 
 - Python 3.11, `pydantic` for the contract, `FastAPI` for the backend, plain HTML/JS for the UI.
-- One model adapter with an offline stub and a client for an OpenAI-compatible endpoint. Provider to be confirmed; Tier 3 needs a model that accepts images.
+- One model adapter with an offline stub and a client for an OpenAI-compatible endpoint. Provider: Google Gemini (`gemini-3.5-flash-lite`, vision-capable for Tier 3) via its OpenAI-compatible endpoint.
 - Agents are plain Python classes. No agent framework.
 
 ## Ownership (the rule that prevents conflicts)

@@ -23,6 +23,7 @@ from src.contracts import (
     Case,
     Confidence,
     DisputeCategory,
+    EvidenceItem,
     EvidenceStatus,
     PolicyFit,
     Precedent,
@@ -40,6 +41,10 @@ NO_PRECEDENT = "No precedent found for this Case."
 NEAR_PICKUP_M = 50  # the driver counts as at the pickup point within this distance on arrival
 FAR_ABOVE_LIMIT_KMH = 80  # a recorded speed at or above this is far above any road limit in the mock data
 COMPLAINT = re.compile(r"slow down|unsafe|dangerous|scared|too fast|reckless|stop the car", re.IGNORECASE)
+# A rider asking to change the route, and a driver agreeing to it. Deliberately positive (a rider's "I did not
+# request this detour" is a denial, not a request); a driver-initiated suggestion is not agreement either.
+DETOUR_REQUEST = re.compile(r"\bplease\b|detour via|go via|stop (at|there|for)|take (a|that) detour|drop (me|off)", re.IGNORECASE)
+DETOUR_AGREE = re.compile(r"\byes\b|\bok(ay)?\b|\bsure\b|can (do|take)|go ahead|no problem", re.IGNORECASE)
 
 
 class Embedder(Protocol):
@@ -111,6 +116,10 @@ def case_tags(case: Case) -> set[str]:
         return _safety_tags(evidence)
     if case.dispute.category is DisputeCategory.NO_SHOW_CHARGE:
         return _no_show_tags(case, evidence)
+    if case.dispute.category is DisputeCategory.ROUTE_DEVIATION:
+        return _route_tags(evidence)
+    if case.dispute.category is DisputeCategory.PROPERTY_DAMAGE:
+        return _property_tags(case.evidence)
     return set()
 
 
@@ -153,6 +162,38 @@ def _safety_tags(by_source: dict) -> set[str]:
     if chat and chat.status is not EvidenceStatus.MISSING and isinstance(chat.content, list):
         complained = any(m.get("sender") == "rider" and COMPLAINT.search(m.get("content", "")) for m in chat.content)
         tags.add("rider_complained_in_chat" if complained else "no_complaint_in_chat")
+    return tags
+
+
+def _route_tags(by_source: dict) -> set[str]:
+    """Describe a Route Deviation Case from the route geometry and the conversation: was it longer, and was a change agreed?"""
+    tags: set[str] = set()
+    route = by_source.get("route")
+    if route and route.status is not EvidenceStatus.MISSING:
+        excess = route.derived.get("excess_km")
+        if excess is not None:
+            tags.add("route_longer_than_expected" if Decimal(excess) > 0 else "route_not_longer_than_expected")
+    chat = by_source.get("chat")
+    if chat and chat.status is not EvidenceStatus.MISSING and isinstance(chat.content, list):
+        requested = any(m.get("sender") == "rider" and DETOUR_REQUEST.search(m.get("content", "")) for m in chat.content)
+        agreed = any(m.get("sender") == "driver" and DETOUR_AGREE.search(m.get("content", "")) for m in chat.content)
+        tags.add("agreed_detour" if (requested and agreed) else "no_agreed_detour")
+    return tags
+
+
+def _property_tags(items: Sequence[EvidenceItem]) -> set[str]:
+    """Describe a Property Damage Case from the claim and the photo findings (a photo's time and AI signal, never the image itself)."""
+    tags: set[str] = set()
+    for item in items:
+        if item.status is EvidenceStatus.MISSING:
+            continue
+        if item.source == "damage_claim":
+            tags.add("cleaning_fee_claimed")
+        elif item.source == "photo_finding":
+            if item.evidence_id.endswith("-TIME"):
+                tags.add({"aligned": "photo_aligned", "outside_window": "photo_outside_window"}.get(item.derived.get("alignment"), "photo_time_unknown"))
+            elif item.evidence_id.endswith("-AI"):
+                tags.add("photo_ai_signal" if item.derived.get("signal") != "none" else "photo_no_ai_signal")
     return tags
 
 

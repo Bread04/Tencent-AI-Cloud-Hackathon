@@ -16,9 +16,9 @@ from src.contracts import (
     RulingStatus,
 )
 
-# PLACEHOLDER (contract-decisions open item 2): "several prior rejected disputes". The sample records the total
-# rejected, not per category.
-PRIOR_REJECTED_MIN = 3
+# The confirmed thresholds (contract-decisions item 2, 13 Oct 2026). The sample records the total rejected, not per category.
+PRIOR_REJECTED_MIN = 3  # at this many prior rejected disputes, Confidence is lowered
+PRIOR_REJECTED_TRIGGER = 5  # at this many, the pattern is strong enough to also go to a person
 
 
 def apply_history(ruling: Ruling, case: Case, rules: tuple[HistoryRule, ...] = CONFIG.history_rules) -> Ruling:
@@ -35,7 +35,7 @@ def apply_history(ruling: Ruling, case: Case, rules: tuple[HistoryRule, ...] = C
         step = CONFIG.confidence.history_step if rule.lowers_confidence else 0
         cut += step
         adjustments.append(HistoryAdjustment(rule=rule.key, reason=reason, confidence_step=step))
-        if rule.triggers_review:
+        if rule.triggers_review or _triggers_review(rule.key, claimant):
             triggers.append(ReviewTriggerRecord(trigger=ReviewTrigger.HISTORY_RULE, reason=f"{rule.description}: {reason}"))
     if not adjustments:
         return ruling
@@ -62,3 +62,10 @@ def _reason_it_fires(key: str, claimant: dict) -> str | None:
         if "late_cancellations" in (claimant.get("fraud_flag_details") or ""):
             return "The Claimant is flagged for frequent late cancellations."
     return None
+
+
+def _triggers_review(key: str, claimant: dict) -> bool:
+    """A strong pattern (contract-decisions item 2) sends the Case to a person in addition to lowering Confidence."""
+    if key == "prior_rejected":
+        return int(claimant["dispute_history"]["rejected"]) >= PRIOR_REJECTED_TRIGGER
+    return False

@@ -24,6 +24,7 @@ def a_case_with_rider_history(**rider_changes):
 CLEAN = dict(dispute_history={"total_disputes": 1, "upheld": 1, "rejected": 0}, fraud_flags=0, fraud_flag_details=None)
 THREE_REJECTED = dict(dispute_history={"total_disputes": 4, "upheld": 1, "rejected": 3}, fraud_flags=0, fraud_flag_details=None)
 LATE_CANCELLER = dict(**CLEAN) | dict(fraud_flags=1, fraud_flag_details="flagged_for_frequent_late_cancellations")
+FIVE_REJECTED = dict(dispute_history={"total_disputes": 6, "upheld": 1, "rejected": 5}, fraud_flags=0, fraud_flag_details=None)
 
 
 def a_ruling_at(confidence, **overrides):
@@ -68,6 +69,21 @@ def test_the_late_cancellation_flag_is_a_rule_of_its_own():
     ruling = apply_history(a_ruling_at(0.9), a_case_with_rider_history(**LATE_CANCELLER))
 
     assert [a.rule for a in ruling.history_adjustments] == ["late_cancel_flag"]
+
+
+def test_three_prior_rejections_lower_confidence_but_do_not_trigger_review():
+    ruling = apply_history(a_ruling_at(0.8), a_case_with_rider_history(**THREE_REJECTED))
+
+    assert ruling.review_triggers == []
+    assert ruling.status is not RulingStatus.PROPOSAL
+
+
+def test_a_strong_prior_rejected_pattern_also_sends_the_case_to_review():
+    ruling = apply_history(a_ruling_at(0.8), a_case_with_rider_history(**FIVE_REJECTED))
+
+    assert ruling.confidence.value == pytest.approx(0.75)  # still lowers by one step
+    assert [t.trigger for t in ruling.review_triggers] == [ReviewTrigger.HISTORY_RULE]
+    assert ruling.status is RulingStatus.PROPOSAL
 
 
 def test_history_can_never_raise_confidence_or_change_the_outcome_whoever_wins():
