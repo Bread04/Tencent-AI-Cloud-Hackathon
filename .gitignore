@@ -39,3 +39,4 @@ docs/diagrams/*.finalize.json
 docs/diagrams/*.finalize-summary.json
 .vercel
 .env*
+.agents/
