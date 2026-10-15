@@ -62,6 +62,7 @@ def create_app(
     app = FastAPI(title="Ryde Dispute Resolution (simulated)")
     run_errors: dict[str, str] = {}  # case id -> why its run stopped, for the console
     app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
+    app.mount("/brag-output", StaticFiles(directory=HERE.parents[1] / "brag-output"), name="brag-output")
     app.mount("/photos", StaticFiles(directory=HERE.parents[1] / "data" / "photos"), name="photos")  # the mock photos attached to Property Damage disputes
     # The console uses the Waypoint prototype's own stylesheets, fonts and artwork, so it looks like the rider app.
     app.mount("/prototypes", StaticFiles(directory=PROTOTYPES), name="prototypes")
