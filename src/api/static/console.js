@@ -63,8 +63,104 @@
   const autorun = params.get("run") && document.querySelector(`button.trip-choice[data-dispute="${params.get("run")}"]`);
   if (autorun) setTimeout(() => { syncPhotoSwitch(autorun); run(autorun); }, 0);
 
+  // --- The judge's own case: the report form, filed against the trip picked (POST /api/reports) ---------------------
+
+  const ownForm = $("ownCase");
+  if (ownForm) {
+    const trip = $("ownTrip");
+    const categoryChoice = $("ownCategoryChoice");
+    const categoryLabels = {
+      no_show_charge: "No-show / cancellation",
+      route_deviation: "Route deviation",
+      property_damage: "Damage / mess",
+      safety_incident: "Safety / conduct",
+    };
+    let categoryPreview = 0;
+    const categoryText = (category, source) => {
+      const option = trip.selectedOptions[0];
+      const evidenceNote = option && option.dataset.category !== category
+        ? `; selected trip provides ${option.dataset.categoryLabel} evidence`
+        : "";
+      return `${categoryLabels[category]} (${source}${evidenceNote})`;
+    };
+    const syncTrip = () => {
+      const option = trip.selectedOptions[0];
+      $("ownEvidenceCategory").textContent = option ? option.dataset.categoryLabel : "–";
+    };
+    const syncCategory = async () => {
+      const statement = $("ownStatement").value.trim();
+      const selected = categoryChoice.value;
+      const request = ++categoryPreview;
+      if (selected) {
+        $("ownCategory").textContent = categoryText(selected, "chosen");
+        return;
+      }
+      if (!statement) {
+        $("ownCategory").textContent = "Describe what happened to detect it.";
+        return;
+      }
+      try {
+        const response = await fetch("/api/classify", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ description: statement }),
+        });
+        const result = await response.json();
+        if (request !== categoryPreview) return;
+        $("ownCategory").textContent = response.ok ? categoryText(result.category, "detected") : "Needs more detail or a category choice.";
+      } catch {
+        if (request === categoryPreview) $("ownCategory").textContent = "Category detection is unavailable; choose one above.";
+      }
+    };
+    trip.addEventListener("change", syncTrip);
+    categoryChoice.addEventListener("change", syncCategory);
+    $("ownStatement").addEventListener("blur", syncCategory);
+    syncTrip();
+    ownForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const option = trip.selectedOptions[0];
+      const statement = $("ownStatement").value.trim();
+      const error = $("ownError");
+      error.hidden = true;
+      if (!option) { error.textContent = "Pick a trip first."; error.hidden = false; return; }
+      if (!statement) { error.textContent = "Say what happened first."; error.hidden = false; $("ownStatement").focus(); return; }
+      if (isRecorded()) { error.textContent = "Your own case needs the live model: open the console without ?recorded=1."; error.hidden = false; return; }
+      let category;
+      try {
+        const response = await fetch("/api/classify", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ description: statement, ...(categoryChoice.value ? { category: categoryChoice.value } : {}) }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Choose one of the supported categories.");
+        category = result.category;
+        $("ownCategory").textContent = categoryText(category, result.chosen ? "chosen" : "detected");
+      } catch (classificationError) {
+        error.textContent = classificationError.message || "We could not identify this as a supported dispute category. Add detail or choose a category.";
+        error.hidden = false;
+        return;
+      }
+      const role = ownForm.querySelector("input[name=ownRole]:checked").value;
+      const amount = $("ownAmount").value.trim();
+      const resolution = { type: $("ownResolution").value };
+      if (amount) { resolution.amount = Number(amount); resolution.currency = "SGD"; }
+      const id = `JUDGE-${Date.now().toString(36).toUpperCase()}`;
+      const report = {
+        id, createdAt: new Date().toISOString(), demo: true, reporterRole: role,
+        trip: { reference: trip.value, simulatedSourceTrip: true },
+        category: categoryLabels[category], summary: statement.slice(0, 150), statement,
+        requestedResolution: resolution, evidence: [], confirmation: "Typed in the console",
+      };
+      const d = option.dataset;
+      const shown = { dataset: { dispute: `DISP-${id}`, category, filedBy: role.toLowerCase(), pickup: d.pickup, destination: d.destination, fare: d.fare, when: d.when, description: statement } };
+      photosOnHand = false; safetyIncident = category === "safety_incident";
+      $("ownRun").disabled = true;
+      try { await runCase(shown, shown.dataset.dispute, () => startReport(report)); } finally { $("ownRun").disabled = false; }
+    });
+  }
+
   function reset(button) {
     const d = button.dataset;
+    $("clearRun").disabled = false;
     $("caseMeta").textContent = `${d.when} SGT · ${words(d.category)}`;
     $("caseTitle").textContent = `${cap(words(d.category))} dispute`;
     $("caseId").textContent = `${d.dispute} · filed by the ${d.filedBy}`;
@@ -88,14 +184,50 @@
     showTab("overview");
   }
 
+  $("clearRun").addEventListener("click", () => {
+    runId += 1; // stop the current poll/replay from repainting the cleared view
+    currentCase = null;
+    photosOnHand = false;
+    safetyIncident = false;
+    document.querySelectorAll("button.trip-choice").forEach((button) => button.setAttribute("aria-pressed", "false"));
+    $("caseMeta").textContent = "No dispute selected";
+    $("caseTitle").textContent = "Choose a dispute to run";
+    $("caseId").textContent = "";
+    $("caseStatus").textContent = "";
+    $("pickup").textContent = "–";
+    $("destination").textContent = "–";
+    $("fare").textContent = "–";
+    $("fareLabel").textContent = "Fee in dispute";
+    $("disputeNote").textContent = "";
+    $("log").replaceChildren();
+    $("outcomes").hidden = true;
+    $("outcomePair").replaceChildren();
+    $("summaryCard").replaceChildren();
+    $("summaryCard").hidden = true;
+    $("ruling").replaceChildren(el("p", { class: "muted" }, "No ruling yet."));
+    $("evidence").replaceChildren(el("p", { class: "muted" }, "Run a dispute to see its sealed evidence and the policy clauses."));
+    $("submissions").replaceChildren(el("p", { class: "muted" }, "Run a dispute to see what each advocate argued."));
+    $("calls").replaceChildren(el("p", { class: "muted" }, "Run a dispute to see every request sent to the model, when, and what came back."));
+    $("appError").hidden = true;
+    $("clearRun").disabled = true;
+    workflow.reset();
+    showTab("overview");
+    setStatus("Nothing running. Choose a dispute on the left.");
+  });
+
   async function run(button) {
-    const mine = ++runId;
     const disputeId = button.dataset.dispute;
+    return runCase(button, disputeId, () => (isRecorded() ? loadRecorded(disputeId) : start(disputeId)));
+  }
+
+  // One run, from either source: a prepared Dispute or one a judge typed. `begin` starts it and hands back the fetcher to poll.
+  async function runCase(button, disputeId, begin) {
+    const mine = ++runId;
     document.querySelectorAll("button.trip-choice").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
     reset(button);
     setStatus(isRecorded() ? `Replaying a recording of ${disputeId}. No model is called.` : `Running ${disputeId} on the model in the header…`);
     try {
-      const source = isRecorded() ? await loadRecorded(disputeId) : await start(disputeId);
+      const source = await begin();
       await follow(source, mine, disputeId);
     } catch (error) {
       if (mine === runId) fail(`Could not run ${disputeId}: ${error.message}`);
@@ -111,6 +243,17 @@
 
   async function start(disputeId) {
     const response = await fetch(`/api/disputes/${disputeId}/run${switchQuery() ? "?" + switchQuery() : ""}`, { method: "POST" });
+    const started = await response.json();
+    if (!response.ok) throw new Error(started.error || response.statusText);
+    return async () => {
+      const read = await fetch(`/api/cases/${started.case_id}`);
+      if (!read.ok) throw new Error((await read.json()).error || read.statusText);
+      return read.json();
+    };
+  }
+
+  async function startReport(report) {
+    const response = await fetch("/api/reports", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(report) });
     const started = await response.json();
     if (!response.ok) throw new Error(started.error || response.statusText);
     return async () => {
@@ -254,9 +397,9 @@
 
   function headline(kase) {
     const claimant = cap(kase.dispute.filed_by);
-    if (kase.ruling.status === 'proposal') return 'Decision pending human review';
-    if (kase.ruling.outcome === 'partially_uphold') return `${claimant}'s claim partially upheld`;
-    return kase.ruling.outcome === "reject" ? `${claimant}'s claim rejected` : `${claimant}'s claim upheld`;
+    const called = kase.ruling.outcome === 'partially_uphold' ? 'partially upheld' : kase.ruling.outcome === 'reject' ? 'rejected' : 'upheld';
+    if (kase.ruling.status === 'proposal') return `Proposed: ${claimant}'s claim ${called}, pending human review`;
+    return `${claimant}'s claim ${called}`;
   }
 
   function renderRuling(kase) {

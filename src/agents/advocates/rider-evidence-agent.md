@@ -23,7 +23,7 @@ Relevance includes information that supports, limits, or challenges the Rider's 
 
 ### Operational position: step 3, Gather evidence
 
-Start after the application's step 2 intake validation. The Rider Advocate's evidence-retrieval responsibility is delegated to this Supporting Agent through the orchestrator when enabled. Return the unchanged collection and separate relevance/gap/conflict annotations to the shared store. Once the application validates and records the step 3 result, it passes that reference and the same original report to the [Rider Policy Agent](rider-policy-agent.md) for step 4. Both outputs are later supplied to the [Rider Advocate](rider-advocate.md) for step 5; policy retrieval must not overwrite the evidence collection. Follow the [operational connection table](README.md#operational-steps-from-workflowmd).
+Start after intake validation. The Rider Advocate's evidence-retrieval responsibility is delegated to this Supporting Agent through the orchestrator when enabled. Return the collection and separate relevance/gap/conflict annotations to the shared store. The application then passes the result and original report to the [Rider Policy Agent](rider-policy-agent.md), and both outputs are available to the [Rider Advocate](rider-advocate.md). See the [implementation walkthrough](../../../docs/architecture.md#13-implementation-walkthrough-how-each-agent-works).
 
 ## 1. Existing implementation and integration points
 
@@ -40,7 +40,7 @@ The existing collector gathers all of the selected Trip's supplied Rider-visible
 
 The executable collector is Python in `src/agents/rider/evidence.py`. The browser calls `/api/rider/evidence` through `rider-api.js`; the former JavaScript collector has been removed. This companion document supplies role instructions without duplicating runtime rules.
 
-The [architecture](../../../docs/architecture.md), [development guide](../../../docs/dev-guide.md), and [Glossary](../../../GLOSSARY.md) remain authoritative for shared contracts. Current Rider implementation lives in `src/agents/rider/` and reuses `src/tools/evidence/`; this document does not introduce or change a shared Python contract.
+The [architecture](../../../docs/architecture.md) and [Glossary](../../../GLOSSARY.md) describe shared contracts. Current Rider implementation lives in `src/agents/rider/` and reuses `src/tools/evidence/`; this document does not introduce or change a shared Python contract.
 
 ## 2. Required inputs and scope checks
 

@@ -39,6 +39,36 @@
   <div class="workspace">
     <aside class="trip-column">
       <div class="section-title"><h2>Disputes</h2><span class="count">{{COUNT}}</span></div>
+      <details id="ownCaseBox" class="own-case">
+        <summary>Type your own case</summary>
+        <form id="ownCase" novalidate>
+          <p class="small muted">Write the dispute yourself. The agents argue it from the evidence of the trip you pick.</p>
+          <label for="ownTrip">Trip (its evidence is what the agents cite)</label>
+          <select id="ownTrip" required>{{OWN_CASE_TRIPS}}</select>
+          <label for="ownCategoryChoice">Dispute category</label>
+          <select id="ownCategoryChoice">
+            <option value="">Detect from the description</option>
+            <option value="no_show_charge">No-show / cancellation</option>
+            <option value="route_deviation">Route deviation</option>
+            <option value="property_damage">Damage / mess</option>
+            <option value="safety_incident">Safety / conduct</option>
+          </select>
+          <p class="small muted">Category used: <strong id="ownCategory">Describe what happened to detect it.</strong></p>
+          <p class="small muted">Evidence comes from the selected trip: <strong id="ownEvidenceCategory">–</strong></p>
+          <fieldset class="own-roles"><legend>I am the</legend>
+            <label><input type="radio" name="ownRole" value="Rider" checked> Rider</label>
+            <label><input type="radio" name="ownRole" value="Driver"> Driver</label>
+          </fieldset>
+          <label for="ownStatement">What happened</label>
+          <textarea id="ownStatement" maxlength="5000" rows="5" required placeholder="In your own words: what happened, and what you want."></textarea>
+          <label for="ownResolution">What you ask for</label>
+          <select id="ownResolution"><option>Refund</option><option>Compensation</option><option>Review the incident</option></select>
+          <label for="ownAmount">Amount, SGD <span class="small muted">(optional)</span></label>
+          <input id="ownAmount" type="number" min="0.01" max="999999" step="0.01" placeholder="0.00">
+          <p id="ownError" class="own-error" role="alert" hidden></p>
+          <button type="submit" id="ownRun" class="primary">Run my case</button>
+        </form>
+      </details>
       <div id="disputeList" class="trip-list" aria-label="Choose a dispute">{{DISPUTES}}</div>
     </aside>
 
@@ -49,7 +79,7 @@
           <h2 id="caseTitle">Choose a dispute to run</h2>
           <p id="caseId" class="small muted"></p>
         </div>
-        <span id="caseStatus" class="status"></span>
+        <div class="case-actions"><span id="caseStatus" class="status"></span><button id="clearRun" type="button" class="text-button" disabled>Clear run</button></div>
       </div>
       <div class="route-banner">
         <div class="route-points">

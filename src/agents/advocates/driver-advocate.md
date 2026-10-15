@@ -18,11 +18,11 @@ The separate [backend Advocate pipeline](../advocates/__init__.py), [shared evid
 
 Build the strongest honest driver Submission from the original Dispute, any separately attributed Driver statement, the complete [Driver Evidence Agent](driver-evidence-agent.md) and [Driver Policy Agent](driver-policy-agent.md) outputs, and the full shared sealed evidence/policy source.
 
-Under [Operational Steps](../../../workflow.md#operational-steps), advocates own step 3 evidence retrieval and step 4 policy retrieval. The orchestrator delegates these in order to the Driver Supporting Agents when enabled. The Driver Advocate performs **step 5, Build cases**, independently of the [Rider Advocate](rider-advocate.md). It addresses counter-evidence honestly; it does not determine who wins, execute a charge, or promise compensation.
+In the [case lifecycle](../../../docs/architecture.md#31-case-lifecycle), advocates own evidence and policy retrieval. The orchestrator delegates these in order to the Driver Supporting Agents when enabled. The Driver Advocate then builds its Submission independently of the [Rider Advocate](rider-advocate.md). It addresses counter-evidence honestly; it does not determine who wins, execute a charge, or promise compensation.
 
 ## Sources and contract boundaries
 
-- [Workflow](../../../workflow.md), [Architecture](../../../docs/architecture.md), and [Glossary](../../../GLOSSARY.md): operational owners, shared store, sealed evidence, independent Submissions, and Judge responsibilities.
+- [Architecture](../../../docs/architecture.md) and [Glossary](../../../GLOSSARY.md): operational owners, shared store, sealed evidence, independent Submissions, and Judge responsibilities.
 - [Driver Evidence Agent](driver-evidence-agent.md): step 3 collection, relevance, gaps, and source context.
 - [Driver Policy Agent](driver-policy-agent.md): step 4 full policy extraction, exact-source references, limitations, and readiness.
 - [Shared app policies](../../../prototypes/shared/policies.js): one versioned source for both parties and shared assessment.

@@ -14,9 +14,9 @@ from src.contracts import DisputeCategory
 # Checked in this order: the first category with a match wins.
 RULES: list[tuple[DisputeCategory, re.Pattern]] = [
     (DisputeCategory.SAFETY_INCIDENT, SAFETY_WORDS),
-    (DisputeCategory.PROPERTY_DAMAGE, re.compile(r"\b(stain\w*|scratch\w*|dent\w*|spill\w*|vomit\w*|damag\w*|broke\w*|torn|dirty)", re.IGNORECASE)),
-    (DisputeCategory.ROUTE_DEVIATION, re.compile(r"\b(route|detour\w*|longer|wrong way|different way|took a different|off the map)", re.IGNORECASE)),
-    (DisputeCategory.NO_SHOW_CHARGE, re.compile(r"(no[- ]show|cancel\w*|did(n't| not) show|waited|waiting|cancellation fee)", re.IGNORECASE)),
+    (DisputeCategory.PROPERTY_DAMAGE, re.compile(r"\b(stain\w*|scratch\w*|scrap\w*|dent\w*|crack\w*|spill\w*|vomit\w*|damag\w*|broke\w*|broken|torn|dirty)", re.IGNORECASE)),
+    (DisputeCategory.ROUTE_DEVIATION, re.compile(r"\b(route|detour\w*|longer|wrong (?:way|turn)|different way|took a different|off (?:the )?(?:map|course|route))\b", re.IGNORECASE)),
+    (DisputeCategory.NO_SHOW_CHARGE, re.compile(r"(no[- ]show|cancel\w*|did(n't| not) show|never arrived|pickup never happened|waited|waiting|cancellation fee)", re.IGNORECASE)),
 ]
 
 

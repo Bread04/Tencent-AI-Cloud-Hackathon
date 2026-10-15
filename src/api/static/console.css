@@ -157,6 +157,11 @@ details.call .call-meta { margin-left: auto; margin-right: 12px; font: 11px var(
 .console .work-heading .text-link:hover { color: #fff; border-color: #6e8aff; }
 
 .console .app-header { flex-wrap: wrap; row-gap: 12px; }
+.case-actions { display: flex; align-items: center; gap: 12px; }
+.text-button { padding: 6px 10px; border: 1px solid var(--line); border-radius: 3px; background: #fff; color: var(--muted); font: 600 11px/1.2 "Segoe UI", system-ui, sans-serif; cursor: pointer; }
+.text-button:hover:not(:disabled) { color: var(--ink); border-color: #9eabc0; }
+.text-button:disabled { opacity: .5; cursor: default; }
+@media (max-width: 560px) { .case-actions { align-items: flex-end; flex-direction: column-reverse; gap: 4px; } }
 
 /* Communication Log re-framed as an agent exchange */
 .log-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 4px 0 0; }
@@ -357,3 +362,19 @@ details.call .call-meta { margin-left: auto; margin-right: 12px; font: 11px var(
 .photo-checks .warn .check-mark { background: #c9831a; }
 .photo-checks .warn strong { color: #8a5a14; }
 @media (max-width: 560px) { .photo-card { flex-direction: column; } }
+
+
+/* The judge's own case: typed into the console instead of picked from the prepared Disputes */
+.own-case { margin: 0 0 18px; padding: 12px 14px; border: 1px solid #3a4a63; border-radius: 12px; background: #1a2332; }
+.own-case > summary { cursor: pointer; font-size: 14px; font-weight: 600; color: #dfe6f0; list-style: none; display: flex; justify-content: space-between; }
+.own-case > summary::-webkit-details-marker { display: none; }
+.own-case > summary:after { content: "+"; font-family: var(--mono); }
+.own-case[open] > summary:after { content: "–"; }
+.own-case form { display: grid; gap: 6px; margin-top: 12px; }
+.own-case label, .own-case legend { font-size: 12px; color: #aeb9c9; margin-top: 6px; }
+.own-case select, .own-case textarea, .own-case input[type=number] { width: 100%; box-sizing: border-box; padding: 9px 10px; border-radius: 8px; border: 1px solid #3a4a63; background: #0f1620; color: #eef2f8; font: 13px/1.45 inherit; }
+.own-case textarea { resize: vertical; min-height: 96px; }
+.own-case .own-roles { display: flex; gap: 16px; border: 0; padding: 0; margin: 4px 0 0; }
+.own-case .own-roles label { display: flex; gap: 6px; align-items: center; margin: 0; font-size: 13px; color: #dfe6f0; }
+.own-case .own-error { color: #ff9a9a; font-size: 12px; margin: 4px 0 0; }
+.own-case button.primary { margin-top: 10px; }

@@ -1,174 +1,164 @@
-# Tencent AI Cloud Hackathon
+# Waypoint — AI dispute resolution for Ryde
 
-We are working on the Digital Native Track.
+Waypoint resolves ride-hailing disputes through two independent advocate agents and an impartial Judge. It gathers trip evidence, applies shared policy, produces an auditable ruling, and sends uncertain or safety-related cases to a human reviewer.
 
-**Interactive prototype:** [Open the Waypoint ride-hailing experience](prototypes/index.html). It includes a sample ride planner, a switchable rider/driver trip scene, recent trip records and an optional dispute report form. Bookings and driver interactions are simulated.
+**Submission blurb:** Fair, explainable outcomes for rider–driver disputes.
 
-## The Digital Native Track — Ryde
+**Hackathon track:** Digital Native — Ryde. **Challenge:** Multi-Agent Autonomous Dispute Resolution System.
 
-**Challenge: Multi-Agent Autonomous Dispute Resolution System**
+[![Watch the 25-second Waypoint preview](brag-output/brag.jpg)](brag-output/brag.mp4)
 
-## 1. Track Overview
+## Project overview
 
-The Digital Native Track features real-world business challenges contributed by Ryde, a Singapore-headquartered ride-hailing and carpooling platform.
+**Users.** Ryde support reviewers who resolve rider–driver disputes, and the riders and drivers who receive the decision with an explanation.
 
-Participants will use AI technologies to develop practical, impactful solutions for the mobility and digital services sector.
+**Target scenarios.** Four dispute categories: Route Deviation ("the driver took a longer route and I was overcharged"), No-Show Charge, Property Damage / Mess, and Safety Incident.
 
-### Participation Requirements
+**Value proposition.** Cut the time reviewers spend gathering and reconciling GPS, chat, photo, fare and policy evidence, while keeping every decision traceable, consistent and safely escalated. Both parties get the same explained outcome in party-specific wording.
 
-- This track presents one real-world enterprise challenge statement.
-- Each team must select one case study to solve.
-- Clearly indicate your chosen case study at the beginning of your presentation.
+## Real-world scenario insights
 
-## 2. Background
+- **Pain points.** The hackathon challenge statement describes thousands of daily tickets that are complex, subjective and emotionally charged, reviewed by hand across GPS telemetry, chat logs, photos, payments and policy. It cites high support cost, 24–72 hour resolution, inconsistent rulings between agents, and churn when users feel unfairly treated. These are the organizer's figures, not independently verified measurements.
+- **Regulatory context.** Singapore's LTA says private-hire fares should be shown before a trip and that fare-evasion and overcharging rules apply to app-booked trips ([LTA: Getting a Ride](https://www.lta.gov.sg/content/ltagov/en/getting_around/point_to_point_transport_and_cross_border_services/getting_a_ride.html)). That supports the need for transparent, evidence-based review.
+- **Core problems solved.** Slow manual evidence comparison; inconsistent outcomes on similar cases; opaque decisions; and the risk of automating sensitive cases (safety incidents always go to a human).
 
-Ride-hailing companies process thousands of dispute tickets daily, ranging from fare disputes and route deviations to property damage, safety incidents, and no-show charges.
+## Solution design
 
-These disputes are often complex, subjective, and emotionally charged. Human support agents must manually review GPS telemetry, chat logs, photos, payment records, and company policies before reaching a decision.
+**Business architecture.** A reviewer files a case. Waypoint prioritizes it, gathers evidence, produces a cited ruling, and either issues it to both parties or sends it to a human review queue. Refunds and compensation are recommendations only; no payment is executed.
 
-This approach creates several challenges:
+**Technical architecture.** A fixed, code-driven pipeline (`src/orchestrator/`) runs each dispute: code validates and prioritizes the case, retrieves simulated records and seals a versioned evidence set. The Rider Advocate and Driver Advocate then work from the same sealed evidence and policy, and the Judge reviews both submissions. See the [architecture diagram](docs/diagrams/architecture.html) and [docs/architecture.md](docs/architecture.md).
 
-| Challenge | Impact |
+**How prompts drive the AI generation.** The Rider and Driver Advocate prompts use the same evidence and policy but assign opposite roles. Each directs the model to produce a structured argument, cite only supplied evidence IDs, address a counterargument, and treat party-written text as data rather than instructions. The Judge prompt receives both submissions and the original evidence and requests a cited, reasoned assessment of each argument. Prompts live in `src/agents/advocates/` and `src/agents/judge/`. Code then validates schemas and citations and calculates amounts and confidence, so the model never computes money or confidence. Every stage appears in the Communication Log.
+
+## Business value
+
+The value hypothesis is less active reviewer time per case without losing traceability or safe escalation. **No pilot data exists yet.** The figures below are a worked model with placeholder inputs for Ryde to replace, not measurements.
+
+| Input | Placeholder |
 | --- | --- |
-| High operational costs | Millions spent annually on human support hours. |
-| Slow resolution times | Disputes typically take 24–72 hours to resolve. |
-| Inconsistent rulings | Different agents may reach different conclusions on similar cases. |
-| User churn | Customers who feel unfairly treated may leave the platform. |
+| Disputes per day (D) | 1,000 (the brief says "thousands") |
+| Share in the four supported categories (S) | 80% |
+| Share needing human review (H) | 35% |
+| Active reviewer minutes per case today (Tb) | 15 |
+| Active reviewer minutes per case with Waypoint (Tw) | 4 (read the sealed evidence and ruling) |
 
-## 3. Problem Statement
+Time saved per day = D × S × (1 − H) × (Tb − Tw) + D × S × H × (Tb − Tw) × 0.5, where human-reviewed cases get half the saving because they still skip evidence gathering. With the placeholders: 5,720 + 1,540 = **about 7,260 reviewer minutes (about 121 hours) a day**.
 
-Build an autonomous, multi-agent dispute resolution system that handles complex conflicts between riders and drivers.
+Benefits that do not depend on those inputs: every ruling carries cited evidence IDs, a code-calculated amount and a confidence value; both parties see the same decision; safety incidents escalate to a human by rule ([ADR 0006](docs/adr/0006-safety-incidents-escalate-by-rule.md)).
 
-The system should gather evidence, build cases, apply company policy, and issue fair rulings quickly and transparently, without human intervention for the majority of standard dispute categories.
+**Pilot metrics to prove the model:** median active reviewer minutes per case versus baseline; filing-to-first-decision time; share of rulings overturned by a human; citation validity; safety cases escalated (target 100%); repeat-dispute and churn rates after a decision.
 
-## 4. Required MVP: Core Agents
+## Verified results
 
-Teams must implement three core agents that operate on text-based and structured evidence, such as GPS coordinates, chat logs, fare breakdowns, and timestamps.
+Run from the repository root:
 
-| Agent | Role | Required Capabilities |
-| --- | --- | --- |
-| Rider Advocate Agent | Represents the rider’s perspective. | Gathers rider-side evidence, articulates the rider’s claim using company policy, and argues for rider-favourable outcomes. |
-| Driver Advocate Agent | Represents the driver’s perspective. | Gathers driver-side evidence, builds the driver’s defence using company policy, and argues for driver-favourable outcomes. |
-| Judge Agent | Acts as an impartial arbitrator. | Weighs both cases, applies company policy, issues a ruling, and explains its reasoning in natural language. Possible outcomes include refunds, compensation, or no action. |
-
-### MVP Evidence Sources
-
-| Evidence Source | Areas of Analysis |
-| --- | --- |
-| GPS and telemetry data | Actual versus optimal route, unexpected stops, and actual versus estimated trip duration. |
-| Chat and communication logs | Sentiment, agreements, disagreements, and threats. |
-| Payment and fare data | Fare breakdowns, surge pricing disputes, and promo code usage. |
-| Historical behaviour profiles | Rider and driver dispute histories, rating patterns, and account age. |
-
-### MVP Workflow
-
-1. **Dispute submission:** A rider or driver files a dispute. Example: “The driver took a longer route and I was overcharged.”
-2. **Evidence gathering:** The Rider Advocate Agent and Driver Advocate Agent autonomously gather evidence from the available data sources.
-3. **Case presentation:** Each advocate presents its case, citing relevant company policies.
-4. **Review and ruling:** The Judge Agent reviews both cases, applies policy, and issues a ruling with a confidence score and a natural-language reasoning summary.
-5. **Outcome communication:** The system provides both parties with the ruling, recommended action, and explanation. Example: A partial refund of $3.25.
-
-## 5. Optional Stretch Goals
-
-These enhancements are intended for teams that have completed a fully functional MVP. They earn bonus points and demonstrate deeper technical capability.
-
-| Agent or Capability | Function | Added Technical Complexity |
-| --- | --- | --- |
-| Evidence Collection Agent | Coordinates multimodal evidence retrieval across tools and APIs, then provides structured evidence to the advocate agents. | Tool use, API integration, and orchestration. |
-| Fraud and Bad-Faith Detection Agent | Runs in parallel to detect dispute abuse, fake claims, or collusion, and provides risk signals to the Judge Agent. | Behavioral modelling and risk scoring. |
-| Policy and Precedent Agent | Maintains a dynamic knowledge base of company policies and past rulings, providing recommendations for consistent decisions. | Knowledge-base construction and retrieval, such as a RAG architecture. |
-| Image Analysis — Multimodal | Assesses mess or damage photos for authenticity, trip-timestamp alignment, and signs of AI generation. | Computer vision and multimodal LLM capabilities. |
-| Escalation Protocol | Escalates cases to a human reviewer with a complete case summary when the Judge Agent’s confidence falls below a threshold. | Conditional logic, threshold tuning, and human-in-the-loop design. |
-| Learning Feedback Loop | Captures human overrides and feeds corrections into the Policy and Precedent Agent’s knowledge base. | Feedback ingestion and knowledge-base updates. |
-| SLA and Routing Manager | Prioritises disputes by urgency and value, fast-tracking high-priority cases such as safety incidents. | Queue management and prioritisation. |
-
-## 6. Strategic Guardrails
-
-### Scope Management
-
-- The required deliverable is the three core agents handling text-based and structured evidence. Evaluation will focus primarily on this.
-- Advanced agents, image processing, and multimodal capabilities are stretch goals. Attempt them only after the MVP is fully functional.
-- Teams may mock or simulate external APIs and data sources where real APIs are unavailable.
-- A sample dataset will be provided.
-
-### Technical Constraints
-
-- Teams may use any LLM or AI agent framework, including LangChain, AutoGen, CrewAI, or a custom implementation.
-- By Demo Day, the system must demonstrate a working end-to-end flow for at least two dispute categories, such as route deviation and no-show charges.
-- Inter-agent communication must be observable. Judges should be able to see how agents exchange information and build their cases through a visible communication log or user interface.
-
-## 7. Sample Dispute Categories
-
-The system should handle at least two of the following dispute types:
-
-| Dispute Type | Example | Additional Requirement |
-| --- | --- | --- |
-| Route deviation | “The driver took a longer route and I was overcharged.” | — |
-| No-show charge | “The driver didn’t show up, but I was charged a cancellation fee.” | — |
-| Property damage or mess | “The rider spilled drinks in the car, and the driver is claiming cleaning fees.” | Requires image analysis; a stretch goal. |
-| Safety incident | “The driver behaved inappropriately during the trip.” | — |
-
-## 8. Required Deliverables
-
-| Deliverable | Requirement |
-| --- | --- |
-| Working prototype | An end-to-end solution capable of handling at least two dispute categories. |
-| Architecture diagram | A clear visual representation of the multi-agent system and its key components. |
-| Demo walkthrough | A live demonstration showing how a dispute is processed and resolved autonomously. |
-| Source code | Complete source code submitted through a GitHub repository. |
-
-> **Note:** The listed features provide guidance. Participants are strongly encouraged to explore alternative approaches that meaningfully address the problem statement.
-
-## Getting started
-
-Needs [uv](https://docs.astral.sh/uv/) (it fetches Python 3.11+ and the dependencies). One command installs everything and runs the test suite:
-
-```
+```powershell
 uv run pytest
+$env:MODEL_PROVIDER = "stub"
+uv run python -m scripts.evaluate
+uv run python -m scripts.rehearse
 ```
 
-The suite runs offline: the model is a stub with scripted replies. The proposed contract values and the questions still open are in [docs/contract-decisions.md](docs/contract-decisions.md).
+Verified on this working tree: 830 tests passed, 12 of 12 prepared cases matched their expected labels with scripted replies, and 11 of 11 walkthrough steps ended as scripted. This shows repeatable fixture behavior, not live-model accuracy or production reliability.
 
-Run the backend demo with `uv run uvicorn src.api.demo:app`, then open `http://127.0.0.1:8000/`. Select a prepared Dispute to run it in the console. The console and its JSON/recorded replay API display public simulated activity, preserving the upstream demo. The Rider Communication Log and stored HTML case pages at `/cases/{case_id}` start locked; enter **482731** to reveal their recorded messages, actor filter and citations. **Lock** hides protected logs and revokes the session. Reopening and filtering stored cases do not run agents again.
+## Stretch goals
 
-The same server serves the Waypoint landing page at `/index.html`, the Rider app at `/ryde-app/`, and the report form at `/ryde-report/`. Use these backend URLs for both Rider entry points; FastAPI is mandatory for Rider Evidence, Policy, Advocate execution and Communication Logs; a separate static server cannot run the agents. See the [Rider usage notes](prototypes/ryde-app/README.md).
+| Capability | Status |
+| --- | --- |
+| Evidence collection | Implemented with simulated evidence tools and optional party-side extraction agents. |
+| Policy and precedent | Implemented with a prepared precedent store; optional local embeddings can rank records. |
+| Image analysis | Implemented for supplied mock photos; uncertainty is retained in the evidence. |
+| Escalation and human review | Implemented for safety cases, low confidence and configured triggers. |
+| Learning from human overrides | Implemented as an optional override-to-precedent path. |
+| SLA and priority routing | Implemented as code-based priority scoring. |
+| Fraud and bad-faith detection | Not implemented. |
 
-Set `RYDE_CHAT_ACCESS_CODE` before starting the server to override the demo code; an explicitly empty value disables unlocking. Both apps validate the code on the backend before returning recorded messages. Opaque HttpOnly SameSite cookies bind Rider handles to their registering browser and refer to a 30-minute server access session; only explicitly unlocked logs are accessible. Locking revokes the access session across both apps. Protected responses use `Cache-Control: no-store`, and restored pages clear or recheck displayed activity. Rider JSON export performs a fresh authorized read before including the log.
+## Development process and AI tooling
 
-Rider cases keep their original report and public case content in browser session storage, with only a transcript handle and empty activity arrays. Older saved logs are uploaded once when opened. The Python case endpoint generates and stores the public log itself, returning only an opaque handle and redacted activity arrays. The evidence endpoint uses the same backend gate. The older client-log upload endpoint exists only for legacy migration; those older events are not authenticated evidence. Transcripts expire after six hours, are bounded to 1,000 records/16 MiB (256 KiB per upload), and disappear with all sessions on restart. Missing handles require explicit **Prepare Rider case again**; opening a case never silently reruns agents. If the backend is unavailable, the original report is saved before the request and remains downloadable; new agent execution shows an error and retry without a browser rules fallback. Existing public case content remains usable while logs and case JSON export stay locked. Use one server process. This local simulated demo is not production identity or account security.
+<!-- TODO (team): describe genuine CodeBuddy / WorkBuddy usage here and attach the conversation screenshots (minimum 3). Do not add claims that did not happen. -->
 
-## Demo Day runbook
+Claude Code was used under the team's direction to write and review code, tests and tickets; every change was run against the test suite. The architecture and walkthrough diagrams were generated with the open-source Archify skill from the architecture document and running code. The console's pipeline stepper and confidence gauge were ported to plain HTML/CSS/JS from two public 21st.dev components. Layout, colours and fonts come from the Waypoint rider-app prototype in `prototypes/`.
 
-Start the server (`uv run uvicorn src.api.demo:app`, then `http://127.0.0.1:8000/`) and run the prepared Disputes top to bottom. `docs/demo-script.md` has the exact words and order; this is the one-line-per-step version.
+## Data and limitations
 
-1. **DISP-003**, every switch off → ruled for the rider (uphold · fee reversal).
-2. **DISP-002**, every switch off → ruled for the driver (reject · no action).
-3. Tick **Use precedent** → rerun DISP-003 (the Judge cites a past Ruling).
-4. Tick **Stability check** → rerun (two passes disagree, so a person decides).
-5. Tick **SLA routing** → run DISP-005 (a Safety Incident jumps the review queue).
-6. Tick **Evidence agents** and **Photo analysis** → run DISP-011 (photo supports the driver; DISP-012 fails its check).
-7. Tick **Learn from overrides** → run DISP-004, open **Review queue**, override it; then run DISP-007 to show the Override becoming precedent.
+All trips, GPS records, messages, photos, policy, precedents and payment actions are simulated; no real Ryde data is used and the system does not connect to Ryde production systems. Refunds and compensation are recommendations only.
 
-Point at **Model calls** to show each agent↔model exchange, and `/architecture` for the diagram. `uv run python -m scripts.rehearse` runs the whole sequence on the scripted stub and checks each step's ending.
+## Run the prototype
 
-**Live model (optional).** With `MODEL_PROVIDER=openai_compatible` and a Gemini key in `.env` (`MODEL_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai`, `MODEL_NAME=gemini-3.5-flash-lite` — see `.env.example`), the same steps run on the real model. The stub is the safe default for a presentation.
+Requires Python 3.11 or newer and [uv](https://docs.astral.sh/uv/).
 
-**Embeddings note.** Precedent retrieval defaults to tags. Switching `precedent_retrieval = embeddings` downloads a ~100 MB local model (`BAAI/bge-small-en-v1.5`) on first use; keep tags for a fast start.
+```powershell
+uv sync --locked --group dev
+uv run uvicorn src.api.demo:app
+```
 
-## Architecture diagram and demo script
+Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) and choose a prepared dispute. The default model uses scripted replies, so the demo runs offline without an API key. To run the automated suite, use `uv run pytest`.
 
-[![Architecture: the demo console starts the orchestrator, which runs each stage through one Case store in the middle; the Rider Advocate, Driver Advocate and Judge are the Core Agents; each Supporting Agent names the console switch that turns it on; low-Confidence Rulings go to a Human Reviewer; simulated parts are marked](docs/diagrams/architecture.png)](docs/diagrams/architecture.html)
+After a run, open `/evaluation` to compare outcomes against the separate expected-case labels.
 
-The three Core Agents are green, each Supporting Agent is amber and names the console switch that turns it on, and the grey boxes marked simulated stand in for Ryde's systems. The picture is a capture of [docs/diagrams/architecture.html](docs/diagrams/architecture.html), an explorable page (click a box for the source lines behind it, switch light and dark, export an image). The running app serves it at `/architecture`. The design behind it is in [docs/architecture.md](docs/architecture.md).
+## What the system does
 
-The Demo Day walkthrough is [docs/demo-script.md](docs/demo-script.md): it opens by naming the Ryde case study, runs the Core Agents alone (one Case ruled for the Claimant, one for the Respondent), then ticks each Supporting Agent's switch in turn. `uv run python -m scripts.rehearse` runs every step of it on the scripted replies and checks how each ends. The same steps at a glance:
+| Stage | What happens |
+| --- | --- |
+| Evidence | The system collects GPS, chat, fare and trip-history records, marks missing evidence, and seals a shared evidence set. |
+| Rider Advocate | Builds an independent rider Submission grounded in the evidence and policy. |
+| Driver Advocate | Builds an independent driver Submission from the same sealed evidence and policy. |
+| Judge | Reviews both Submissions against the original evidence, checks citations, explains each decision, and calculates confidence. |
+| Outcome or review | Both parties receive the same ruling in party-specific wording. Uncertain or safety cases go to a human review queue. Refunds are recommendations; the demo never moves money. |
 
-[![Demo walkthrough: three runs with the Core Agents alone, six with one more switch ticked each time, then a reviewer's Override and a later Case that cites it](docs/diagrams/demo-walkthrough.png)](docs/diagrams/demo-walkthrough.html)
+The live Communication Log shows evidence requests, agent submissions, model calls, citations, and the ruling as they happen. Switches let judges see the three required agents first, then turn on supporting features individually.
 
-Both diagrams were made with [Archify](https://github.com/tt-a1i/archify) from the typed descriptions beside them (`docs/diagrams/*.archify.json`). To change one, edit its description and render it again with Archify's `finalize` command.
+## Handbook requirements and evidence
 
-## Route Deviation demo
+| Requirement | Where to see it |
+| --- | --- |
+| Rider Advocate, Driver Advocate, Judge | `src/agents/advocates/`, `src/agents/judge/` |
+| Two or more dispute categories | No-Show: DISP-002/003; Route Deviation: DISP-008/009/010. Prepared cases also cover Property Damage and Safety Incidents. |
+| Observable agent communication | Run the demo and open the Communication Log. |
+| Working prototype | Start the FastAPI app using the commands above. |
+| Architecture diagram | [Open the interactive architecture](docs/diagrams/architecture.html) or [view the image](docs/diagrams/architecture.png). |
+| Demo walkthrough | [Live demo](https://ryde-dispute-resolution.vercel.app) and [the presenter script](docs/demo-script.md). |
+| Source code | This repository; see the [project structure](#project-structure). |
 
-The console and Rider report sample selector include DISP-008 (supported excess fare), DISP-009 (a Rider-requested detour) and DISP-010 (unclear consent). Python computes route distances, observed stop candidates, duration differences and a reconciled fare comparison including surge and promo. The Rider workflow in `src/agents/rider/` reads the trusted public `data/prototype/rider-catalog.json` and the existing shared policy JSON, never client telemetry or client policy. JavaScript only renders the interface, selects trips and calls the bounded `/api/rider/cases`, `/api/rider/evidence` and `/api/rider/policy-preview` endpoints. [ADR 0004](docs/adr/0004-route-deviation-refund-rule.md) records the approved calculation; the four shared clauses remain unchanged.
+There are 12 prepared disputes across the four supported categories. The expected outcomes are kept in separate evaluation files that the agents cannot read.
 
-With scripted replies, DISP-008 recommends a partial refund of SGD 5.39, DISP-009 rejects the claim with the exact detour request cited, and DISP-010 remains pending human review with no authorised amount. The Rider app prepares its own supported Submission; it does not issue a Judge Ruling or execute a refund. Add `?recorded=1` to the console URL for offline replays. Expected labels are separate test-only files.
+## Recommended demo order
+
+**Live demo:** [ryde-dispute-resolution.vercel.app](https://ryde-dispute-resolution.vercel.app) (scripted replies; no setup needed).
+
+Start with the core agents and show that the system can rule for either side. Then demonstrate Route Deviation to make the second required category explicit. Finally, enable the supporting features to show precedent, safety escalation, image analysis, and learning from a human override.
+
+1. Run **DISP-003** with optional switches off: uphold the rider's No-Show claim and recommend a SGD 5.00 fee reversal.
+2. Run **DISP-002** with optional switches off: reject the rider's No-Show claim and rule for the driver.
+3. Run **DISP-008**: show the Route Deviation calculation and a recommended partial refund of SGD 5.39.
+4. Follow [the full walkthrough](docs/demo-script.md) for optional agents and human review. `uv run python -m scripts.rehearse` rehearses the prepared sequence with scripted replies.
+
+## What uses AI, code, and simulated data
+
+| Part | Implementation |
+| --- | --- |
+| Advocates and Judge | Model calls produce structured arguments and rulings. Code validates schemas, citations, and required assessments; an independent self-check tests whether cited evidence supports its claims. |
+| Evidence and money | Ordinary code calculates route distances, waits, fare comparisons, refund amounts, confidence components, and queue priority. The model does not calculate money or confidence. |
+| Policy and precedent | A shared mock policy and prepared precedent store are used. Retrieval is deterministic by default; optional local embeddings can rank precedents. |
+| External records and actions | Trips, GPS, messages, photos, policy, and payments are simulated. A ruling may recommend an action, but no payment is executed. |
+
+The live model is optional. Configure the OpenAI-compatible provider in `.env` using the settings in [.env.example](.env.example). The scripted model remains the reliable presentation default.
+
+## Project structure
+
+| Path | Contents |
+| --- | --- |
+| `src/agents/` | Advocates, Judge, evidence, policy, image analysis, escalation, and routing. |
+| `src/orchestrator/` | Fixed, code-driven pipeline that runs each dispute. |
+| `src/contracts.py` | Typed Case, evidence, Submission, Ruling, and Communication Log records. |
+| `src/api/` | FastAPI demo, review queue, Rider endpoints, and web interface. |
+| `data/cases/`, `data/policy/`, `data/precedents/` | Simulated cases and shared policy/precedent data. |
+| `tests/` | Automated tests and scripted end-to-end evaluation. |
+| `docs/architecture.md` | Architecture and implementation details. |
+| `docs/demo-script.md` | Presenter instructions and narration. |
+
+The separate Rider experience is at [`prototypes/`](prototypes/index.html); its backend-backed setup notes are in [docs/rider-usage.md](docs/rider-usage.md). It complements the dispute console and is not the primary multi-agent demo.
+
+## Route Deviation details
+
+The console and Rider report sample selector include DISP-008 (supported excess fare), DISP-009 (a rider-requested detour), and DISP-010 (unclear consent). Python computes route distances, stop candidates, duration differences, and reconciled fare comparisons. The Rider workflow reads curated public data and prepares a Submission; it does not issue a Judge ruling or execute a refund. [ADR 0004](docs/adr/0004-route-deviation-refund-rule.md) records the approved calculation.

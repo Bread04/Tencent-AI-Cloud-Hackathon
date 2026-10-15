@@ -183,3 +183,13 @@ def test_the_console_serves_the_photos_and_marks_the_disputes_that_have_them():
 
     assert client.get("/photos/seat-stain.png").headers["content-type"] == "image/png"
     assert "data-dispute='DISP-011'" in page and page.count("data-photos=1") == 3 and "&quot;needsPhotos&quot;: true" in page
+
+
+def test_a_held_cleaning_fee_case_tells_both_parties_the_proposed_outcome_and_that_a_person_will_confirm_it():
+    _, case = run("DISP-013")
+
+    assert case.status is CaseStatus.PENDING_REVIEW
+    for outcome in case.outcomes:
+        assert outcome.action_status.value == "pending_review"
+        assert "proposed" in outcome.ruling_summary.lower() and "SGD 20.00" in outcome.ruling_summary
+        assert "person" in outcome.ruling_summary.lower() and "confirm" in outcome.ruling_summary.lower()

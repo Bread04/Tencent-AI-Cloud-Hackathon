@@ -3,14 +3,14 @@
  "diagram_type": "architecture",
  "meta": {
   "title": "Ryde case study: multi-agent dispute resolution",
-  "output": ".archify/architecture-ryde-dispute-resolution-20261013-132130/ryde-dispute-resolution.html",
+  "output": "docs/diagrams/architecture.html",
   "quality_profile": "showcase",
   "locale": "en",
   "repository": {
    "url": "https://github.com/Bread04/Tencent-AI-Cloud-Hackathon.git",
    "provider": "github",
    "link_mode": "local-only",
-   "revision": "9c67ae3b0f391179d8db12141369c24237950123"
+   "revision": "b5fe3ebb549ffc5c5c0a59188a3eaabf79fb3d64"
   },
   "legend": {
    "mode": "auto",
@@ -72,7 +72,7 @@
    "id": "orchestrator",
    "type": "messagebus",
    "label": "Orchestrator",
-   "sublabel": "intake, then stages in order",
+   "sublabel": "intake; seals evidence before the stages",
    "pos": [
     260,
     320
@@ -92,7 +92,7 @@
   },
   {
    "id": "routing",
-   "type": "cloud",
+   "type": "messagebus",
    "label": "SLA & Routing Manager",
    "sublabel": "switch: SLA routing",
    "pos": [
@@ -120,7 +120,7 @@
    "id": "trips",
    "type": "external",
    "label": "Trip records",
-   "sublabel": "simulated: GPS, chat, fare",
+   "sublabel": "simulated: GPS, chat, fare, History",
    "pos": [
     480,
     40
@@ -238,9 +238,9 @@
    "id": "store",
    "type": "database",
    "label": "Case store",
-   "sublabel": "one shared state per Case",
+   "sublabel": "shared Case: sealed evidence + filed Submissions",
    "pos": [
-    700,
+    600,
     266
    ],
    "size": [
@@ -250,16 +250,19 @@
    "sources": [
     {
      "path": "src/store/case_store.py",
-     "line": 54
-    },
-    {
-     "path": "src/store/case_store.py",
-     "line": 145,
+     "line": 158,
      "label": "seal evidence"
     },
     {
      "path": "src/store/case_store.py",
-     "line": 298,
+     "line": 260,
+     "end_line": 283,
+     "label": "file Submissions"
+    },
+    {
+     "path": "src/store/case_store.py",
+     "line": 384,
+     "end_line": 402,
      "label": "log every write"
     }
    ]
@@ -268,9 +271,9 @@
    "id": "rider-advocate",
    "type": "backend",
    "label": "Rider Advocate",
-   "sublabel": "Core Agent: the rider's side",
+   "sublabel": "Core Agent; no History",
    "pos": [
-    1140,
+    1025,
     266
    ],
    "size": [
@@ -280,8 +283,8 @@
    "sources": [
     {
      "path": "src/orchestrator/__init__.py",
-     "line": 139,
-     "end_line": 149,
+     "line": 105,
+     "end_line": 110,
      "label": "both run at once"
     },
     {
@@ -294,9 +297,9 @@
    "id": "driver-advocate",
    "type": "backend",
    "label": "Driver Advocate",
-   "sublabel": "Core Agent: the driver's side",
+   "sublabel": "Core Agent; no History",
    "pos": [
-    1140,
+    1025,
     378
    ],
    "size": [
@@ -306,8 +309,8 @@
    "sources": [
     {
      "path": "src/orchestrator/__init__.py",
-     "line": 139,
-     "end_line": 149,
+     "line": 105,
+     "end_line": 110,
      "label": "both run at once"
     },
     {
@@ -320,9 +323,9 @@
    "id": "judge",
    "type": "backend",
    "label": "Judge",
-   "sublabel": "Core Agent: rules and cites",
+   "sublabel": "Core Agent; no History prompt",
    "pos": [
-    1360,
+    1248,
     320
    ],
    "size": [
@@ -348,7 +351,7 @@
    "label": "Stability check",
    "sublabel": "switch: Stability check",
    "pos": [
-    1360,
+    1248,
     170
    ],
    "size": [
@@ -368,34 +371,9 @@
    "id": "confidence",
    "type": "messagebus",
    "label": "History and Confidence",
-   "sublabel": "code; can only lower it",
+   "sublabel": "post-Judge; code only",
    "pos": [
-    1360,
-    480
-   ],
-   "size": [
-    170,
-    64
-   ],
-   "sources": [
-    {
-     "path": "src/orchestrator/__init__.py",
-     "line": 126,
-     "end_line": 128
-    },
-    {
-     "path": "src/agents/judge/history.py",
-     "line": 24
-    }
-   ]
-  },
-  {
-   "id": "escalation",
-   "type": "cloud",
-   "label": "Escalation Protocol",
-   "sublabel": "always on in the demo",
-   "pos": [
-    1140,
+    1248,
     480
    ],
    "size": [
@@ -406,11 +384,45 @@
     {
      "path": "src/orchestrator/__init__.py",
      "line": 128,
-     "end_line": 133
+     "end_line": 130
+    },
+    {
+     "path": "src/agents/judge/history.py",
+     "line": 24,
+     "end_line": 52
+    }
+   ]
+  },
+  {
+   "id": "escalation",
+   "type": "messagebus",
+   "label": "Escalation Protocol",
+   "sublabel": "default on; Safety reviewed",
+   "pos": [
+    1025,
+    480
+   ],
+   "size": [
+    170,
+    64
+   ],
+   "sources": [
+    {
+     "path": "src/config.py",
+     "line": 47,
+     "end_line": 83,
+     "label": "demo default"
+    },
+    {
+     "path": "src/orchestrator/__init__.py",
+     "line": 128,
+     "end_line": 136,
+     "label": "post-Judge flow"
     },
     {
      "path": "src/agents/escalation.py",
-     "line": 41
+     "line": 41,
+     "end_line": 77
     }
    ],
    "tag": "holds a Ruling for a person"
@@ -421,7 +433,7 @@
    "label": "Human Reviewer",
    "sublabel": "queue; confirm or override",
    "pos": [
-    1140,
+    1025,
     610
    ],
    "size": [
@@ -431,8 +443,8 @@
    "sources": [
     {
      "path": "src/api/review.py",
-     "line": 30,
-     "end_line": 33,
+     "line": 39,
+     "end_line": 58,
      "label": "queue by priority"
     },
     {
@@ -449,7 +461,7 @@
    "label": "Outcome to each party",
    "sublabel": "shown on screen, not sent",
    "pos": [
-    1360,
+    1248,
     610
    ],
    "size": [
@@ -459,8 +471,8 @@
    "sources": [
     {
      "path": "src/orchestrator/__init__.py",
-     "line": 134,
-     "end_line": 135
+     "line": 136,
+     "end_line": 138
     },
     {
      "path": "src/agents/outcomes.py",
@@ -474,8 +486,8 @@
    "label": "Payment action",
    "sublabel": "simulated: never executed",
    "pos": [
-    1360,
-    740
+    1248,
+    739
    ],
    "size": [
     170,
@@ -518,7 +530,7 @@
   },
   {
    "id": "precedent",
-   "type": "cloud",
+   "type": "messagebus",
    "label": "Policy & Precedent",
    "sublabel": "switch: Use precedent",
    "pos": [
@@ -558,7 +570,8 @@
    "sources": [
     {
      "path": "src/store/case_store.py",
-     "line": 298
+     "line": 384,
+     "end_line": 402
     },
     {
      "path": "src/api/__init__.py",
@@ -570,7 +583,7 @@
   },
   {
    "id": "learning",
-   "type": "cloud",
+   "type": "messagebus",
    "label": "Learning Feedback Loop",
    "sublabel": "switch: Learn from overrides",
    "pos": [
@@ -607,7 +620,6 @@
    "id": "stages",
    "from": "orchestrator",
    "to": "store",
-   "label": "runs each stage, in order",
    "variant": "emphasis"
   },
   {
@@ -619,14 +631,13 @@
   {
    "id": "trip-data",
    "from": "trips",
-   "to": "tools"
+   "to": "tools",
+   "label": "GPS, chat, fare + History"
   },
   {
    "id": "tool-evidence",
    "from": "tools",
-   "to": "store",
-   "fromSide": "bottom",
-   "toSide": "left"
+   "to": "store"
   },
   {
    "id": "extracted-facts",
@@ -651,9 +662,7 @@
   {
    "id": "clauses",
    "from": "precedent",
-   "to": "store",
-   "fromSide": "top",
-   "toSide": "left"
+   "to": "store"
   },
   {
    "id": "rider-case",
@@ -666,6 +675,18 @@
    "from": "store",
    "to": "driver-advocate",
    "variant": "emphasis"
+  },
+  {
+   "id": "rider-submission",
+   "from": "rider-advocate",
+   "to": "store",
+   "variant": "dashed"
+  },
+  {
+   "id": "driver-submission",
+   "from": "driver-advocate",
+   "to": "store",
+   "variant": "dashed"
   },
   {
    "id": "judging",
@@ -683,25 +704,24 @@
    "id": "proposed",
    "from": "judge",
    "to": "confidence",
-   "label": "proposed Ruling"
+   "label": "outcome fixed"
   },
   {
    "id": "sufficient",
    "from": "confidence",
    "to": "outcome",
-   "label": "sufficient"
+   "label": "no review required"
   },
   {
    "id": "held",
    "from": "confidence",
-   "to": "escalation",
-   "label": "low"
+   "to": "escalation"
   },
   {
    "id": "package",
    "from": "escalation",
    "to": "reviewer",
-   "label": "review package"
+   "label": "proposal + reasons"
   },
   {
    "id": "decision",
@@ -712,7 +732,7 @@
    "id": "override",
    "from": "reviewer",
    "to": "learning",
-   "label": "override, with a reason",
+   "label": "override only; if enabled",
    "variant": "dashed"
   },
   {
@@ -729,7 +749,8 @@
    "label": "every write is an event",
    "variant": "dashed",
    "fromSide": "bottom",
-   "toSide": "top"
+   "toSide": "top",
+   "labelDy": 11
   },
   {
    "id": "recommend",
@@ -743,18 +764,20 @@
    "dot": "emerald",
    "title": "Core Agents",
    "items": [
-    "Rider Advocate and Driver Advocate build Submissions in parallel; neither sees the other's",
-    "The Judge accepts or rejects each argument and cites evidence and Policy Clauses",
-    "The Judge never sees History; a code step applies it after the outcome is fixed"
+    "Both Advocates run in parallel and file separate Submissions to the Case store",
+    "The Judge reads sealed evidence, both Submissions and Policy; History is filtered from its prompt",
+    "After the outcome is fixed, code may lower Confidence or add a review trigger; History never changes the outcome or proves wrongdoing",
+    "With no review trigger, Outcome is final automatically; a held proposal goes to a Human Reviewer"
    ]
   },
   {
    "dot": "violet",
-   "title": "Supporting Agents",
+   "title": "Supporting Features",
    "items": [
-    "Each is a layer behind a console switch; all off is the three Core Agents alone",
-    "Escalation has no checkbox: it is on for every run",
-    "A Ruling below 0.7 Confidence, or with a review trigger, goes to a Human Reviewer"
+    "Supporting model and code features are switch-controlled; all off leaves the three Core Agents",
+    "Escalation defaults on in demo config (no console checkbox); when enabled, Confidence below 0.70 or an amount above SGD 50 can hold a Ruling",
+    "Safety Incidents always require human review; existing Policy or History triggers can also hold a proposal",
+    "A reviewer confirms, or overrides with a reason; only an enabled Learning Loop receives overrides"
    ]
   },
   {
@@ -770,9 +793,10 @@
    "dot": "slate",
    "title": "One store, one log",
    "items": [
-    "Agents read and write the Case store; none messages another",
-    "Evidence is sealed before either advocate argues",
-    "Every write is an event in the Communication Log"
+    "Evidence, including History, is collected and sealed before Advocate submissions begin",
+    "History stays in the Case but is withheld from Advocate and Judge prompts; post-outcome code consumes it",
+    "Each Advocate files a Submission to the Case store before the Judge runs",
+    "Every Case-store write appends a Communication Log event"
    ]
   }
  ]

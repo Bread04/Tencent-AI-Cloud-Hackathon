@@ -11,6 +11,8 @@ from src.contracts import ActionStatus, Case, DisputeCategory, Outcome, Party, R
 def outcomes_for(ruling: Ruling, case: Case) -> list[Outcome]:
     claimant = case.dispute.claimant
     if ruling.status is RulingStatus.PROPOSAL:
+        if case.dispute.category is DisputeCategory.PROPERTY_DAMAGE:
+            return [_proposed_damage(ruling, claimant, party) for party in Party]
         return pending_outcomes(case)
     return [
         Outcome(party=party, ruling_summary=_route_decision(ruling, claimant, party) if case.dispute.category is DisputeCategory.ROUTE_DEVIATION else _decision(ruling, claimant, party, case.dispute.category), action_status=ActionStatus.RECOMMENDED)
@@ -44,6 +46,16 @@ def _pending_safety(party: Party, filed_it: bool) -> Outcome:
         else "A report about this trip is under review by a person. You will be told if anything is needed from you."
     )
     return Outcome(party=party, ruling_summary=told, action_status=ActionStatus.PENDING_REVIEW)
+
+
+def _proposed_damage(ruling: Ruling, claimant: Party, reader: Party) -> Outcome:
+    """A held cleaning-fee case still tells both parties the proposed outcome; a person confirms it before anything is recommended."""
+    decision = _damage_decision(ruling, "Your claim" if reader is claimant else f"The {claimant.value}'s claim", f" Reason: {ruling.reasoning_summary}")
+    return Outcome(
+        party=reader,
+        ruling_summary=f"Proposed outcome, held for review: {decision} A person will confirm it before anything is recommended.",
+        action_status=ActionStatus.PENDING_REVIEW,
+    )
 
 
 def _decision(ruling: Ruling, claimant: Party, reader: Party, category: DisputeCategory) -> str:

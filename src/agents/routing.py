@@ -19,7 +19,7 @@ CATEGORY_POINTS = {
     DisputeCategory.NO_SHOW_CHARGE: 20,
 }
 SAFETY_WORDS = re.compile(
-    r"\b(unsafe|danger\w*|accident|crash\w*|injur\w*|assault\w*|harass\w*|threat\w*|abus\w*|red light|speeding|reckless\w*|emergency|violen\w*)",
+    r"\b(unsafe|danger\w*|accident|crash\w*|injur\w*|assault\w*|harass\w*|threat\w*|abus\w*|red light|speeding|sped|too fast|reckless\w*|emergency|violen\w*)",
     re.IGNORECASE,
 )
 URGENCY_POINTS = 30  # a safety-related word in any category

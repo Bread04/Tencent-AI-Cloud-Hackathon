@@ -20,11 +20,11 @@ Read the validated rider report, identify every material issue it describes, and
 
 The workflow names this role the **Rider Policy Agent**. In the architecture and Glossary, it is the Rider-facing role of the shared **Policy & Precedent Agent**, using the same policy source and version as the Driver and shared policy roles. It is not a separate policy authority.
 
-Follow [contract decisions](../../../docs/contract-decisions.md): every agent receives the same applicable clause set, including both parties' clauses. Party-facing relevance explanations may differ; the policy source and available clauses do not. The current Python matcher includes Rider clauses plus the four Route Deviation baseline clauses, as described below, and cannot alone satisfy this shared Case requirement. The prototype source's `role` labels are display metadata, not a new field on the shared `PolicyClause` contract.
+Follow the [shared contract](../../../docs/architecture.md#4-shared-contract): every agent receives the same applicable clause set, including both parties' clauses. Party-facing relevance explanations may differ; the policy source and available clauses do not. The prototype source's `role` labels are display metadata, not a new field on the shared `PolicyClause` contract.
 
 ### Operational position: step 4, Retrieve policy
 
-Start after the application validates and records the [Rider Evidence Agent's](rider-evidence-agent.md) step 3 result. Receive its stored reference, the same original report snapshot, and the fixed policy source through the shared Case store. Support the Rider Advocate's policy-retrieval responsibility by returning relevant clauses, source/version references, conditions, and limitations. The application retains both outputs and supplies them to the [Rider Advocate](rider-advocate.md) for step 5; policy references also remain available to shared policy assessment and the Judge. Follow the [operational connection table](README.md#operational-steps-from-workflowmd).
+Start after the application validates and records the [Rider Evidence Agent's](rider-evidence-agent.md) result. Receive its stored reference, the same original report snapshot, and the fixed policy source through the shared Case store. Support the Rider Advocate's policy-retrieval responsibility by returning relevant clauses, source/version references, conditions, and limitations. The application retains both outputs and supplies them to the [Rider Advocate](rider-advocate.md); policy references also remain available to shared policy assessment and the Judge. See the [implementation walkthrough](../../../docs/architecture.md#13-implementation-walkthrough-how-each-agent-works).
 
 ## Sources and boundaries
 
@@ -35,7 +35,7 @@ Start after the application validates and records the [Rider Evidence Agent's](r
 - [Existing Rider Policy Agent](../rider/policy.py): current deterministic Python `preview(report)` / `retrieve(report)` implementation.
 - [Interactive report](../../../prototypes/ryde-report/index.html): report fields and existing policy-reference preview.
 - [Rider Advocate](rider-advocate.md) and [Rider Evidence Agent](rider-evidence-agent.md): downstream policy use and separate evidence collection.
-- [Workflow](../../../workflow.md), [Architecture](../../../docs/architecture.md), and [Glossary](../../../GLOSSARY.md): shared-store communication, independent Submissions, and versioned policy access.
+- [Architecture](../../../docs/architecture.md) and [Glossary](../../../GLOSSARY.md): shared-store communication, independent Submissions, and versioned policy access.
 
 Read the structured policy data rather than scraping rendered cards or copying competitor policies. The app's `sourceNotes` are reference links, not additional ingested Policy Clauses. Do not fetch them or treat their contents as part of the Case's policy version. Current clauses are Singapore draft Waypoint guidance, not approved terms of Grab, CDG Zig, or Ryde.
 

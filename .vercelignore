@@ -1,0 +1,16 @@
+.venv
+.git
+.env
+.env.*
+!.env.example
+.scratch
+.agents
+.codex
+.github
+.claude
+brag-output
+tests
+node_modules
+__pycache__
+.pytest_cache
+.uv-cache

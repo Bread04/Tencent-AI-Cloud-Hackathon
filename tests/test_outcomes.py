@@ -58,3 +58,11 @@ def test_a_proposal_tells_both_parties_review_is_pending_without_giving_the_prop
         assert outcome.action_status is ActionStatus.PENDING_REVIEW
         assert "review" in outcome.ruling_summary.lower() and "pending" in outcome.ruling_summary.lower()
         assert "not upheld" not in outcome.ruling_summary and "reversed" not in outcome.ruling_summary
+
+
+def test_a_held_safety_proposal_does_not_reach_either_party():
+    from src.contracts import DisputeCategory
+    safety = CASE.model_copy(update={"dispute": CASE.dispute.model_copy(update={"category": DisputeCategory.SAFETY_INCIDENT})})
+
+    for outcome in outcomes_for(a_ruling(status="proposal", **REJECTED), safety):
+        assert "not upheld" not in outcome.ruling_summary and "Proposed" not in outcome.ruling_summary

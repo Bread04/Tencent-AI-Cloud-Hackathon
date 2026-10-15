@@ -16,7 +16,7 @@ The separate [backend Advocate pipeline](../advocates/__init__.py), [shared evid
 
 ## Purpose and operational position
 
-Perform **step 3, Gather evidence**, from [Operational Steps](../../../workflow.md#operational-steps), supporting the Driver Advocate's evidence-retrieval responsibility. Start after the application's step 2 validation; collect authorized, Trip-associated records and preserve supporting evidence, counter-evidence, conflicts, and missing sources.
+Perform **step 3, Gather evidence**, in the [case lifecycle](../../../docs/architecture.md#31-case-lifecycle), supporting the Driver Advocate's evidence-retrieval responsibility. Start after the application's intake validation; collect authorized, Trip-associated records and preserve supporting evidence, counter-evidence, conflicts, and missing sources.
 
 The application stores the complete collection and its relevance annotations, then passes the reference and original Case/report context to the [Driver Policy Agent](driver-policy-agent.md) for **step 4**. Both outputs later reach the [Driver Advocate](driver-advocate.md) for **step 5**. The [Driver Advocate's connection table](driver-advocate.md#operational-connections) defines this set's complete operational sequence.
 
@@ -25,7 +25,7 @@ The Driver can be Claimant or Respondent. A Rider-filed Dispute remains Rider-fi
 ## Sources and implementation boundaries
 
 - [Architecture](../../../docs/architecture.md): shared evidence tools, one Case store, sealed evidence, and independent advocates.
-- [Workflow](../../../workflow.md) and [Glossary](../../../GLOSSARY.md): agent responsibilities and domain terms.
+- [Architecture](../../../docs/architecture.md) and [Glossary](../../../GLOSSARY.md): agent responsibilities and domain terms.
 - [Driver Advocate](driver-advocate.md) and [Driver Policy Agent](driver-policy-agent.md): handoff consumers.
 - [Rider Evidence Agent](rider-evidence-agent.md): corresponding Rider collection role and shared-source rules.
 - [Report prototype](../../../prototypes/ryde-report/index.html): existing report fields and attachment metadata.
@@ -95,7 +95,7 @@ Follow the approved [Ticket 06 spec](../../../.scratch/dispute-resolution/issues
 | Evidence supports the Driver | Surface the Rider-authored request with its original message citation and corresponding route segment. Retain all actual fare data and any unexplained excess beyond that request. |
 | Ambiguous evidence | Preserve both accounts and material route/consent/fare gaps. Missing data cannot become a finding that the route was authorized or that the charge was correct. |
 
-The refund formula must be recorded as an ADR-backed code rule before implementation, as required by [contract-decisions item 9](../../../docs/contract-decisions.md) and [ADR 0002](../../../docs/adr/0002-thresholds-come-from-trip-data-not-policy-text.md). This Evidence Agent supplies traceable inputs; it neither chooses the formula nor calculates money in model prose. Expected-outcome files remain separate and unread by agents. No-Show evidence collection and its trip-data thresholds retain their existing behaviour.
+The refund formula is an ADR-backed code rule in [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md). This Evidence Agent supplies traceable inputs; it neither chooses the formula nor calculates money in model prose. Expected-outcome files remain separate and unread by agents. No-Show evidence collection and its trip-data thresholds retain their existing behaviour.
 
 ## 4. Collection and proposed handoff
 

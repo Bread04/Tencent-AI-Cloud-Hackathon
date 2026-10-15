@@ -16,13 +16,13 @@ The separate [backend Advocate pipeline](../advocates/__init__.py), [shared evid
 
 ## Purpose and operational position
 
-Perform **step 4, Retrieve policy**, from [Operational Steps](../../../workflow.md#operational-steps), supporting the Driver Advocate's policy-tool responsibility. Start after the application's validated and stored **step 3** [Driver Evidence Agent](driver-evidence-agent.md) result.
+Perform **step 4, Retrieve policy**, in the [case lifecycle](../../../docs/architecture.md#31-case-lifecycle), supporting the Driver Advocate's policy-tool responsibility. Start after the application's validated and stored **step 3** [Driver Evidence Agent](driver-evidence-agent.md) result.
 
 Read the same original Case/report snapshot, any separately referenced Driver statement, stored evidence context, and fixed policy source. Retrieve every materially relevant Policy Clause for both parties, including obligations or limits unfavorable to the Driver. Return the complete policy output through the shared store to the [Driver Advocate](driver-advocate.md) for **step 5**, and to shared policy assessment for the Judge. Follow the [operational connection table](driver-advocate.md#operational-connections).
 
 A policy match identifies potentially applicable guidance. It does not establish that an event happened, decide fault, or recommend a refund or compensation.
 
-Follow [contract decisions](../../../docs/contract-decisions.md): policy is not role-scoped. Both party-facing roles and the Judge receive the same applicable clause set and version; only their relevance explanations differ. Prototype `role` labels describe the policy-page audience, not a Case retrieval filter or an added field on the shared `PolicyClause` contract.
+Follow the [shared contract](../../../docs/architecture.md#4-shared-contract): policy is not role-scoped. Both party-facing roles and the Judge receive the same applicable clause set and version; only their relevance explanations differ. Prototype `role` labels describe the policy-page audience, not a Case retrieval filter or an added field on the shared `PolicyClause` contract.
 
 ## Sources and boundaries
 
@@ -30,7 +30,7 @@ Follow [contract decisions](../../../docs/contract-decisions.md): policy is not 
 - [App policy page](../../../prototypes/policies.html) and [renderer](../../../prototypes/shared/policy-page.js): display that same source, including Driver policies.
 - [Python Rider matcher](../rider/policy.py): reference implementation only; it filters Rider clauses and is not a Driver implementation.
 - [Rider Policy Agent](rider-policy-agent.md): corresponding role over the same source/version.
-- [Architecture](../../../docs/architecture.md), [Workflow](../../../workflow.md), and [Glossary](../../../GLOSSARY.md): shared policy authority and agent collaboration.
+- [Architecture](../../../docs/architecture.md) and [Glossary](../../../GLOSSARY.md): shared policy authority and agent collaboration.
 
 Read structured source data, not scraped cards. Current version: `waypoint-singapore-draft-2026-10`. These are draft Waypoint prototype policies, not approved terms of Grab, CDG Zig, or Ryde. `sourceNotes` links are references, not extra ingested Case policies. Do not fetch or import new rules from them as part of this fixed-version extraction.
 

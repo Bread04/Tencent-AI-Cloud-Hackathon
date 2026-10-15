@@ -56,8 +56,12 @@ def test_the_same_dispute_always_gets_the_same_priority():
     [
         ("The driver cancelled and charged me a no-show fee though I was waiting.", "no_show_charge"),
         ("The driver took a much longer route than the app showed.", "route_deviation"),
+        ("The driver took a wrong turn and went off course.", "route_deviation"),
         ("There is a stain and a scratch on the seat after the ride.", "property_damage"),
+        ("My suitcase was cracked during the trip.", "property_damage"),
         ("The driver ran a red light and I felt unsafe the whole way.", "safety_incident"),
+        ("The driver was going too fast and I felt unsafe.", "safety_incident"),
+        ("I was charged for a pickup that never arrived.", "no_show_charge"),
     ],
 )
 def test_a_description_is_classified_into_a_category(description, category):
@@ -97,3 +101,14 @@ def test_the_api_classifies_a_description_and_rejects_one_that_fits_no_category(
 
     assert ok.json() == {"category": "safety_incident", "chosen": False}
     assert bad.status_code == 422 and "could not tell which kind of dispute" in bad.json()["error"]
+
+
+def test_the_api_keeps_an_explicit_supported_category_even_when_the_story_mentions_another_category():
+    from fastapi.testclient import TestClient
+
+    from src.api.demo import create_demo_app
+
+    client = TestClient(create_demo_app())
+    response = client.post("/api/classify", json={"description": "I was charged a no-show fee.", "category": "property_damage"})
+
+    assert response.json() == {"category": "property_damage", "chosen": True}

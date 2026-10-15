@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Local Codex MCP config can contain machine-specific credentials
+.codex/config.toml
+
 # Python
 __pycache__/
 *.py[cod]
@@ -28,3 +31,11 @@ Thumbs.db
 
 # Archify working folders (candidates and browser evidence); the delivered diagrams are in docs/diagrams/
 .archify/
+
+# Local Archify verification receipts; keep the source spec and delivered HTML/PNG only
+docs/diagrams/*.browser-check.json
+docs/diagrams/*.delivery.json
+docs/diagrams/*.finalize.json
+docs/diagrams/*.finalize-summary.json
+.vercel
+.env*

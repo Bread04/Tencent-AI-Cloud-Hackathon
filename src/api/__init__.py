@@ -34,7 +34,7 @@ from src.api.chat import (CHAT_STYLE, COOKIE_NAME, SESSION_SECONDS, CLIENT_COOKI
 from src.api.rider import install_rider_routes, read_payload
 from src.contracts import Case, DisputeCategory, LogEvent, RulingStatus
 from src.intake import Catalog, UnknownDispute
-from src.intake.report import ReportError, dispute_from_report
+from src.intake.report import CATEGORIES, ReportError, dispute_from_report
 from src.llm.adapter import ModelAdapter
 from src.orchestrator import run_dispute
 from src.store import CaseNotFound, CaseStore
@@ -166,7 +166,7 @@ def create_app(
         template = (HERE / "console.html").read_text(encoding="utf-8")
         for asset in ("console.js", "console.css"):  # the file's modified time in the URL, so a browser never serves a stale copy after an edit
             template = template.replace(f"/static/{asset}", f"/static/{asset}?v={(HERE / 'static' / asset).stat().st_mtime_ns}")
-        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{SWITCHES}}", escape(switches_json())).replace("{{WALKTHROUGH}}", escape(steps_json())).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
+        return template.replace("{{SIMULATED}}", escape(SIMULATED)).replace("{{DISPUTES}}", rows).replace("{{OWN_CASE_TRIPS}}", _own_case_trips(catalog)).replace("{{COUNT}}", str(len(catalog.disputes))).replace("{{SWITCHES}}", escape(switches_json())).replace("{{WALKTHROUGH}}", escape(steps_json())).replace("{{MODEL_LABEL}}", escape(model_label)).replace("{{THRESHOLD}}", str(CONFIG.escalation.confidence_threshold))
 
     def start_in_background(dispute, switches):
         """Run a Dispute in the background and answer with its Case ID as soon as the Case exists, so the caller can watch it."""
@@ -305,15 +305,21 @@ def _dispute_groups(catalog) -> str:
     return shown + (f"<details class='cat-more'><summary>More categories</summary>{more}</details>" if more else "")
 
 
+def _fee_in_dispute(dispute, record: dict) -> tuple[str, str]:
+    """The amount a Dispute is about and what to call it: the paid fare, the cleaning fee claimed, or the cancellation fee."""
+    trip = record["trip"]
+    is_route = dispute.category is DisputeCategory.ROUTE_DEVIATION
+    is_damage = dispute.category is DisputeCategory.PROPERTY_DAMAGE
+    amount = trip["paid_net"] if is_route else record["damage_claim"]["cleaning_fee_claimed"] if is_damage else trip["cancellation_fee"]
+    label = "paid fare" if is_route else "cleaning fee claimed" if is_damage else "fee"
+    return f"{trip['currency']} {amount}", label
+
+
 def _dispute_row(dispute, record: dict) -> str:
     """One Dispute in the picker, in the rider app's trip-choice style. The data attributes fill the trip panel."""
     trip = record["trip"]
     pickup, dropoff = trip["pickup_location"]["name"], trip["dropoff_location"]["name"]
-    is_route = dispute.category is DisputeCategory.ROUTE_DEVIATION
-    is_damage = dispute.category is DisputeCategory.PROPERTY_DAMAGE
-    amount = trip["paid_net"] if is_route else record["damage_claim"]["cleaning_fee_claimed"] if is_damage else trip["cancellation_fee"]
-    fee = f"{trip['currency']} {amount}"
-    charge_label = "paid fare" if is_route else "cleaning fee claimed" if is_damage else "fee"
+    fee, charge_label = _fee_in_dispute(dispute, record)
     when = trip["scheduled_time"][:16].replace("T", " ")
     return (
         f"<button type='button' class='trip-choice' aria-pressed='false' data-dispute='{escape(dispute.dispute_id)}' "
@@ -325,6 +331,28 @@ def _dispute_row(dispute, record: dict) -> str:
         f"<span class='journey'>{escape(pickup)}<small>→ {escape(dropoff)}</small></span>"
         f"<span class='small muted'>{escape(when)} SGT · {escape(fee)} {charge_label}</span></button>"
     )
+
+
+def _own_case_trips(catalog) -> str:
+    """The trips a judge can file their own case against: each one's evidence (GPS, chat, fare) is what the agents will cite,
+    so a trip offers the category its evidence supports, in the report form's own words."""
+    form_label = {category: name for name, category in CATEGORIES.items()}
+    options = []
+    for dispute in catalog.disputes.values():
+        label = form_label.get(dispute.category)
+        if label is None:
+            continue
+        record = catalog.trip(dispute.trip_id)
+        trip = record["trip"]
+        pickup, dropoff = trip["pickup_location"]["name"], trip["dropoff_location"]["name"]
+        fee, charge_label = _fee_in_dispute(dispute, record)
+        when = trip["scheduled_time"][:16].replace("T", " ")
+        options.append(
+            f"<option value='{escape(dispute.trip_id)}' data-category='{escape(dispute.category.value)}' data-category-label='{escape(label)}' "
+            f"data-pickup='{escape(pickup)}' data-destination='{escape(dropoff)}' data-fare='{escape(fee)}' data-when='{escape(when)}'>"
+            f"{escape(pickup)} → {escape(dropoff)} · {escape(label)} · {escape(when)}</option>"
+        )
+    return "".join(options)
 
 
 def _page(title: str, body: str) -> str:

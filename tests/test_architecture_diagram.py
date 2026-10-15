@@ -44,12 +44,13 @@ def test_the_case_store_sits_in_the_middle_with_parts_on_every_side(architecture
     assert any(y < top for _, y in others) and any(y >= bottom for _, y in others)
 
 
-def test_every_switch_in_the_console_is_a_supporting_agent_that_names_its_checkbox(architecture):
-    named = [part["sublabel"] for part in drawn_as(architecture, SUPPORTING)]
+def test_every_switch_in_the_console_is_named_on_its_supporting_feature(architecture):
+    named = [part["sublabel"] for part in architecture["components"]]
 
     for switch in DEMO_SWITCHES:
         assert f"switch: {switch.label}" in named, switch.label
-    assert "Escalation Protocol" in [part["label"] for part in drawn_as(architecture, SUPPORTING)]  # on for every run, so it has no checkbox
+    (escalation,) = [part for part in architecture["components"] if part["label"] == "Escalation Protocol"]
+    assert escalation["type"] == "messagebus" and "switch:" not in escalation["sublabel"]
 
 
 @pytest.mark.parametrize("part", ["Trip records", "Photos", "Policy, past Rulings", "Payment action"])
@@ -66,6 +67,21 @@ def test_the_human_review_path_the_log_and_the_orchestrator_are_shown(architectu
     assert {"Human Reviewer", "Communication Log", "Orchestrator", "Learning Feedback Loop"} <= labels
     assert [part["label"] for part in drawn_as(architecture, PERSON)] == ["Human Reviewer"]
     assert {("escalation", "reviewer"), ("reviewer", "outcome"), ("reviewer", "learning"), ("store", "log")} <= flows
+
+
+def test_submissions_history_and_review_paths_are_explicit(architecture):
+    components = {part["id"]: part for part in architecture["components"]}
+    connections = {edge["id"]: edge for edge in architecture["connections"]}
+
+    assert {("rider-advocate", "store"), ("driver-advocate", "store")} <= {
+        (edge["from"], edge["to"]) for edge in connections.values()
+    }
+    assert "History" in components["trips"]["sublabel"]
+    assert all("no History" in components[agent]["sublabel"] for agent in ("rider-advocate", "driver-advocate", "judge"))
+    assert connections["proposed"]["label"] == "outcome fixed"
+    assert connections["sufficient"]["to"] == "outcome"
+    assert connections["held"]["to"] == "escalation"
+    assert connections["decision"]["from"] == "reviewer"
 
 
 def test_the_legend_names_each_kind_in_the_projects_own_words(architecture):

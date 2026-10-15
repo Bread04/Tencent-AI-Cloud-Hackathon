@@ -20,19 +20,19 @@ The application performs validation and storage through the shared Case store. T
 
 ### Operational position: steps 3–5
 
-Under [Operational Steps](../../../workflow.md#operational-steps), both advocates own evidence retrieval (step 3) and policy retrieval (step 4). On the Rider side, the orchestrator delegates these in order to the [Rider Evidence Agent](rider-evidence-agent.md) and [Rider Policy Agent](rider-policy-agent.md) when enabled. The Rider Advocate then performs step 5, Build cases: receive both complete stored outputs, preserve the original report, use the shared sealed evidence and fixed policy version, and return an independent rider Submission. The Judge performs step 6; the application performs steps 7–8. Follow the [operational connection table](README.md#operational-steps-from-workflowmd).
+In the [case lifecycle](../../../docs/architecture.md#31-case-lifecycle), both advocates use evidence and policy retrieved for the Case. On the Rider side, the orchestrator delegates these in order to the [Rider Evidence Agent](rider-evidence-agent.md) and [Rider Policy Agent](rider-policy-agent.md) when enabled. The Rider Advocate builds an independent Submission from the stored outputs, the shared sealed evidence, and the fixed policy version. The Judge rules; the application communicates the outcome. See the [implementation walkthrough](../../../docs/architecture.md#13-implementation-walkthrough-how-each-agent-works).
 
 ## Sources and contract boundaries
 
 - [Connected Rider workflow](README.md): common handoff references, agent readiness, and the integrated path to the Judge.
-- [Workflow](../../../workflow.md): evidence and policy support feed the Rider Advocate, which presents the rider case alongside the independent driver case to the Judge.
+- [Architecture](../../../docs/architecture.md): evidence and policy support feed the Rider Advocate, which presents the rider case alongside the independent driver case to the Judge.
 - [Rider Evidence Agent](rider-evidence-agent.md): Rider app sources, report-focused evidence selection, collection gaps, and the evidence handoff.
 - [Rider Policy Agent specification](rider-policy-agent.md): full report-focused policy extraction and proposed adapter, including coverage and review signals.
 - [Existing evidence collector](../rider/evidence.py) and [Rider Policy Agent](../rider/policy.py): current prototype output fields.
 - [Shared policy source](../../../prototypes/shared/policies.js): clause text, references, policy version, and draft status used by the prototype matcher.
 - [Interactive report prototype](../../../prototypes/ryde-report/index.html): current report fields and attachment behaviour.
 - [Architecture](../../../docs/architecture.md): shared Case store, sealed evidence, independent advocates, and validated Submissions.
-- [Development guide](../../../docs/dev-guide.md): ownership and shared-contract approval.
+- [Project README](../../../README.md): run and demo instructions.
 - [Specification](../../../docs/spec.md) and [Glossary](../../../GLOSSARY.md): domain behaviour and terminology.
 
 The fields below describe the existing prototype export plus a proposed storage envelope. They do not replace or silently extend `src/contracts.py`. Final contract types, category identifiers, storage implementation, and tool signatures must follow the jointly agreed contract.
@@ -151,7 +151,7 @@ The current prototype holds selected files in browser memory and discards them o
 
 Use the [single connected operational diagram](README.md#one-connected-flow). It follows the eight operational steps, with Rider Evidence gathering at step 3, Rider Policy retrieval at step 4, and Rider Advocate case building at step 5. Logical handoffs are coordinated by the application through the shared Case store, not private agent-to-agent messages.
 
-This follows the structure of `workflow.md`: validated intake, evidence and policy support, independent case building, Judge review, and application-managed outcome. Evidence from either side remains accessible to both advocates and the Judge. The Rider Advocate prepares a case; it does not perform the Judge's or application's later actions.
+The running flow uses validated intake, evidence and policy support, independent case building, Judge review, and application-managed outcomes. Evidence from either side remains accessible to both advocates and the Judge. The Rider Advocate prepares a case; it does not perform the Judge's or application's later actions.
 
 ### Inputs to receive in full
 
@@ -206,7 +206,7 @@ These are conditional positions, not Rulings or fixed answers. Future mock cases
 
 #### Refund calculation and readiness
 
-The four shared clauses state no refund formula. The approved rule is now recorded in [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md) and [contract decisions](../../../docs/contract-decisions.md). Backend [route tools](../../tools/evidence/route.py) compute the fare inputs and [Judge numbers](../judge/numbers.py) recomputes the refund. The Python Rider workflow reads curated DISP-008–007 catalog projections and reuses that calculator. Rider prototypes prepare Submissions only; the original two-endpoint sample remains insufficient.
+The four shared clauses state no refund formula. The approved rule is recorded in [ADR 0004](../../../docs/adr/0004-route-deviation-refund-rule.md). Backend [route tools](../../tools/evidence/route.py) compute the fare inputs and [Judge numbers](../judge/numbers.py) recomputes the refund. The Python Rider workflow reads curated catalog projections and reuses that calculator. Rider prototypes prepare Submissions only.
 
 - Keep the original requested amount distinct from any computed refund. A qualified Submission may describe supported facts and missing calculation prerequisites; it cannot pretend that money has been validated.
 - Once defined, reference the actual code rule and its source Evidence Items, including how it handles surge, promo, non-route fees, currency, caps and rounding as decided in the ADR. Do not substitute a model-chosen percentage, total-fare difference, or invented rate.

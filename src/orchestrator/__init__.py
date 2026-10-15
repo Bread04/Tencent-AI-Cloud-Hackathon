@@ -1,9 +1,10 @@
-"""The orchestrator: ordinary code that runs one Dispute through its stages in order.
+"""Run a Dispute through intake, evidence, policy, advocates, judging, and outcomes.
 
-No model chooses the next step (architecture.md section 3.2). Tracer-bullet
-version: intake, evidence, policy, both advocates (in parallel), the Judge, the History step and
-Outcomes. A proposal or a failed Judge holds the Case for review. Not here yet: priority,
-supporting agents and their switches, the review queue and reviewer (ticket 09).
+The orchestrator fixes the stage order; models only work inside selected stages.
+Optional switches enable routing, evidence agents, image analysis, precedent,
+Judge stability checks, escalation, and learning from human overrides. Proposals
+and failed stages are held for review. See docs/architecture.md for the system
+map and docs/demo-script.md for a prepared end-to-end walkthrough.
 """
 
 from collections.abc import Sequence
@@ -108,7 +109,7 @@ def run_dispute(
     for submission in submissions.values():
         store.add_submission(case_id, submission)
     if failures:
-        reason = ReviewTriggerRecord(trigger=ReviewTrigger.STAGE_FAILED, reason=" ".join(failures))
+        reason = ReviewTriggerRecord(trigger=ReviewTrigger.STAGE_FAILED, reason=" ".join(failures) + " No proposal was drafted, so the reviewer decides from the evidence.")
         _hold_for_review(store, case_id, [reason], pending_outcomes(store.get_case(case_id)))
         return store.get_case(case_id)
 
@@ -121,7 +122,7 @@ def run_dispute(
             record=lambda kind, summary, references=None: store.log_event(case_id, "judge", kind, summary, references),
         )
     except (StageFailed, ModelError) as failure:
-        reason = ReviewTriggerRecord(trigger=ReviewTrigger.STAGE_FAILED, reason=_failure_reason("Judge", "Ruling", failure))
+        reason = ReviewTriggerRecord(trigger=ReviewTrigger.STAGE_FAILED, reason=_failure_reason("Judge", "Ruling", failure) + " No proposal was drafted, so the reviewer decides from the evidence.")
         _hold_for_review(store, case_id, [reason], pending_outcomes(store.get_case(case_id)))
         return store.get_case(case_id)
 

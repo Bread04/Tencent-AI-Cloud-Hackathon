@@ -75,6 +75,15 @@ def test_the_home_page_is_the_console_and_labels_everything_as_simulated(client)
         assert dispute_id in page
 
 
+def test_the_console_offers_a_clear_run_control_that_cancels_the_active_presentation(client):
+    page = client.get("/").text
+    script = client.get("/static/console.js").text
+
+    assert 'id="clearRun"' in page and "Clear run" in page
+    assert '$("clearRun").addEventListener("click"' in script
+    assert 'runId += 1' in script and 'setStatus("Nothing running. Choose a dispute on the left.")' in script
+
+
 @pytest.mark.parametrize(
     "path",
     [
@@ -135,3 +144,30 @@ def test_every_no_show_dispute_also_has_a_recorded_stream_with_the_precedent_swi
     case = Case.model_validate(body["case"])
     assert case.switches.policy_precedent and case.precedents
     assert any(event["kind"] == "precedent_retrieved" for event in body["log"])
+
+
+def test_the_console_lets_a_judge_type_their_own_case_against_any_trip_whose_category_the_workflow_resolves(client):
+    page = client.get("/").text
+
+    script = client.get("/static/console.js").text
+    assert 'id="ownCase"' in page and 'id="ownStatement"' in page and 'id="ownCategoryChoice"' in page
+    assert 'fetch("/api/classify"' in script and 'category: categoryLabels[category]' in script
+    assert 'id="ownEvidenceCategory"' in page  # keep the selected trip's evidence source visible
+    catalog = load_catalog()
+    for dispute in catalog.disputes.values():
+        assert f"value='{dispute.trip_id}'" in page  # every trip is offered, with the category its evidence supports
+
+
+def test_a_typed_case_is_filed_against_the_trip_picked_and_the_judges_words_become_the_statement(client):
+    trip_id = load_catalog().dispute(DISPUTE_ID).trip_id
+    report = {
+        "id": "JUDGE-TEST1", "reporterRole": "Driver", "trip": {"reference": trip_id},
+        "category": "No-show / cancellation", "statement": "The rider never came out, so I left after ten minutes.",
+        "requestedResolution": {"type": "Refund", "amount": 5, "currency": "SGD"},
+    }
+
+    started = client.post("/api/reports", json=report)
+
+    assert started.status_code == 202
+    case = client.get(f"/api/cases/{started.json()['case_id']}").json()["case"]
+    assert case["dispute"]["description"] == report["statement"] and case["dispute"]["filed_by"] == "driver"
