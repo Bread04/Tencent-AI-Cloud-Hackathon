@@ -6,7 +6,7 @@ Waypoint resolves ride-hailing disputes through two independent advocate agents 
 
 **Hackathon track:** Digital Native — Ryde. **Challenge:** Multi-Agent Autonomous Dispute Resolution System.
 
-> **Demo video:** Watch the full walkthrough of Waypoint in action — [`brag-output/film.mp4`](brag-output/film.mp4)
+<video src="brag-output/film.mp4" controls width="100%"></video>
 
 ## Project overview
 
