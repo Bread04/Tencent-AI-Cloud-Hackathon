@@ -1,5 +1,4 @@
 
-
 # Waypoint — AI dispute resolution for Ryde
 
 Waypoint resolves ride-hailing disputes through two independent advocate agents and an impartial Judge. It gathers trip evidence, applies shared policy, produces an auditable ruling, and sends uncertain or safety-related cases to a human reviewer.
