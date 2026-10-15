@@ -8,7 +8,6 @@
 .codex
 .github
 .claude
-brag-output
 tests
 node_modules
 __pycache__

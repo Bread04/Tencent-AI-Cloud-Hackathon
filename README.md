@@ -8,7 +8,7 @@ Waypoint resolves ride-hailing disputes through two independent advocate agents 
 
 **Hackathon track:** Digital Native — Ryde. **Challenge:** Multi-Agent Autonomous Dispute Resolution System.
 
-<video src="https://github.com/Bread04/Tencent-AI-Cloud-Hackathon/raw/main/brag-output/film.mp4" controls width="100%"></video>
+<video src="https://ryde-dispute-resolution.vercel.app/brag-output/film.mp4" controls width="100%"></video>
 
 ## Project overview
 
