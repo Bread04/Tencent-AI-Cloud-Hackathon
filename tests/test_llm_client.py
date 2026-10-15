@@ -288,3 +288,17 @@ def test_other_http_errors_are_not_retried():
         ask(a_model(handler, sleep=lambda seconds: None))
 
     assert state["calls"] == 1
+
+
+def test_a_dropped_connection_is_retried_and_the_call_succeeds():
+    calls = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(request)
+        if len(calls) < 3:
+            raise httpx.ConnectError("blip", request=request)
+        return httpx.Response(200, json=a_reply("x"))
+
+    ask(a_model(handler))
+
+    assert len(calls) == 3

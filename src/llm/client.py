@@ -27,6 +27,8 @@ FENCE = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.DOTALL)
 RETRY_IN = re.compile(r"try again in ([0-9.]+)\s*(ms|s)", re.IGNORECASE)
 WAIT_MARGIN_SECONDS = 1.0  # a little past the wait the provider asks for
 DEFAULT_WAIT_SECONDS = 5.0  # when a rate limit says nothing about how long
+CONNECT_RETRIES = 3  # a dropped connection is usually a network blip; try again a few times before failing the call
+CONNECT_WAIT_SECONDS = 1.0
 
 
 class OpenAICompatibleModel:
@@ -79,8 +81,14 @@ class OpenAICompatibleModel:
 
     def _send(self, body: dict, agent: str) -> httpx.Response:
         try:
-            with httpx.Client(timeout=self._timeout, transport=self._transport) as http:
-                return http.post(self._url, json=body, headers=self._headers)
+            for attempt in range(CONNECT_RETRIES + 1):
+                try:
+                    with httpx.Client(timeout=self._timeout, transport=self._transport) as http:
+                        return http.post(self._url, json=body, headers=self._headers)
+                except httpx.ConnectError:
+                    if attempt == CONNECT_RETRIES:
+                        raise
+                    self._sleep(CONNECT_WAIT_SECONDS * (attempt + 1))
         except httpx.TimeoutException as error:
             raise ModelError(f"The model timed out after {self._timeout:g} seconds (agent {agent}).") from error
         except httpx.HTTPError as error:
